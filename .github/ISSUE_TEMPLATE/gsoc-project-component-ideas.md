@@ -1,6 +1,6 @@
 ---
-name: GSoC Project Ideas
-about: GSoC Project Ideas for Students
+name: Ideas for GSOC project components
+about: Ideas for GSOC project components
 title: "[GSoC]"
 labels: ideas
 assignees: ''
