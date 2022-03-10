@@ -2,7 +2,7 @@
 name: GSoC Project Ideas
 about: GSoC Project Ideas for Students
 title: "[GSoC]"
-labels: enhancement
+labels: ideas
 assignees: ''
 
 ---
