@@ -14,7 +14,7 @@ Echoshader aims to recruit talented [Google Summer of Code (GSoC)](https://summe
 
 In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list project ideas from mentors. We encourage you as a GSoc participant to propose your own original project ideas as new issues.
 
-After you [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/) Please submit your proposals as new issues within this repository. Simply use the [Echoshader GSoC Proposal](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=proposal&template=gsoc-proposal.md&title=%5BGSoC%5D) issue template.
+After you [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/) Please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
 
 ### Questions?
 

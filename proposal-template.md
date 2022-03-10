@@ -1,12 +1,4 @@
----
-name: GSoC Proposal
-about: 'GSoC Student Project Proposal. NOTE: This template was adapted from ESIP''s
-  organization template: thank you ESIP!'
-title: "[GSoC]"
-labels: proposal
-assignees: ''
-
----
+[LICENSE](https://github.com/ESIPFed/gsoc/blob/master/LICENSE) (This template was adapted from [ESIP](https://www.esipfed.org/)'s organization [template](https://github.com/ESIPFed/gsoc/blob/master/STUDENT-proposal-template.md): thank you ESIP!)
 
 # Title
 
