@@ -1,30 +1,18 @@
 ---
-name: Ideas for GSOC project components
-about: Ideas for GSOC project components from contributors
+name: Brainstorm GSoC 2022 Ideas
+about: Proposing ideas or ask questions for a GSoC 2022 project
 title: ''
 labels: ["gsoc ideas 2022"]
 assignees: ''
 
 ---
 
-# Title
+## Ideas
 
-Describe what it is that you're trying to achieve.
+Describe the ideas you want to brainstorm.
+Pictures and reference to external sources are welcome!
 
-## Skills and mentors
+## Questions
 
-Required skills: List the skills required to work on this idea.
-Bonus skills: List some bonus skills that would be really helpful to have.
-Possible mentor(s): List of mentors that may be able to help achieve this idea.
-
-## References
-
-References that may help with brainstorming the idea.
-
-## Getting Started
-
-Some steps that can help to get started.
-
-## Proposal considerations
-
-Points to consider in the project proposal.
+Describe any questions you may have about this project,
+or when thinking about implementing you ideas.
