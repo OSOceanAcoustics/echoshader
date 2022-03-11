@@ -1,8 +1,8 @@
 ---
 name: Ideas for GSOC project components
 about: Ideas for GSOC project components from contributors
-title: "[GSoC]"
-labels: ideas
+title: ''
+labels: ["gsoc ideas 2022"]
 assignees: ''
 
 ---
