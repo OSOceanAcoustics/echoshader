@@ -14,4 +14,4 @@ In collaboration with the US [Integrated Ocean Observing System (IOOS)](https://
 
 This project aims to enhance the capability to interactively visualize large volumes of cloud-based ocean sonar data to accelerate the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
 
-For more information about joining the project as GSoC contributor, check out the [IOOS GSoC Contributor Guidance](https://github.com/ioos/gsoc) and the [official GSoC Contributor's Guide](gsoc_contributors_guide.md).
+For more information about joining the project as GSoC contributor, check out the [IOOS GSoC Contributor Guidance](https://github.com/ioos/gsoc) and the [Echoshader GSoC Contributor's Guide](gsoc_contributors_guide.md).
