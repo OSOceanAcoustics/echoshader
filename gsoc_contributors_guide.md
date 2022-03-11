@@ -21,7 +21,7 @@ Please [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-s
 
 ### Questions?
 
-For project-related question, feel free to [raise an issue] ((https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+questions+2022&template=gsoc-questions.md&title=)). 
+For project-related question, feel free to [raise an issue] (https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+questions+2022&template=gsoc-questions.md&title=). 
 
 Having more questions about being a GSoC mentor or participant? Check out the [GSoC mentor & participant guides](https://google.github.io/gsocguides/).
 
