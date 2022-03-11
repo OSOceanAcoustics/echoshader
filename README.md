@@ -1,6 +1,6 @@
 # echoshader
 
-Core ocean sonar data visualization functionalities based on the HoloViz suite of tools.
+Core ocean sonar data visualization functionalities based on the [HoloViz](https://holoviz.org/) suite of Python tools.
 
 ## What are ocean sonar systems?
 
