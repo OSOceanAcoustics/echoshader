@@ -10,7 +10,7 @@ Ocean sonar systems, such as echosounders, are the [workhorse to study life in t
 
 Hey there! Welcome! 😃
 
-In collaboration with the US [Integreated Ocean Observing System (IOOS)](https://summerofcode.withgoogle.com/programs/2022/organizations/ioos), we are looking forward to recruit talented contributors under the Google Summer of Code (GSoC) program!
+In collaboration with the US [Integrated Ocean Observing System (IOOS)](https://summerofcode.withgoogle.com/programs/2022/organizations/ioos), we are looking forward to recruit talented contributors under the Google Summer of Code (GSoC) program!
 
 This project aims to enhance the capability to interactively visualize large volumes of cloud-based ocean sonar data to accelerate the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
 
