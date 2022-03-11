@@ -10,6 +10,6 @@ Ocean sonar systems, such as echosounders, are the [workhorse to study life in t
 
 Hey there! Welcome! 😃
 
-This project aims to enhance the capability to interactively visualize large volumes of cloud-hosted ocean sonar data to accelerate the the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the echopype package that handles the standardization, pre-processing, and organization of these data.
+This project aims to enhance the capability to interactively visualize large volumes of cloud-based ocean sonar data to accelerate the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
 
 For more information about joining the project as a Google Summer of Code (GSoC) contributor, check out the [GSoC Contributor's Guide](gsoc_contributors_guide.md).
