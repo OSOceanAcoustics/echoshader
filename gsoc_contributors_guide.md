@@ -14,16 +14,14 @@ TBD
 
 In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list some visualization ideas from mentors. We encourage you as a GSoC participant to propose your own original ideas as new issues.
 
-Feel free to propose project ideas by [raising an issue](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+ideas+2022&template=gsoc-project-component-ideas.md&title=) in this repo.
+Feel free to propose project ideas by [raising an issue](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+ideas+2022&template=gsoc-ideas.md&title=) in this repo.
 
-After you [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/), feel free to to propose project ideas and ask questions by [raising an issue](https://github.com/OSOceanAcoustics/echoshader/issues/new/choose).
-
-Once the official application opens, please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
+Please [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/). Once the official application opens, please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
 
 
 ### Questions?
 
-For project-related question, feel free to [raise an issue] (https://github.com/OSOceanAcoustics/echoshader/issues/new/choose). 
+For project-related question, feel free to [raise an issue] ((https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+questions+2022&template=gsoc-questions.md&title=)). 
 
 Having more questions about being a GSoC mentor or participant? Check out the [GSoC mentor & participant guides](https://google.github.io/gsocguides/).
 
