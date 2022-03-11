@@ -6,15 +6,15 @@ Ocean sonar systems, such as echosounders, are the [workhorse to study life in t
 
 ## Google Summer of Code
 
-Hey there! Welcome 😃.
+Hey there! Welcome! 😃
 
-Open Source Ocean Acoustics started back in 2018 from Oceanhackweek. It is meant as a home for open source tools and resources in ocean acoustics. We are a diverse group of researchers whose work centers around extracting knowledge from large volumes of ocean acoustic data, which contain rich information about animals ranging from zooplankton, fish, to marine mammals. Integrating physics-based models and data-driven methods, our current work focuses on mining water column sonar data and spans a broad spectrum from developing computational methods, building open source software and cloud applications, to joint analysis of acoustic observations and ocean environmental variables.
+Open Source Ocean Acoustics started back in 2018 from [OceanHackWeek](https://oceanhackweek.github.io/). It is meant as a home for open source tools and resources in ocean acoustics. We are a diverse group of researchers whose work centers around extracting knowledge from large volumes of ocean acoustic data, which contain rich information about animals ranging from zooplankton, fish, to marine mammals. Integrating physics-based models and data-driven methods, our current work focuses on mining water column sonar data and spans a broad spectrum from developing computational methods, building open source software and cloud applications, to joint analysis of acoustic observations and ocean environmental variables.
 
-Echoshader aims to recruit talented [Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/) participants to help us enhance the capability to interactively visualize large volumes of cloud-hosted ocean sonar data to accelerate the the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
+The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/) participants to help us enhance the capability to interactively visualize large volumes of cloud-hosted ocean sonar data to accelerate the the data exploration and discovery process. This project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
 
-In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list project ideas from mentors. We encourage you as a GSoc participant to propose your own original project ideas as new issues.
+In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list some visualization ideas from mentors. We encourage you as a GSoC participant to propose your own original ideas as new issues.
 
-After you [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/) Please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
+After you [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/), feel free to engage in discussions with us on the repository. Please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
 
 ### Questions?
 
