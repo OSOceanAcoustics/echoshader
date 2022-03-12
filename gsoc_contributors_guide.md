@@ -5,12 +5,17 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 
 ## Getting Started
 
-As this project is an ongoing development of echopype, there are a couple of preliminary items you should become familiar
-with before diving in. We outline these items below as well as provide some additional helpful resources. 
+The sonar data we will be working with comes from several instruments in a specialized format called echograms. However, 
+the structure of these echograms are difficult to work with because they do not allow for efficient processing of the 
+data. To put these echograms in a more user friendly format, we utilize echopype. Echopype converts the data into a EchoData
+object. This EchoData object is beneficial as it structures the data into an interoperable netCDF sonar data format and 
+enables processing that is scalable. Before diving into the project, we suggest you review a couple of preliminary 
+items. We outline these items below as well as provide some additional helpful resources and initial steps to get 
+started. 
 
 ### Storage format
 
-In echopype, we utilize two methods for storing results: 
+We use two formats to store the data: 
 
 * netcdf files - the current defacto file for working with array-oriented scientific data from climate research.
 Although it is not necessary to understand the netCDF library in its entirety, Unidata does provide a well documented 
@@ -18,15 +23,15 @@ Although it is not necessary to understand the netCDF library in its entirety, U
 how netcdf defines common terms such as groups, dimensions, variables, and attributes.  
 
 * [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, N-dimensional 
-arrays. Zarr has similar characteristics to netcdf, but has the added benefit of being able to be both read and wrote to
-concurrently from multiple threads or processes. Zarr provides a great overview of its [storage specifications](https://zarr.readthedocs.io/en/stable/spec/v2.html#hierarchies)
+arrays. Zarr has similar characteristics to netcdf, but has the added benefit of being a cloud-native data format. For 
+this reason, Zarr is ideal for storing large data sets in the cloud. Zarr provides a great overview of its [storage specifications](https://zarr.readthedocs.io/en/stable/spec/v2.html#hierarchies)
 that may be useful to read.    
 
 ### Data Structures
 
-echopype was written to utilize as much functionality of [xarray](https://xarray.pydata.org/en/stable/index.html) 
-as possible. This is very beneficial as xarray is a library that can naturally work with our data, which is labelled 
-and multi-dimensional. A fantastic [xarray tutorial](https://xarray-contrib.github.io/xarray-tutorial/) has been put 
+Netcdf and Zarr formats can be easily read with the [xarray](https://xarray.pydata.org/en/stable/index.html) library in 
+Python. Additionally, xarray enables efficient computation of our data, which is labelled and multi-dimensional. 
+A fantastic [xarray tutorial](https://xarray-contrib.github.io/xarray-tutorial/) has been put 
 together that describes the fundamentals of xarray. Be sure to become familiar with both DataArrays and Datasets as they
 are heavily used.     
 
@@ -74,6 +79,18 @@ Some useful resources for getting started with the proposed visualization tools:
 
 * Useful resources and example dashboards in [Panel](https://awesome-panel.org/)
 
+### Initial Steps
+
+1. Read the example files provided in TBD using xarray
+
+2. Construct a widget that displays the Sv variable with ping_time as the x coordinate and range_bin as the y 
+coordinate
+ 
+3. Improve the widget by allowing the user to change the frequency and the colormap
+
+4. Explore the desired types of visualization in gsoc2022_wanted
+
+5. Become familiar with the notebook examples provided in TBD. 
 
 ## Brainstorm with us!
 
