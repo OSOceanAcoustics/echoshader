@@ -5,10 +5,106 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 
 ## Getting Started
 
-TBD
+The sonar data we will be working with can come from several different instruments and are stored in different binary formats specific to these instruments. 
+This binary data is difficult to work with directly and does not allow for efficient processing.
+We use [echopype](https://github.com/OSOceanAcoustics/echopype) to convert the raw data into a more user friendly format following an interoperable netCDF data model, and serialize the data into [netCDF](https://www.unidata.ucar.edu/software/netcdf/) or [Zarr](https://zarr.readthedocs.io/en/stable/). 
+This standardized raw data is then calibrated to arrive at the datasets you will be working with.
+
+Before diving into the project, we suggest that you review the items below. 
+We also provide some additional helpful resources and initial steps to get you started. 
+
+### Storage format
+
+We use two formats to store the data: 
+
+* [netCDF files](https://www.unidata.ucar.edu/software/netcdf/) - the current defacto file for working with array-oriented scientific data from climate research.
+Although it is not necessary to understand the netCDF library in its entirety, Unidata does provide a well documented 
+[netcdf python interface](https://unidata.github.io/netcdf4-python/). This documentation describes useful aspects of 
+how netCDF defines common terms such as groups, dimensions, variables, and attributes.  
+
+* [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, N-dimensional 
+arrays. Zarr has similar characteristics to netCDF, but has the added benefit of being a cloud-native data format. For 
+this reason, Zarr is ideal for storing large data sets in the cloud. Zarr provides a great overview of its [storage specifications](https://zarr.readthedocs.io/en/stable/spec/v2.html#hierarchies)
+that may be useful to read.    
+
+### Data Structures
+
+netCDF and Zarr formats can be easily read with the [xarray](https://xarray.pydata.org/en/stable/index.html) library in 
+Python. Additionally, xarray enables efficient computation of our data, which is labelled and multi-dimensional. 
+A fantastic [xarray tutorial](https://xarray-contrib.github.io/xarray-tutorial/) has been put 
+together that describes the fundamentals of xarray. Be sure to become familiar with both DataArrays and Datasets as they
+are heavily used.     
+
+### Ocean Sonar Data
+
+For this project, you will be initially working with the output of the [compute_Sv](https://echopype.readthedocs.io/en/stable/api/echopype.calibrate.compute_Sv.html#echopype.calibrate.compute_Sv) 
+function. This is a function in echopype that computes the volume backscattering strength (Sv) from the raw data. Sv is basically how strong the echo return is from a volume of water. This function returns an xarray Dataset that has several variables that are necessary for the visualization 
+of ocean sonar data.
+
+The Dataset has the dimensions and coordinates: 
+
+* frequency - transducer frequency used for the experiment, with units Hz
+
+* ping_time - timestamp of each ping
+
+* range_bin - sample index along a range
+
+The data variables of the Dataset are as follows, where items in parenthesis are the dimensions of the data variables: 
+
+* `Sv` (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
+
+* `range` (frequency, ping_time, range_bin) - the measured range of an echo in meters 
+
+* `temperature` - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
+
+* `salinity` - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
+
+* `pressure` - the pressure measurement of the water collected by the echosounder, with unit dbars
+
+* `sound_speed` (frequency, ping_time) - sound speed (in units m/s) for the provided temperature, salinity, and pressure 
+
+* `sound_absorption` (frequency, ping_time) - sea water absorption (in units dB/m) for each frequency and ping time, this 
+value is based on the temperature, salinity, pressure, and sound_speed
+
+* `sa_correction` (frequency) - the sa correction for each frequency
+
+* `gain_correction` - (frequency) - the gain correction for each frequency
+
+* `equivalent_beam_angle` (frequency) - the beam angle for each frequency
+
+Note that the key data variables you will be working with are `Sv` and `range`. All other variables are included in this 
+dataset so that the parameters used in the calibration (from raw to Sv) are recorded.
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv`: 
+
+![echogram example](./echogram_example.png)
+
+By compiling several of these echograms and processing the data further, one can visualize the data over several hours.
+This can yield visualizations such as the below image, which shows the impact of the eclipse-driven reduction in 
+sunlight on marine zooplankton: 
+
+![](./bokeh_plot.png) 
 
 
+### Additional Resources
 
+Some useful resources for getting started with the proposed visualization tools: 
+
+* Getting started with [HoloViz](https://nbviewer.org/github/philippjfr/pydata-2021/blob/master/PyData_2021.ipynb)
+
+* Useful resources and example dashboards in [Panel](https://awesome-panel.org/)
+
+### Initial Steps
+
+1. Read the example files provided in TBD using xarray
+
+2. Construct a widget that displays the `Sv` variable with ping_time as the x coordinate and range_bin as the y 
+coordinate
+ 
+3. Improve the widget by allowing the user to change the frequency and the colormap
+
+4. Explore the desired types of visualization -- these are issues labeled with `gsoc 2022 wanted`
+
+5. Become familiar with the notebook examples provided in TBD. 
 
 ## Brainstorm with us!
 
