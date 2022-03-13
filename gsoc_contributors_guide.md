@@ -38,9 +38,10 @@ are heavily used.
 ### Ocean Sonar Data
 
 For this project, you will be initially working with the output of the [compute_Sv](https://echopype.readthedocs.io/en/stable/api/echopype.calibrate.compute_Sv.html#echopype.calibrate.compute_Sv) 
-function. This is a function in echopype that computes the volume backscattering strength (Sv) of the provided EchoData
-object. This function returns an xarray Dataset that has several variables that are necessary for the visualization 
-of ocean sonar data. The Dataset has the dimensions and coordinates: 
+function. This is a function in echopype that computes the volume backscattering strength (Sv) from the raw data. Sv is basically how strong the echo return is from a volume of water. This function returns an xarray Dataset that has several variables that are necessary for the visualization 
+of ocean sonar data.
+
+The Dataset has the dimensions and coordinates: 
 
 * frequency - transducer frequency used for the experiment, with units Hz
 
