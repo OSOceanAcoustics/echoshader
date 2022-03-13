@@ -23,7 +23,7 @@ Although it is not necessary to understand the netCDF library in its entirety, U
 how netCDF defines common terms such as groups, dimensions, variables, and attributes.  
 
 * [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, N-dimensional 
-arrays. Zarr has similar characteristics to netcdf, but has the added benefit of being a cloud-native data format. For 
+arrays. Zarr has similar characteristics to netCDF, but has the added benefit of being a cloud-native data format. For 
 this reason, Zarr is ideal for storing large data sets in the cloud. Zarr provides a great overview of its [storage specifications](https://zarr.readthedocs.io/en/stable/spec/v2.html#hierarchies)
 that may be useful to read.    
 
