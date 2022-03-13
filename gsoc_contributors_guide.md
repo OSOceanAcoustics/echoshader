@@ -5,11 +5,12 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 
 ## Getting Started
 
-The sonar data we will be working with comes from several instruments in a specialized format called echograms. However, 
-the structure of these echograms are difficult to work with because they do not allow for efficient processing of the 
-data. To put these echograms in a more user friendly format, we utilize echopype. Echopype converts the data into a EchoData
+The sonar data we will be working with comes from several instruments and are stored in packets of data called datagrams. 
+However, the structure of these datagrams are difficult to work with and do not allow for efficient processing 
+of the data. To put these datagrams in a more user friendly format, we utilize echopype. Echopype converts the data into a EchoData
 object. This EchoData object is beneficial as it structures the data into an interoperable netCDF sonar data format and 
-enables processing that is scalable. Before diving into the project, we suggest you review a couple of preliminary 
+enables processing that is scalable. The resulting calibration of this EchoData object will be the ocean sonar data you 
+will be working with. Before diving into the project, we suggest you review a couple of preliminary 
 items. We outline these items below as well as provide some additional helpful resources and initial steps to get 
 started. 
 
@@ -70,6 +71,17 @@ value is based on the temperature, salinity, pressure, and sound_speed
 * gain_correction - (frequency) - the gain correction for each frequency
 
 * equivalent_beam_angle (frequency) - the beam angle for each frequency
+
+Using the above Dataset we can visualize the reflection of the echo (often called the echogram) by plotting Sv: 
+
+![echogram example](./echogram_example.png)
+
+By compiling several of these echograms and processing the data further, one can visualize the data over several hours.
+This can yield visualizations such as the below image, which shows the impact of the eclipse-driven reduction in 
+sunlight on marine zooplankton: 
+
+![](./bokeh_plot.png) 
+
 
 ### Additional Resources
 
