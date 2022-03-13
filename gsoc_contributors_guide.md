@@ -5,14 +5,13 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 
 ## Getting Started
 
-The sonar data we will be working with comes from several instruments and are stored in packets of data called datagrams. 
-However, the structure of these datagrams are difficult to work with and do not allow for efficient processing 
-of the data. To put these datagrams in a more user friendly format, we utilize echopype. Echopype converts the data into a EchoData
-object. This EchoData object is beneficial as it structures the data into an interoperable netCDF sonar data format and 
-enables processing that is scalable. The resulting calibration of this EchoData object will be the ocean sonar data you 
-will be working with. Before diving into the project, we suggest you review a couple of preliminary 
-items. We outline these items below as well as provide some additional helpful resources and initial steps to get 
-started. 
+The sonar data we will be working with can come from several different instruments and are stored in different binary formats specific to these instruments. 
+These binary data is difficult to work with directly and does not allow for efficient processing.
+We use [echopype](https://github.com/OSOceanAcoustics/echopype) to convert the raw data into a more user friendly format following an interoperable netCDF data model, and serialize the data into [netCDF](https://www.unidata.ucar.edu/software/netcdf/) or [Zarr](https://zarr.readthedocs.io/en/stable/). 
+These standardized raw data is then calibrated to arrive at the datasets you will be working with.
+
+Before diving into the project, we suggest that you review the items below. 
+We also provide some additional helpful resources and initial steps to get you started. 
 
 ### Storage format
 
