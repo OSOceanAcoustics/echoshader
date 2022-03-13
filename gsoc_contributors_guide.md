@@ -19,7 +19,7 @@ We use two formats to store the data:
 
 * netcdf files - the current defacto file for working with array-oriented scientific data from climate research.
 Although it is not necessary to understand the netCDF library in its entirety, Unidata does provide a well documented 
-[netcdf](https://unidata.github.io/netcdf4-python/) python interface. This documentation describes useful aspects of 
+[netcdf python interface](https://unidata.github.io/netcdf4-python/). This documentation describes useful aspects of 
 how netcdf defines common terms such as groups, dimensions, variables, and attributes.  
 
 * [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, N-dimensional 
