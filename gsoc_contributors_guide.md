@@ -17,7 +17,7 @@ We also provide some additional helpful resources and initial steps to get you s
 
 We use two formats to store the data: 
 
-* netcdf files - the current defacto file for working with array-oriented scientific data from climate research.
+* [netCDF files](https://www.unidata.ucar.edu/software/netcdf/) - the current defacto file for working with array-oriented scientific data from climate research.
 Although it is not necessary to understand the netCDF library in its entirety, Unidata does provide a well documented 
 [netcdf python interface](https://unidata.github.io/netcdf4-python/). This documentation describes useful aspects of 
 how netCDF defines common terms such as groups, dimensions, variables, and attributes.  
@@ -29,7 +29,7 @@ that may be useful to read.
 
 ### Data Structures
 
-Netcdf and Zarr formats can be easily read with the [xarray](https://xarray.pydata.org/en/stable/index.html) library in 
+netCDF and Zarr formats can be easily read with the [xarray](https://xarray.pydata.org/en/stable/index.html) library in 
 Python. Additionally, xarray enables efficient computation of our data, which is labelled and multi-dimensional. 
 A fantastic [xarray tutorial](https://xarray-contrib.github.io/xarray-tutorial/) has been put 
 together that describes the fundamentals of xarray. Be sure to become familiar with both DataArrays and Datasets as they
@@ -51,28 +51,30 @@ The Dataset has the dimensions and coordinates:
 
 The data variables of the Dataset are as follows, where items in parenthesis are the dimensions of the data variables: 
 
-* Sv (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
+* `Sv` (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
 
-* range (frequency, ping_time, range_bin) - the measured range of an echo in meters 
+* `range` (frequency, ping_time, range_bin) - the measured range of an echo in meters 
 
-* temperature - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
+* `temperature` - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
 
-* salinity - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
+* `salinity` - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
 
-* pressure - the pressure measurement of the water collected by the echosounder, with unit dbars
+* `pressure` - the pressure measurement of the water collected by the echosounder, with unit dbars
 
-* sound_speed (frequency, ping_time) - sound speed (in units m/s) for the provided temperature, salinity, and pressure 
+* `sound_speed` (frequency, ping_time) - sound speed (in units m/s) for the provided temperature, salinity, and pressure 
 
-* sound_absorption (frequency, ping_time) - sea water absorption (in units dB/m) for each frequency and ping time, this 
+* `sound_absorption` (frequency, ping_time) - sea water absorption (in units dB/m) for each frequency and ping time, this 
 value is based on the temperature, salinity, pressure, and sound_speed
 
-* sa_correction (frequency) - the sa correction for each frequency
+* `sa_correction` (frequency) - the sa correction for each frequency
 
-* gain_correction - (frequency) - the gain correction for each frequency
+* `gain_correction` - (frequency) - the gain correction for each frequency
 
-* equivalent_beam_angle (frequency) - the beam angle for each frequency
-Note that the key data variables you will be working with are `Sv` and `range`. All other variables are included in this dataset so that the parameters used in the calibration (from raw to Sv) are recorded.
-Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting Sv: 
+* `equivalent_beam_angle` (frequency) - the beam angle for each frequency
+
+Note that the key data variables you will be working with are `Sv` and `range`. All other variables are included in this 
+dataset so that the parameters used in the calibration (from raw to Sv) are recorded.
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv`: 
 
 ![echogram example](./echogram_example.png)
 
@@ -95,7 +97,7 @@ Some useful resources for getting started with the proposed visualization tools:
 
 1. Read the example files provided in TBD using xarray
 
-2. Construct a widget that displays the Sv variable with ping_time as the x coordinate and range_bin as the y 
+2. Construct a widget that displays the `Sv` variable with ping_time as the x coordinate and range_bin as the y 
 coordinate
  
 3. Improve the widget by allowing the user to change the frequency and the colormap
