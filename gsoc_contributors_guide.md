@@ -6,9 +6,9 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 ## Getting Started
 
 The sonar data we will be working with can come from several different instruments and are stored in different binary formats specific to these instruments. 
-These binary data is difficult to work with directly and does not allow for efficient processing.
+This binary data is difficult to work with directly and does not allow for efficient processing.
 We use [echopype](https://github.com/OSOceanAcoustics/echopype) to convert the raw data into a more user friendly format following an interoperable netCDF data model, and serialize the data into [netCDF](https://www.unidata.ucar.edu/software/netcdf/) or [Zarr](https://zarr.readthedocs.io/en/stable/). 
-These standardized raw data is then calibrated to arrive at the datasets you will be working with.
+This standardized raw data is then calibrated to arrive at the datasets you will be working with.
 
 Before diving into the project, we suggest that you review the items below. 
 We also provide some additional helpful resources and initial steps to get you started. 
