@@ -100,7 +100,7 @@ coordinate
  
 3. Improve the widget by allowing the user to change the frequency and the colormap
 
-4. Explore the desired types of visualization in gsoc2022_wanted
+4. Explore the desired types of visualization -- these are issues labeled with `gsoc 2022 wanted`
 
 5. Become familiar with the notebook examples provided in TBD. 
 
