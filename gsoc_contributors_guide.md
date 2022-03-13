@@ -71,7 +71,7 @@ value is based on the temperature, salinity, pressure, and sound_speed
 * gain_correction - (frequency) - the gain correction for each frequency
 
 * equivalent_beam_angle (frequency) - the beam angle for each frequency
-
+Note that the key data variables you will be working with are `Sv` and `range`. All other variables are included in this dataset so that the parameters used in the calibration (from raw to Sv) are recorded.
 Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting Sv: 
 
 ![echogram example](./echogram_example.png)
