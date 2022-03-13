@@ -72,7 +72,7 @@ value is based on the temperature, salinity, pressure, and sound_speed
 
 * equivalent_beam_angle (frequency) - the beam angle for each frequency
 
-Using the above Dataset we can visualize the reflection of the echo (often called the echogram) by plotting Sv: 
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting Sv: 
 
 ![echogram example](./echogram_example.png)
 
