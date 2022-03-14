@@ -34,7 +34,7 @@ A fantastic [xarray tutorial](https://xarray-contrib.github.io/xarray-tutorial/)
 together that describes the fundamentals of xarray. Be sure to become familiar with both DataArrays and Datasets as they
 are heavily used.     
 
-### Ocean Sonar Data
+### Ocean Sonar Data: What are in the Datasets?
 
 For this project, you will be initially working with the output of the [compute_Sv](https://echopype.readthedocs.io/en/stable/api/echopype.calibrate.compute_Sv.html#echopype.calibrate.compute_Sv) 
 function. This is a function in echopype that computes the volume backscattering strength (Sv) from the raw data. Sv is basically how strong the echo return is from a volume of water. This function returns an xarray Dataset that has several variables that are necessary for the visualization 
@@ -62,7 +62,8 @@ The data variables of the Dataset are listed below, where items in parenthesis a
     * `gain_correction` - (frequency) - the gain correction for each frequency
     * `equivalent_beam_angle` (frequency) - the beam angle for each frequency
 
-Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes, where the water surface is at the top:
+### Visualizing Ocean Sonar Data
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes, where the water surface is near the top of the image (the bright red line):
 
 ![echogram example 1](img/echogram_example.png)
 
@@ -95,7 +96,7 @@ In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section o
 Please [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/). Once the official application opens, please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
 
 
-### Questions?
+## Questions?
 
 For project-related question, feel free to [raise an issue](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+questions+2022&template=gsoc-questions.md&title=). 
 
