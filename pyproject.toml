@@ -1,0 +1,13 @@
+[build-system]
+requires = [
+    "setuptools >= 48",
+    "setuptools_scm[toml] >= 4, <6",
+    "setuptools_scm_git_archive",
+    "wheel",
+]
+build-backend = 'setuptools.build_meta'
+
+[tool.setuptools_scm]
+fallback_version = "unknown"
+local_scheme = "node-and-date"
+write_to = "echoshader/version.py"
