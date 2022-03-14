@@ -7,8 +7,8 @@ The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](http
 
 The sonar data we will be working with can come from several different instruments and are stored in different binary formats specific to these instruments. 
 This binary data is difficult to work with directly and does not allow for efficient processing.
-We use [echopype](https://github.com/OSOceanAcoustics/echopype) to convert the raw data into a more user friendly format following an interoperable netCDF data model, and serialize the data into [netCDF](https://www.unidata.ucar.edu/software/netcdf/) or [Zarr](https://zarr.readthedocs.io/en/stable/). 
-This standardized raw data is then calibrated to arrive at the datasets you will be working with.
+We use [echopype](https://github.com/OSOceanAcoustics/echopype) to convert the raw data into a more user friendly structure following an interoperable netCDF data model, and serialize the data into [netCDF](https://www.unidata.ucar.edu/software/netcdf/) or [Zarr](https://zarr.readthedocs.io/en/stable/) formats. 
+This standardized raw data is then calibrated to arrive at the datasets you will be working with, also in netCDF or Zarr formats.
 
 Before diving into the project, we suggest that you review the items below. 
 We also provide some additional helpful resources and initial steps to get you started. 
@@ -17,12 +17,11 @@ We also provide some additional helpful resources and initial steps to get you s
 
 We use two formats to store the data: 
 
-* [netCDF files](https://www.unidata.ucar.edu/software/netcdf/) - the current defacto file for working with array-oriented scientific data from climate research.
-Although it is not necessary to understand the netCDF library in its entirety, Unidata does provide a well documented 
-[netcdf python interface](https://unidata.github.io/netcdf4-python/). This documentation describes useful aspects of 
+* [netCDF files](https://www.unidata.ucar.edu/software/netcdf/) - the current defacto file for working with multidimensional, array-oriented scientific data from climate and oceanographic research.
+Although it is not necessary to understand the netCDF library in its entirety, Unidata (the netCDF maintainer) does provide a well documented 
+[netCDF python interface](https://unidata.github.io/netcdf4-python/). This documentation describes useful aspects of 
 how netCDF defines common terms such as groups, dimensions, variables, and attributes.  
-
-* [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, N-dimensional 
+* [Zarr](https://zarr.readthedocs.io/en/stable/) - a format for the storage of chunked, compressed, 
 arrays. Zarr has similar characteristics to netCDF, but has the added benefit of being a cloud-native data format. For 
 this reason, Zarr is ideal for storing large data sets in the cloud. Zarr provides a great overview of its [storage specifications](https://zarr.readthedocs.io/en/stable/spec/v2.html#hierarchies)
 that may be useful to read.    
@@ -43,46 +42,34 @@ of ocean sonar data.
 
 The Dataset has the dimensions and coordinates: 
 
-* frequency - transducer frequency used for the experiment, with units Hz
+* `frequency` - sonar transducer frequency, with units Hz
+* `ping_time` - timestamp of each ping
+* `range_bin` - sample index along a range
 
-* ping_time - timestamp of each ping
+The data variables of the Dataset are listed below, where items in parenthesis are the dimensions of the data variables: 
 
-* range_bin - sample index along a range
+* Key data variables you will be working with:
+    * `Sv` (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
+    * `range` (frequency, ping_time, range_bin) - the measured range of an echo in meters 
+* Other variables included in this dataset so that the parameters used in the calibration (from raw to Sv) are recorded:
+    * `temperature` - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
+    * `salinity` - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
+    * `pressure` - the pressure measurement of the water collected by the echosounder, with unit dbars
+    * `sound_speed` (frequency, ping_time) - sound speed (in units m/s) for the provided temperature, salinity, and pressure 
+    * `sound_absorption` (frequency, ping_time) - sea water absorption (in units dB/m) for each frequency and ping time, this 
+    value is based on the temperature, salinity, pressure, and sound_speed
+    * `sa_correction` (frequency) - the sa correction for each frequency
+    * `gain_correction` - (frequency) - the gain correction for each frequency
+    * `equivalent_beam_angle` (frequency) - the beam angle for each frequency
 
-The data variables of the Dataset are as follows, where items in parenthesis are the dimensions of the data variables: 
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes: 
 
-* `Sv` (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
-
-* `range` (frequency, ping_time, range_bin) - the measured range of an echo in meters 
-
-* `temperature` - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
-
-* `salinity` - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
-
-* `pressure` - the pressure measurement of the water collected by the echosounder, with unit dbars
-
-* `sound_speed` (frequency, ping_time) - sound speed (in units m/s) for the provided temperature, salinity, and pressure 
-
-* `sound_absorption` (frequency, ping_time) - sea water absorption (in units dB/m) for each frequency and ping time, this 
-value is based on the temperature, salinity, pressure, and sound_speed
-
-* `sa_correction` (frequency) - the sa correction for each frequency
-
-* `gain_correction` - (frequency) - the gain correction for each frequency
-
-* `equivalent_beam_angle` (frequency) - the beam angle for each frequency
-
-Note that the key data variables you will be working with are `Sv` and `range`. All other variables are included in this 
-dataset so that the parameters used in the calibration (from raw to Sv) are recorded.
-Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv`: 
-
-![echogram example](./echogram_example.png)
+![echogram example 1](./echogram_example.png)
 
 By compiling several of these echograms and processing the data further, one can visualize the data over several hours.
-This can yield visualizations such as the below image, which shows the impact of the eclipse-driven reduction in 
-sunlight on marine zooplankton: 
+This can yield visualizations such as the image below, which shows the daily vertical migration of zooplankton in the water column -- including the impact of a solar eclipse on this migration!
 
-![](./bokeh_plot.png) 
+![echogram example 2](./bokeh_plot.png) 
 
 
 ### Additional Resources
@@ -90,27 +77,20 @@ sunlight on marine zooplankton:
 Some useful resources for getting started with the proposed visualization tools: 
 
 * Getting started with [HoloViz](https://nbviewer.org/github/philippjfr/pydata-2021/blob/master/PyData_2021.ipynb)
-
 * Useful resources and example dashboards in [Panel](https://awesome-panel.org/)
 
-### Initial Steps
+### Initial Steps to Become Familiar with the Data and Visualizations
 
 1. Read the example files provided in TBD using xarray
-
 2. Construct a widget that displays the `Sv` variable with ping_time as the x coordinate and range_bin as the y 
 coordinate
- 
 3. Improve the widget by allowing the user to change the frequency and the colormap
-
 4. Explore the desired types of visualization -- these are issues labeled with `gsoc 2022 wanted`
-
 5. Become familiar with the notebook examples provided in TBD. 
 
 ## Brainstorm with us!
 
-In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list some visualization ideas from mentors. We encourage you as a GSoC participant to propose your own original ideas as new issues.
-
-Feel free to propose project ideas by [raising an issue](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+ideas+2022&template=gsoc-ideas.md&title=) in this repo.
+In the [Issues](https://github.com/OSOceanAcoustics/echoshader/issues) section of this repository, we list some visualization ideas from mentors. We encourage you as a GSoC participant to propose your own original project ideas by [creating a new issue](https://github.com/OSOceanAcoustics/echoshader/issues/new?assignees=&labels=gsoc+ideas+2022&template=gsoc-ideas.md&title=) in this repo.
 
 Please [sign up as a GSoC participant](https://summerofcode.withgoogle.com/get-started/). Once the official application opens, please submit your proposals based on the [Echoshader GSoC Proposal](proposal-template.md) template.
 
