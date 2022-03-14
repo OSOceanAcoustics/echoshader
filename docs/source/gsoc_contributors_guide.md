@@ -64,12 +64,12 @@ The data variables of the Dataset are listed below, where items in parenthesis a
 
 Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes, where the water surface is at the top:
 
-![echogram example 1](./echogram_example.png)
+![echogram example 1](img/echogram_example.png)
 
 By compiling several of these echograms and processing the data further, one can visualize the data over several hours.
 This can yield visualizations such as the image below, which shows the daily vertical migration of zooplankton in the water column -- including the impact of a solar eclipse on this migration!
 
-![echogram example 2](./bokeh_plot.png) 
+![echogram example 2](img/bokeh_plot.png) 
 
 
 ### Additional Resources
