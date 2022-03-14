@@ -15,3 +15,25 @@ In collaboration with the US [Integrated Ocean Observing System (IOOS)](https://
 This project aims to enhance the capability to interactively visualize large volumes of cloud-based ocean sonar data to accelerate the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://github.com/OSOceanAcoustics/echopype) package that handles the standardization, pre-processing, and organization of these data.
 
 For more information about joining the project as GSoC contributor, check out the [IOOS GSoC Contributor Guidance](https://github.com/ioos/gsoc) and the [Echoshader GSoC Contributor's Guide](docs/source/gsoc_contributors_guide.md).
+
+## Conda Development Environment Setup
+
+The setup below assumes that you have installed [Conda](https://docs.conda.io/projects/conda/en/latest/), an open-source package management system.
+
+1. Install echoshader conda environment
+
+    ```bash
+    conda create -n echoshader-dev -c conda-forge --file requirements.txt
+    ```
+
+2. Activate the `echoshader-dev` environment
+
+    ```bash
+    conda activate echoshader-dev
+    ```
+
+3. Install development version of echoshader package
+
+    ```bash
+    pip install -e .
+    ```
