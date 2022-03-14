@@ -51,7 +51,7 @@ The data variables of the Dataset are listed below, where items in parenthesis a
 * Key data variables you will be working with:
     * `Sv` (frequency, ping_time, range_bin) - volume backscattering strength measured from the echo
     * `range` (frequency, ping_time, range_bin) - the measured range of an echo in meters 
-* Other variables included in this dataset so that the parameters used in the calibration (from raw to Sv) are recorded:
+* Other variables included in this dataset. These are included so that the exact parameters used in the calibration (from raw to Sv) are recorded:
     * `temperature` - the temperature measurement of the water collected by the echosounder, with unit degree Celsius
     * `salinity` - the salinity measurement of the water collected by the echosounder, with unit part per thousand (PSU)
     * `pressure` - the pressure measurement of the water collected by the echosounder, with unit dbars
@@ -62,7 +62,7 @@ The data variables of the Dataset are listed below, where items in parenthesis a
     * `gain_correction` - (frequency) - the gain correction for each frequency
     * `equivalent_beam_angle` (frequency) - the beam angle for each frequency
 
-Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes: 
+Using the above Dataset we can visualize the strength of the echoes (often called the echogram) by plotting `Sv` along `ping_time` and `range_bin` (here, an inverse water depth measure) axes, where the water surface is at the top:
 
 ![echogram example 1](./echogram_example.png)
 
