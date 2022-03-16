@@ -1,6 +1,7 @@
-# Title
 
 [LICENSE](https://github.com/ESIPFed/gsoc/blob/master/LICENSE) (This template was adapted from [ESIP](https://www.esipfed.org/)'s organization [template](https://github.com/ESIPFed/gsoc/blob/master/STUDENT-proposal-template.md): thank you ESIP!)
+
+# Title
 
 ## Abstract
 
