@@ -1,4 +1,4 @@
-# Welcome to echoshader!
+# Welcome to echoshader
 
 Open Source Python package for building ocean sonar data visualizations based on the HoloViz suite of Python tools.
 
