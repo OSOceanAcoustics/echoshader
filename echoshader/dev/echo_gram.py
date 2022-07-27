@@ -30,9 +30,8 @@ import pandas
 import warnings
 warnings.simplefilter("ignore")
 
-
 def echogram(MVBS):
-    '''Get a echogram with components
+    '''Get a echogram with control components
 
     Parameters
     ----------
@@ -50,6 +49,7 @@ def echogram(MVBS):
         echogram(MVBS).view shows echogram image
     
     '''
+
     def getMVBS():
         # help class Echogram get MVBS
 
