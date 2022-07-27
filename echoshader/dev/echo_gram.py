@@ -3,13 +3,13 @@
 use panel to get a echogram with control widgets
 
 if users just want a simple echogram
-    import hvplot.xarray and directly call fuction ds_Sv.hvplot()
+    import hvplot.xarray and directly call function ds_Sv.hvplot()
     like below:
     plot=ds_Sv.hvplot(
         kind='image',
         x='ping_time',
         y='echo_range',
-        c='Sv', 
+        c='Sv',
         title='Echogram',
         cmap='jet',
         clim=()-80,-30),
@@ -19,19 +19,22 @@ if users just want a simple echogram
         flip_yaxis=True)
 """
 
-import param
 import hvplot.xarray
 import panel as pn
+import param
+
 pn.extension()
 
 import datetime
+import warnings
+
 import pandas
 
-import warnings
 warnings.simplefilter("ignore")
 
+
 def echogram(MVBS):
-    '''Get a echogram with control components
+    """Get a echogram with control components
 
     Parameters
     ----------
@@ -47,8 +50,8 @@ def echogram(MVBS):
         to get a complete panel
         echogram(MVBS).param shows param(control widgets)
         echogram(MVBS).view shows echogram image
-    
-    '''
+
+    """
 
     def getMVBS():
         # help class Echogram get MVBS
@@ -103,20 +106,22 @@ def echogram(MVBS):
 
         start_time, end_time = get_time_range()
 
-        start_input = param.Date(bounds=(start_time, end_time),
-                                 default=start_time,
-                                 doc="Select start time")
+        start_input = param.Date(
+            bounds=(start_time, end_time), default=start_time, doc="Select start time"
+        )
 
-        end_input = param.Date(bounds=(start_time, end_time),
-                               default=end_time,
-                               doc="Select end time")
+        end_input = param.Date(
+            bounds=(start_time, end_time), default=end_time, doc="Select end time"
+        )
 
-        select_channel = param.Selector(objects=MVBS.channel.values.tolist(),
-                                        doc="Select channel")
+        select_channel = param.Selector(
+            objects=MVBS.channel.values.tolist(), doc="Select channel"
+        )
 
-        range_clim = param.Range(bounds=(MVBS.Sv.actual_range[0],
-                                         MVBS.Sv.actual_range[-1]),
-                                 doc="Select clim")
+        range_clim = param.Range(
+            bounds=(MVBS.Sv.actual_range[0], MVBS.Sv.actual_range[-1]),
+            doc="Select clim",
+        )
 
         color_map = param.String(default="jet", doc="Colormap")
 
@@ -125,8 +130,14 @@ def echogram(MVBS):
         # but in this situation, rasterize may not applied
         chart_type = param.String(default="image", doc="Type of chart")
 
-        @param.depends('start_input', 'end_input', 'select_channel',
-                       'range_clim', 'color_map', 'chart_type')
+        @param.depends(
+            "start_input",
+            "end_input",
+            "select_channel",
+            "range_clim",
+            "color_map",
+            "chart_type",
+        )
         def view(self):
 
             # date_picker = self.select_date
@@ -146,17 +157,21 @@ def echogram(MVBS):
 
             chart_type = self.chart_type
 
-            rasterize = True if chart_type == 'image' else False
+            rasterize = True if chart_type == "image" else False
 
-            gram=self.MVBS.Sv.sel(channel=channel,ping_time=time_range).hvplot(
-                kind=chart_type,
-                x='ping_time',
-                y='echo_range',
-                title='Sv : '+ channel,
-                cmap=color_map,
-                clim=clim,
-                rasterize=rasterize)\
-            .options(invert_yaxis=True)
+            gram = (
+                self.MVBS.Sv.sel(channel=channel, ping_time=time_range)
+                .hvplot(
+                    kind=chart_type,
+                    x="ping_time",
+                    y="echo_range",
+                    title="Sv : " + channel,
+                    cmap=color_map,
+                    clim=clim,
+                    rasterize=rasterize,
+                )
+                .options(invert_yaxis=True)
+            )
 
             return gram
 
