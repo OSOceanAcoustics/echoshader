@@ -37,6 +37,7 @@ def simple_hist(echogram):
             ping_time=x_range,
             echo_range=y_range) if x_range and y_range else echogram
 
+
         # Compute histogram
         return holoviews.operation.histogram(obj)
 
