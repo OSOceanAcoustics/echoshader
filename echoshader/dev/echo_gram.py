@@ -3,22 +3,22 @@
 use panel to get a echogram with control widgets
 """
 import panel
-panel.extension('vtk')
 
-import param
-import hvplot.xarray
+panel.extension("vtk")
 
-import pandas
+import warnings
 
 import echo_map
 import echo_stats
+import hvplot.xarray
+import pandas
+import param
 
-import warnings
 warnings.simplefilter("ignore")
 
 
 def echogram(MVBS):
-    '''Get an echogram with control widgets
+    """Get an echogram with control widgets
 
     Parameters
     ----------
@@ -36,7 +36,7 @@ def echogram(MVBS):
         echogram(MVBS).param shows param(control widgets)
         echogram(MVBS).view shows echogram image
 
-    '''
+    """
 
     def getMVBS():
         # help class Echogram get MVBS
@@ -128,7 +128,7 @@ def echogram(MVBS):
 
 
 def echogram_hist(MVBS):
-    '''Get an echogram and histgram with control widgets
+    """Get an echogram and histogram with control widgets
 
     Parameters
     ----------
@@ -145,8 +145,9 @@ def echogram_hist(MVBS):
         to get a complete panel
         echogram(MVBS).param shows param(control widgets)
         echogram(MVBS).view shows echogram image
-    
-    '''
+
+    """
+
     def getMVBS():
         # help class Echogram get MVBS
 
@@ -167,27 +168,35 @@ def echogram_hist(MVBS):
 
         start_time, end_time = get_time_range()
 
-        start_input = param.Date(bounds=(start_time, end_time),
-                                 default=start_time,
-                                 doc="Select start time")
+        start_input = param.Date(
+            bounds=(start_time, end_time), default=start_time, doc="Select start time"
+        )
 
-        end_input = param.Date(bounds=(start_time, end_time),
-                               default=end_time,
-                               doc="Select end time")
+        end_input = param.Date(
+            bounds=(start_time, end_time), default=end_time, doc="Select end time"
+        )
 
-        select_channel = param.Selector(objects=MVBS.channel.values.tolist(),
-                                        doc="Select channel")
+        select_channel = param.Selector(
+            objects=MVBS.channel.values.tolist(), doc="Select channel"
+        )
 
-        range_clim = param.Range(bounds=(MVBS.Sv.actual_range[0],
-                                         MVBS.Sv.actual_range[-1]),
-                                 doc="Select clim")
+        range_clim = param.Range(
+            bounds=(MVBS.Sv.actual_range[0], MVBS.Sv.actual_range[-1]),
+            doc="Select clim",
+        )
 
         color_map = param.String(default="jet", doc="Colormap")
 
         bin_size = param.Integer(24, bounds=(1, 200), doc="Bin size")
 
-        @param.depends('start_input', 'end_input', 'select_channel',
-                       'range_clim', 'color_map', 'bin_size')
+        @param.depends(
+            "start_input",
+            "end_input",
+            "select_channel",
+            "range_clim",
+            "color_map",
+            "bin_size",
+        )
         def view(self):
             start_input_time = self.start_input
 
@@ -203,19 +212,23 @@ def echogram_hist(MVBS):
 
             bin_size = self.bin_size
 
-            gram=self.MVBS.Sv.sel(channel=channel,ping_time=time_range).hvplot(
-                kind='image',
-                x='ping_time',
-                y='echo_range',
-                title='Sv : '+ channel,
-                cmap=color_map,
-                clim=clim,
-                rasterize=True)\
-            .options(invert_yaxis=True)
+            gram = (
+                self.MVBS.Sv.sel(channel=channel, ping_time=time_range)
+                .hvplot(
+                    kind="image",
+                    x="ping_time",
+                    y="echo_range",
+                    title="Sv : " + channel,
+                    cmap=color_map,
+                    clim=clim,
+                    rasterize=True,
+                )
+                .options(invert_yaxis=True)
+            )
 
             bounds, hist, table = echo_stats.plot_hist(
-                gram, self.MVBS.sel(channel=channel, ping_time=time_range),
-                bin_size)
+                gram, self.MVBS.sel(channel=channel, ping_time=time_range), bin_size
+            )
 
             return panel.Column(gram * bounds, hist, table)
 
@@ -223,7 +236,7 @@ def echogram_hist(MVBS):
 
 
 def echogram_map(MVBS):
-    '''Get an echogram and map with control widgets
+    """Get an echogram and map with control widgets
 
     Parameters
     ----------
@@ -240,8 +253,9 @@ def echogram_map(MVBS):
         to get a complete panel
         echogram(MVBS).param shows param(control widgets)
         echogram(MVBS).view shows echogram image
-    
-    '''
+
+    """
+
     def getMVBS():
         # help class Echogram get MVBS
 
@@ -262,25 +276,28 @@ def echogram_map(MVBS):
 
         start_time, end_time = get_time_range()
 
-        start_input = param.Date(bounds=(start_time, end_time),
-                                 default=start_time,
-                                 doc="Select start time")
+        start_input = param.Date(
+            bounds=(start_time, end_time), default=start_time, doc="Select start time"
+        )
 
-        end_input = param.Date(bounds=(start_time, end_time),
-                               default=end_time,
-                               doc="Select end time")
+        end_input = param.Date(
+            bounds=(start_time, end_time), default=end_time, doc="Select end time"
+        )
 
-        select_channel = param.Selector(objects=MVBS.channel.values.tolist(),
-                                        doc="Select channel")
+        select_channel = param.Selector(
+            objects=MVBS.channel.values.tolist(), doc="Select channel"
+        )
 
-        range_clim = param.Range(bounds=(MVBS.Sv.actual_range[0],
-                                         MVBS.Sv.actual_range[-1]),
-                                 doc="Select clim")
+        range_clim = param.Range(
+            bounds=(MVBS.Sv.actual_range[0], MVBS.Sv.actual_range[-1]),
+            doc="Select clim",
+        )
 
         color_map = param.String(default="jet", doc="Colormap")
 
-        @param.depends('start_input', 'end_input', 'select_channel',
-                       'range_clim', 'color_map')
+        @param.depends(
+            "start_input", "end_input", "select_channel", "range_clim", "color_map"
+        )
         def view(self):
 
             start_input_time = self.start_input
@@ -295,18 +312,23 @@ def echogram_map(MVBS):
 
             color_map = self.color_map
 
-            gram=self.MVBS.Sv.sel(channel=channel,ping_time=time_range).hvplot(
-                kind='image',
-                x='ping_time',
-                y='echo_range',
-                title='Sv : '+ channel,
-                cmap=color_map,
-                clim=clim,
-                rasterize=True)\
-            .options(invert_yaxis=True)
+            gram = (
+                self.MVBS.Sv.sel(channel=channel, ping_time=time_range)
+                .hvplot(
+                    kind="image",
+                    x="ping_time",
+                    y="echo_range",
+                    title="Sv : " + channel,
+                    cmap=color_map,
+                    clim=clim,
+                    rasterize=True,
+                )
+                .options(invert_yaxis=True)
+            )
 
             bound, track = echo_map.plot_map(
-                gram, self.MVBS.sel(channel=channel, ping_time=time_range))
+                gram, self.MVBS.sel(channel=channel, ping_time=time_range)
+            )
 
             return panel.Column(gram * bound, track)
 
