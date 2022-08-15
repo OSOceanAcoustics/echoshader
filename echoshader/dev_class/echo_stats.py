@@ -1,7 +1,3 @@
-"""echo_stats.py module
-
-to help echogram get corresponding histograms and stats data
-"""
 import echo_gram
 import holoviews
 import hvplot.pandas
