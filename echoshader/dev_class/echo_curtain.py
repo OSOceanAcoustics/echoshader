@@ -9,24 +9,47 @@ import pyvista
 import numpy
 
 
-def plot_curtain(MVBS_ds, cmp='jet', ratio=0.001):
-    '''Get an echogram and histgram with control widgets
+def plot_curtain(MVBS_ds, cmp='jet', clim = None ,ratio=0.001):
+    '''Drape a 2.5D Sv curatin using Pyvista
 
     Parameters
     ----------
-    MVBS : xr.Dataset
-        MVBS_ds data set or ds_Sv data array with a specific frequncy
-        like MVBS_ds.sel(channel='GPT  18 kHz 009072058c8d 1-1 ES18-11')
+    MVBS_ds : xarray.Dataset
+        MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
+        MVBS Dataset with a specific frequncy
+        MVBS Dataset has been combined with longitude & latitude coordinates using echopype
+    
+    cmp : str, default: 'jet'
+        Colormap
+    
+    clim : tuple, default: None
+        Lower and upper bound of the color scale
+
+    ratio : float, default: 0.001
+        Z spaceing
+        When the value is larger, the height of map stretches more
 
     Returns
     -------
-    type: None
+    curtain : pyvista.Plotter
+        Create a pyVista structure made up of 'grid' and 'curtain' 
+        Use plotter.show() to display the curtain in Jupyter cell
+        Use panel.Row(plotter) to display the curtain in panel
+        See more in:
+        https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html?highlight=plotter#pyvista.Plotter
         
-    describe:
-        ctreate a pyVista structure 'grid' and 'curtain' 
-        call show() to display the 3D curtain
-    
+    Examples
+    --------
+        MVBS_ds_ = MVBS_ds.sel(channel='GPT  18 kHz 009072058c8d 1-1 ES18-11')
+        
+        plotter = plot_curtain(MVBS_ds_, 'jet', (-80, -30), 0.001)
+        
+        plotter.show() // Simply show in jupyter
+        
+        widget_panel = panel.Row(plotter) // Get panel where the curtain is chiseled in
+        
     '''
+    
     data = MVBS_ds.Sv.values[1:].T
 
     lon = MVBS_ds.longitude.values[1:]
@@ -61,7 +84,7 @@ def plot_curtain(MVBS_ds, cmp='jet', ratio=0.001):
     pyvista.global_theme.background = 'gray'
 
     curtain = pyvista.Plotter()
-    curtain.add_mesh(grid, cmap=cmp)
+    curtain.add_mesh(grid, cmap=cmp, clim=clim)
     curtain.add_mesh(pyvista.PolyData(path), color='white')
 
     curtain.show_grid()
