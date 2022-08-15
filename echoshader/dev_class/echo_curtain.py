@@ -1,7 +1,3 @@
-"""echo_curtain.py module
-
-to get 3D curtains
-"""
 import panel
 
 panel.extension("vtk")
