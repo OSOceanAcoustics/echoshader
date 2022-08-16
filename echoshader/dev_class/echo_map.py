@@ -7,8 +7,6 @@ import echo_curtain
 
 import pandas
 
-
-# https://geoviews.org/gallery/bokeh/tile_sources.html#bokeh-gallery-tile-sources
 def plot_track(MVBS_ds,
                opts_line = geoviews.opts(width = 600, height = 400, \
                color = 'red',tools = ['hover'], line_width = 1),
@@ -37,8 +35,8 @@ def plot_track(MVBS_ds,
         
         Returns
         -------
-        ship_track * start_node * tiles ：holoviews.Overlay
-            Combined chart( track, start point and map tile )
+        holoviews.Overlay
+            Combined chart(track, start point and map tile)
         
         '''
         
@@ -74,20 +72,20 @@ def plot_track(MVBS_ds,
 class EchoMap(echo_gram.Echogram):
 
     """
-    A class for plotting basic echogram
+    A class for plotting echogram with geoinfo
     
     Attributes
     ----------
     MVBS_ds : xarray.Dataset
         MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
     
-    plot_types : str, default : 'image'
+    plot_types : str
         Usually using 'image' or 'quadmesh'
         See 'image' in : https://hvplot.holoviz.org/reference/xarray/image.html#xarray-gallery-image
         See 'quadmesh' in : https://hvplot.holoviz.org/reference/xarray/quadmesh.html#xarray-gallery-quadmesh
-        Notice : When using 'quadmesh', box_select or some tools may not be applicable
+        Notice : When using 'quadmesh', box_select or other tools may not be applicable
     
-    datetime_range_input_model : bool, default : 'True'
+    datetime_range_input_model : bool
         When 'True', use 'input' widget to input datetime range
         See more in: https://panel.holoviz.org/reference/widgets/DatetimeInput.html
         When 'False', use 'picker' widget to input datetime range
@@ -101,70 +99,70 @@ class EchoMap(echo_gram.Echogram):
         pandas datetime type
         Upper bound determined by MVBS input
     
-    gram_opts : obj.opts, default : holoviews.opts(invert_yaxis=True)
+    gram_opts : holoviews.opts
         Modify the style of echogram
         See more in : http://holoviews.org/user_guide/Applying_Customizations.html
         Or see more in : https://hvplot.holoviz.org/user_guide/Customization.html
     
-    bound_opts : obj.opts, default : holoviews.opts(line_width=1.5, line_color='white')
+    bound_opts : holoviews.opts
         Modify the style of bound
         See more in : https://hvplot.holoviz.org/user_guide/Customization.html
         Or see more in : https://hvplot.holoviz.org/user_guide/Customization.html
         
-    gram_cols : int, default : 1
+    gram_cols : int
         Number of columns when viewing all grams
         If the value is set to '1', there will be only one layout column
-        If there are three kinds grams(frequencies) and the value is set to '3', there will be only one layout Row (three Columns)
+        If there are three kinds of grams(frequencies) and the value is set to '3', there will be only one layout Row(three Columns)
         
     time_range_picker : panel.widgets
-        Picker panel widget to input datetime range 
+        Picker panel widget used to input datetime range 
         See more in : https://panel.holoviz.org/reference/widgets/DatetimeRangePicker.html#widgets-gallery-datetimerangepicker 
         
     datetime_range_input : panel.widgets
-        Input panel widget to input datetime range
+        Input panel widget used to input datetime range
         See more in : https://panel.holoviz.org/reference/widgets/DatetimeRangeInput.html
         
     channel_select : panel.widgets
-        Select panel widget to select frequency
+        Select panel widget used to select frequency
         See more in : https://panel.holoviz.org/reference/widgets/Select.html#widgets-gallery-select
         
     color_map : panel.widgets
-        Text input panel widget to input colormap
+        Text input panel widget used to input colormap
         See more in : https://panel.holoviz.org/reference/widgets/TextInput.html#widgets-gallery-textinput
         
     range_clim : panel.widgets
-        Editable range slider widget to select clim range
+        Editable range slider widget used to select clim range
         See more in : https://panel.holoviz.org/reference/widgets/EditableRangeSlider.html#widgets-gallery-editablerangeslider
         
-    opts_line : geoviews.opts, default : geoviews.opts(width=600, height=400, color='blue', tools=['hover'], line_width=1)
+    opts_line : geoviews.opts
         Modify the style of track in map
     
-    opts_point : geoviews.opts, default : geoviews.opts(color='blue', tools=['hover'], size=8)
+    opts_point : geoviews.opts
         Modify the style of start point in map
     
-    opts_box_line : geoviews.opts, default : geoviews.opts(width=600, height=400, color='red', tools=['hover'], alpha=0.7, line_width=3)
-        Modify the style of track in map responding to selected box
+    opts_box_line : geoviews.opts
+        Modify the style of track in map responding to select box
         
-    opts_box_point : geoviews.opts, default : geoviews.opts(color='red', tools=['hover'], size=8)
-        Modify the style of start point in map responding to selected box
+    opts_box_point : geoviews.opts
+        Modify the style of start point in map responding to select box
         
-    curtain_width : int, default : 700
+    curtain_width : int
         width of 2.5D curtain
     
-    curtain_height : int, default : 500
+    curtain_height : int
         height of 2.5D curtain
         
     map_button : panel.widgets.Button
-        Click to update the map and curtain
+        Button panel widget used to update the map and curtain
         See more in : https://panel.holoviz.org/reference/widgets/Button.html#widgets-gallery-button
         
     ratio_input : panel.widgets.FloatInput
-        Input the value of curtain's Z spacing
-        When this value is greater, height of curtain stretches more 
+        Floatinput panel widget used to input the value of curtain's Z spacing
+        When this value is greater, curtain stretches more vertically. (Height)
         See more in : https://panel.holoviz.org/reference/widgets/FloatInput.html#widgets-gallery-floatinput
        
-    tile_select = panel.widgets.Select
-        Choose tile type
+    tile_select : panel.widgets.Select
+        Selector panel widget used to choose tile type
         See more in : https://panel.holoviz.org/reference/widgets/Select.html#widgets-gallery-select
         See tile sources : https://geoviews.org/gallery/bokeh/tile_sources.html
         
@@ -177,7 +175,7 @@ class EchoMap(echo_gram.Echogram):
         Only be accessed after calling method 'view_gram()'
     
     box : holoviews.streams.BoundsXY
-        Bound values of selected box
+        Bound values of select box
         Only be accessed after calling method 'view_gram()'
         
     bounds : holoviews.streams.Bounds
@@ -189,7 +187,7 @@ class EchoMap(echo_gram.Echogram):
         Only be accessed after calling method 'view_all_gram()'
         
     box_track : holoviews.Overlay
-        Ship track responding to selected box echogram
+        Ship track responding to echogram in select box
         Only be accessed after calling method 'view_box_map()'
         
     all_track : holoviews.Overlay
@@ -197,42 +195,34 @@ class EchoMap(echo_gram.Echogram):
         Only be accessed after calling method 'view_map()'
         
     curtain : pyvista.Plotter
-        2.5D curtain responding to selected box echogram
+        2.5D curtain responding to echogram in select box
         Only be accessed after calling method 'view_curtain()'
         
     Methods
-    -------
-    _sync_widget(self):
-        Initialize widgets attributes
-        Called in __init__(self, MVBS_ds, **params)
-        
-    _sync_widge_map(self):
-        Initialize map-related widgets attributes
-        Called in __init__(self, MVBS_ds, **params)  
-        
-    view_gram(self):
-        Get single echogram with control panel widgets 
+    -------        
+    view_gram():
+        Get single echogram which can be controled by widgets attributes
       
-    view_all_gram(self):
-        Get all echograms with control panel widgets 
+    view_all_gram():
+        Get all echograms which can be controled by widgets attributes
         
-    get_box_data(self): 
-        Get MVBS data with a specific frequency in selected box
+    get_box_data(): 
+        Get MVBS data with a specific frequency in select box
         
-    get_all_box_data(self): 
-        Get MVBS data with all frequencies in selected box
+    get_all_box_data(): 
+        Get MVBS data with all frequencies in select box
         
-    view_box_map(self):
-        Get map respongding to selected box echogram
+    view_box_map():
+        Get map respongding to echogram in select box
         
-    view_map(self):
+    view_map():
         Get map respongding to echogram
         
-    view_all_map(self):
-        Get map respongding to echogram combined with map respongding to selected box echogram
+    view_all_map():
+        Get map respongding to echogram combined with map respongding to echogram in select box
         
-    view_curtain(self):
-        Get 2.5D curtain in a panel widget 
+    view_curtain():
+        Get 2.5D curtain respongding to echogram in select box in a panel widget
     
     Examples
     --------    
@@ -253,7 +243,7 @@ class EchoMap(echo_gram.Echogram):
         
         Returns
         -------
-        None
+        self
         '''
         
         super().__init__(MVBS_ds)
@@ -288,14 +278,6 @@ class EchoMap(echo_gram.Echogram):
     def _sync_widge_map(self):
         '''
         Constructs all the necessary map widgets attributes 
-        
-        Parameters
-        ----------
-        None
-        
-        Returns
-        -------
-        None
         '''
         
         # https://panel.holoviz.org/reference/widgets/Button.html#widgets-gallery-button
@@ -328,16 +310,12 @@ class EchoMap(echo_gram.Echogram):
     @param.depends('map_button.value')
     def view_box_map(self):
         '''
-        Create a map responding to selected box echogram
-        
-        Parameters
-        ----------
-        Self
-        
+        Create a map responding to echogram in select box
+
         Returns
         -------
         self.box_track : holoviews.Overlay
-            Combined chart( track, start point and map tile ) responding to selected box echogram
+            Combined chart(track, start point and map tile) responding to echogram in select box
         '''
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
@@ -352,10 +330,6 @@ class EchoMap(echo_gram.Echogram):
     def view_map(self):
         '''
         Create a map responding to echogram
-        
-        Parameters
-        ----------
-        Self
         
         Returns
         -------
@@ -382,32 +356,24 @@ class EchoMap(echo_gram.Echogram):
     @param.depends('map_button.value')
     def view_all_map(self):
         '''
-        Create a combined map ( selected box echogram + echogram)
-        
-        Parameters
-        ----------
-        Self
+        Create a combined map(echogram in select box + echogram)
         
         Returns
         -------
         self.box_track : holoviews.Overlay
-            Combined chart( track, start point and map tile )
+            Combined chart(track, start point and map tile)
         '''
         return self.view_map() * self.view_box_map()
 
     @panel.depends('map_button.value')
     def view_curtain(self):
         '''
-        Create a combined map ( selected box echogram + echogram)
-        
-        Parameters
-        ----------
-        Self
-        
+        Create a combined map(echogram in select box + echogram)
+                
         Returns
         -------
         curtain_panel : panel.Row
-            2.5D Pyvista curtain is chiseled in panel Row
+            2.5D Pyvista curtain responding to echogram in select box is chiseled in panel Row
         '''
         
         time_range = slice(self.box.bounds[0], self.box.bounds[2])

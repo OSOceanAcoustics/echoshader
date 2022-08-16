@@ -20,13 +20,13 @@ class Echogram(param.Parameterized):
     MVBS_ds : xarray.Dataset
         MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
     
-    plot_types : str, default : 'image'
+    plot_types : str
         Usually using 'image' or 'quadmesh'
         See 'image' in : https://hvplot.holoviz.org/reference/xarray/image.html#xarray-gallery-image
         See 'quadmesh' in : https://hvplot.holoviz.org/reference/xarray/quadmesh.html#xarray-gallery-quadmesh
-        Notice : When using 'quadmesh', box_select or some tools may not be applicable
+        Notice : When using 'quadmesh', box_select or other tools may not be applicable
     
-    datetime_range_input_model : bool, default : 'True'
+    datetime_range_input_model : bool
         When 'True', use 'input' widget to input datetime range
         See more in: https://panel.holoviz.org/reference/widgets/DatetimeInput.html
         When 'False', use 'picker' widget to input datetime range
@@ -40,39 +40,39 @@ class Echogram(param.Parameterized):
         pandas datetime type
         Upper bound determined by MVBS input
     
-    gram_opts : obj.opts, default : holoviews.opts(invert_yaxis=True)
+    gram_opts : holoviews.opts
         Modify the style of echogram
         See more in : http://holoviews.org/user_guide/Applying_Customizations.html
         Or see more in : https://hvplot.holoviz.org/user_guide/Customization.html
     
-    bound_opts : obj.opts, default : holoviews.opts(line_width=1.5, line_color='white')
+    bound_opts : holoviews.opts
         Modify the style of bound
         See more in : https://hvplot.holoviz.org/user_guide/Customization.html
         Or see more in : https://hvplot.holoviz.org/user_guide/Customization.html
         
-    gram_cols : int, default : 1
+    gram_cols : int
         Number of columns when viewing all grams
         If the value is set to '1', there will be only one layout column
-        If there are three kinds grams(frequencies) and the value is set to '3', there will be only one layout Row (three Columns)
+        If there are three kinds of grams(frequencies) and the value is set to '3', there will be only one layout Row(three Columns)
         
     time_range_picker : panel.widgets
-        Picker panel widget to input datetime range 
+        Picker panel widget used to input datetime range 
         See more in : https://panel.holoviz.org/reference/widgets/DatetimeRangePicker.html#widgets-gallery-datetimerangepicker 
         
     datetime_range_input : panel.widgets
-        Input panel widget to input datetime range
+        Input panel widget used to input datetime range
         See more in : https://panel.holoviz.org/reference/widgets/DatetimeRangeInput.html
         
     channel_select : panel.widgets
-        Select panel widget to select frequency
+        Select panel widget used to select frequency
         See more in : https://panel.holoviz.org/reference/widgets/Select.html#widgets-gallery-select
         
     color_map : panel.widgets
-        Text input panel widget to input colormap
+        Text input panel widget used to input colormap
         See more in : https://panel.holoviz.org/reference/widgets/TextInput.html#widgets-gallery-textinput
         
     range_clim : panel.widgets
-        Editable range slider widget to select clim range
+        Editable range slider widget used to select clim range
         See more in : https://panel.holoviz.org/reference/widgets/EditableRangeSlider.html#widgets-gallery-editablerangeslider
         
     widgets : panel.widgets
@@ -84,7 +84,7 @@ class Echogram(param.Parameterized):
         Only be accessed after calling method 'view_gram()'
     
     box : holoviews.streams.BoundsXY
-        Bound values of selected box
+        Bound values of select box
         Only be accessed after calling method 'view_gram()'
         
     bounds : holoviews.streams.Bounds
@@ -96,30 +96,26 @@ class Echogram(param.Parameterized):
         Only be accessed after calling method 'view_all_gram()'
         
     Methods
-    -------
-    _sync_widget(self):
-        Initialize widgets attributes
-        Called in __init__(self, MVBS_ds, **params)
-        
-    view_gram(self):
-        Get single echogram with control panel widgets 
+    -------        
+    view_gram():
+        Get a single echogram which can be controled by widgets attributes
       
-    view_all_gram(self):
-        Get all echograms with control panel widgets 
+    view_all_gram():
+        Get all echograms which can be controled by widgets attributes
         
-    get_box_data(self): 
-        Get MVBS data with a specific frequency in selected box
+    get_box_data(): 
+        Get MVBS data with a specific frequency in select box
         
-    get_all_box_data(self): 
-        Get MVBS data with all frequencies in selected box
+    get_all_box_data(): 
+        Get MVBS data with all frequencies in select box
         
     Examples
     --------    
         echogram = Echogram(MVBS_ds)
         
-        echogram.bound_opts=holoviews.opts(line_color='black')
+        echogram.bound_opts = holoviews.opts(line_color='black')
         
-        panel.Row(echogram.widgets,echogram.view_gram)
+        panel.Row(echogram.widgets, echogram.view_gram)
         
     """
     
@@ -134,7 +130,7 @@ class Echogram(param.Parameterized):
         
         Returns
         -------
-        None
+        self
         '''
         super().__init__(**params)
 
@@ -162,14 +158,6 @@ class Echogram(param.Parameterized):
     def _sync_widget(self):
         '''
         Constructs all the necessary widgets attributes 
-        
-        Parameters
-        ----------
-        None
-        
-        Returns
-        -------
-        None
         '''
     
         # Param Substitute
@@ -258,15 +246,11 @@ class Echogram(param.Parameterized):
     def view_gram(self):
         '''
         Create a echogram combined with bounds(created by select_box)
-        
-        Parameters
-        ----------
-        Self
-        
+                
         Returns
         -------
-        self.gram * self.bounds : holoviews.NdLayout
-            Combined layout plots ( single echogram + boound )
+        holoviews.NdLayout
+            Combined layout plots(single echogram + boound)
             See more in : https://holoviews.org/user_guide/Composing_Elements.html
             Or see more in : https://holoviews.org/user_guide/Building_Composite_Objects.html
         '''
@@ -321,14 +305,10 @@ class Echogram(param.Parameterized):
         '''
         Create echograms combined with bounds(created by select_box)
         
-        Parameters
-        ----------
-        Self
-        
         Returns
         -------
-        self.gram * self.bounds : holoviews.NdLayout
-            Combined layout plots ( multiple echograms + boound )
+        holoviews.NdLayout
+            Combined layout plots(multiple echograms + boound)
             See more in : https://holoviews.org/user_guide/Composing_Elements.html
             Or see more in : https://holoviews.org/user_guide/Building_Composite_Objects.html
         '''
@@ -392,12 +372,8 @@ class Echogram(param.Parameterized):
 
     def get_box_data(self):
         '''
-        Get MVBS_ds data with specific frequency from echogram in selected box
-        
-        Parameters
-        ----------
-        Self
-        
+        Get MVBS_ds data with a specific frequency from echogram in selected box
+
         Returns
         -------
         MVBS_ds : xarray.Dataset
@@ -411,11 +387,7 @@ class Echogram(param.Parameterized):
     def get_all_box_data(self):
         '''
         Get MVBS_ds data with all frequencies from echogram in selected box
-        
-        Parameters
-        ----------
-        Self
-        
+                
         Returns
         -------
         MVBS_ds : xarray.Dataset
@@ -428,15 +400,11 @@ class Echogram(param.Parameterized):
 def erase_error():
     '''Get a panel widget to toggle off warning info
 
-    Parameters
-    ----------
-    None
-
     Returns
     -------
     erase_widget : panel.pane.HTML
         Create a panel widget to toggle off warning info
-        Designed for erasing errors caused by not even-sampled Sv imgame
+        Designed for erasing errors caused by not even-sampled Sv image
         see more in : https://panel.holoviz.org/reference/panes/HTML.html#panes-gallery-html
         
     Examples
