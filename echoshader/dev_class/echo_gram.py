@@ -119,7 +119,7 @@ class Echogram(param.Parameterized):
         
     """
     
-    def __init__(self, MVBS_ds, **params):
+    def __init__(self, MVBS_ds):
         '''
         Constructs all the necessary attributes for the echogram object.
         
@@ -132,7 +132,7 @@ class Echogram(param.Parameterized):
         -------
         self
         '''
-        super().__init__(**params)
+        super().__init__()
 
         self.MVBS_ds = MVBS_ds
 
