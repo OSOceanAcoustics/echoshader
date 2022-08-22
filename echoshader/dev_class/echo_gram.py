@@ -281,7 +281,10 @@ class Echogram(param.Parameterized):
             title='Channel : '+ channel,
             cmap=color_map,
             clim=clim,
-            rasterize=rasterize)\
+            rasterize=rasterize,
+            xlabel='Time (UTC)',
+            ylabel='Depth (m)',
+            clabel = 'Sv(dB)')\
         .options(self.gram_opts)
 
         # get box from echogram
@@ -337,7 +340,10 @@ class Echogram(param.Parameterized):
                 title='Channel : '+ self.MVBS_ds.channel.values[0],
                 cmap=color_map,
                 clim=clim,
-                rasterize=rasterize)\
+                rasterize=rasterize,                
+                xlabel='Time (UTC)',
+                ylabel='Depth (m)',
+                clabel = 'Sv(dB)')\
             .opts(self.gram_opts)
 
         for index, channel in enumerate(self.MVBS_ds.channel.values):

@@ -1,9 +1,9 @@
+import echo_gram
+import echo_curtain
+
 import geoviews
 import panel
 import param
-
-import echo_gram
-import echo_curtain
 
 import pandas
 

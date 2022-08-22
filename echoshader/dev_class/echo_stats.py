@@ -1,3 +1,5 @@
+import echo_gram
+
 import holoviews
 import hvplot.xarray
 import hvplot.pandas
@@ -5,9 +7,6 @@ import param
 import panel
 
 import pandas
-
-import echo_gram
-
 
 def simple_hist(echogram):
     '''
