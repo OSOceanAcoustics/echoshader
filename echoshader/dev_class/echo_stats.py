@@ -388,7 +388,7 @@ class EchoStats(echo_gram.Echogram):
         echo_range = slice(self.box.bounds[3], self.box.bounds[1])
 
         return (
-            MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
+            self.MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
             .Sv.hvplot.hist(
                 "Sv",
                 by="channel",
@@ -415,7 +415,7 @@ class EchoStats(echo_gram.Echogram):
         echo_range = slice(self.box.bounds[3], self.box.bounds[1])
 
         return (
-            MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
+            self.MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
             .Sv.hvplot.hist(
                 "Sv",
                 by="channel",
