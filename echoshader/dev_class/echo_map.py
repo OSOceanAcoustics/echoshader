@@ -12,41 +12,39 @@ def plot_track(MVBS_ds,
                opts_point = geoviews.opts(color = 'red',\
                tools = ['hover'], size = 8),
                map_tiles= 'Wikipedia'):
+    '''
 
-        '''
+    Parameters
+    ----------
+    MVBS_ds : xarray.Dataset
+        MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
+        MVBS Dataset has been combined with longitude & latitude coordinates using echopype
 
-        Parameters
-        ----------
-        MVBS_ds : xarray.Dataset
-            MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
-            MVBS Dataset has been combined with longitude & latitude coordinates using echopype
+    opts_line : geoviews.opts, default : geoviews.opts(width = 600, height = 400, \
+           color = 'red',tools = ['hover'], line_width = 1)
+        Modify the style of line
 
-        opts_line : geoviews.opts, default : geoviews.opts(width = 600, height = 400, \
-               color = 'red',tools = ['hover'], line_width = 1)
-            Modify the style of line
+    opts_point : geoviews.opts, default : geoviews.opts(color = 'red',\
+           tools = ['hover'], size = 8)
+        Modify the style of point
 
-        opts_point : geoviews.opts, default : geoviews.opts(color = 'red',\
-               tools = ['hover'], size = 8)
-            Modify the style of point
+    map_tiles : str, default : 'Wikipedia'
+        See more in : https://geoviews.org/gallery/bokeh/tile_sources.html
 
-        map_tiles : str, default : 'Wikipedia'
-            See more in : https://geoviews.org/gallery/bokeh/tile_sources.html
+    Returns
+    -------
+    holoviews.Overlay
+        Combined chart(track, start point and map tile)
 
-        Returns
-        -------
-        holoviews.Overlay
-            Combined chart(track, start point and map tile)
-
-        '''
+    '''
 
     # convert xarray data to geoviews data
-    all_pd_data = pandas.concat([
-        pandas.DataFrame(MVBS_ds.longitude.values, columns=['Longitude']),
-        pandas.DataFrame(MVBS_ds.latitude.values, columns=['Latitude']),
-        pandas.DataFrame(MVBS_ds.ping_time.values, columns=['Ping Time'])
-    ],
-                                axis=1)
-
+    all_pd_data = pandas.concat(
+    [pandas.DataFrame(MVBS_ds.longitude.values, columns=['Longitude']),
+    pandas.DataFrame(MVBS_ds.latitude.values, columns=['Latitude']),
+    pandas.DataFrame(MVBS_ds.ping_time.values, columns=['Ping Time'])],
+    axis = 1)
+    
     all_pd_data = all_pd_data.dropna(axis=0, how='any')
 
     # get map tiles
