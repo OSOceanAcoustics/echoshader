@@ -8,7 +8,7 @@ The benchmarking is essential to the progress and success of the project. Also, 
 
 Echoshader uses Time-based memory usage in [Memory Profiler](https://pypi.org/project/memory-profiler/) to execute benchmarking. This is a python module for monitoring memory consumption of a process as well as line-by-line analysis of memory consumption for python programs. It is a pure python module which depends on the [psutil](http://pypi.python.org/pypi/psutil) module.
 
-Testing code, results and exporting HTMLs have been posted on [Google Drive](https://drive.google.com/drive/folders/1z9nUWZe8N6_AEbi2hDgp-isOfTn11J-P?usp=sharing). 
+Testing code, results and exporting HTMLs have been posted on [Google Drive](https://drive.google.com/drive/folders/1z9nUWZe8N6_AEbi2hDgp-isOfTn11J-P?usp=sharing).
 
 - [1 day with 1 min along ping_time, 1 m for depth (OOI 2017 Aug)](https://drive.google.com/drive/folders/19_Wd1ugIsrMBjJbi8tnHdq-E55LpRMty?usp=sharing)
 
@@ -16,7 +16,7 @@ Testing code, results and exporting HTMLs have been posted on [Google Drive](htt
 
   ![image-20220906212522202](https://drive.google.com/uc?export=view&id=12DTAIHJGz9L98HsmhpmYWnwh9ceM2YT8)
 
-- [1 day with 10 min along ping_time, 5 m for depth (Hake Survey)](https://drive.google.com/drive/folders/116WhBXQRJFT1jzmZhD_T6RaP5jKRMo35?usp=sharing) 
+- [1 day with 10 min along ping_time, 5 m for depth (Hake Survey)](https://drive.google.com/drive/folders/116WhBXQRJFT1jzmZhD_T6RaP5jKRMo35?usp=sharing)
 
   ![image-20220906212522202](https://drive.google.com/uc?export=view&id=1PPRC8WBVnesTlD9YLSML7WFh7W-DYfQk)
 
@@ -54,7 +54,7 @@ Testing code, results and exporting HTMLs have been posted on [Google Drive](htt
 
 ## Admin Panel
 
-Also, we can take use of [Admin Panel](https://panel.holoviz.org/user_guide/Performance_and_Debugging.html#admin-panel) in Panel library. 
+Also, we can take use of [Admin Panel](https://panel.holoviz.org/user_guide/Performance_and_Debugging.html#admin-panel) in Panel library.
 
 The `/admin` panel provides an overview of the current application and provides tools for debugging and profiling. It can be enabled by passing the `--admin` argument to the `panel serve` command.
 
@@ -66,7 +66,7 @@ import xarray as xr
 from pathlib import Path
 
 MVBS_ds = xr.open_mfdataset(
-    str('test_admin.nc'), 
+    str('test_admin.nc'),
     data_vars='minimal', coords='minimal',
     combine='by_coords'
 )
@@ -78,7 +78,7 @@ echogram = echo_gram.Echogram(MVBS_ds)
 pn.Row(echogram.widgets, echogram.view_gram).servable()
 ```
 
-Don't forget to use `.servable()` to sepcify which component you want to display in the browser.
+Don't forget to use `.servable()` to specify which component you want to display in the browser.
 
 Then we input below command in `cmd Prompt`  or `Anaconda Prompt` to start up the server:
 

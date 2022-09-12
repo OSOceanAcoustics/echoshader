@@ -6,13 +6,15 @@ import panel
 import param
 
 
-def plot_track(MVBS_ds,
-               opts_line = geoviews.opts(width = 600, height = 400, \
-               color = 'red',tools = ['hover'], line_width = 1),
-               opts_point = geoviews.opts(color = 'red',\
-               tools = ['hover'], size = 8),
-               map_tiles= 'Wikipedia'):
-    '''
+def plot_track(
+    MVBS_ds,
+    opts_line=geoviews.opts(
+        width=600, height=400, color="red", tools=["hover"], line_width=1
+    ),
+    opts_point=geoviews.opts(color="red", tools=["hover"], size=8),
+    map_tiles="Wikipedia",
+):
+    """
 
     Parameters
     ----------
@@ -36,32 +38,37 @@ def plot_track(MVBS_ds,
     holoviews.Overlay
         Combined chart(track, start point and map tile)
 
-    '''
+    """
 
     # convert xarray data to geoviews data
     all_pd_data = pandas.concat(
-    [pandas.DataFrame(MVBS_ds.longitude.values, columns=['Longitude']),
-    pandas.DataFrame(MVBS_ds.latitude.values, columns=['Latitude']),
-    pandas.DataFrame(MVBS_ds.ping_time.values, columns=['Ping Time'])],
-    axis = 1)
-    
-    all_pd_data = all_pd_data.dropna(axis=0, how='any')
+        [
+            pandas.DataFrame(MVBS_ds.longitude.values, columns=["Longitude"]),
+            pandas.DataFrame(MVBS_ds.latitude.values, columns=["Latitude"]),
+            pandas.DataFrame(MVBS_ds.ping_time.values, columns=["Ping Time"]),
+        ],
+        axis=1,
+    )
+
+    all_pd_data = all_pd_data.dropna(axis=0, how="any")
 
     # get map tiles
     tiles = getattr(geoviews.tile_sources, map_tiles)
 
     # plot path
-    ship_track = geoviews.Path([all_pd_data],
-                               kdims=['Longitude', 'Latitude'],
-                               vdims=['Ping Time','Longitude', 'Latitude'])\
-                               .opts(opts_line)
+    ship_track = geoviews.Path(
+        [all_pd_data],
+        kdims=["Longitude", "Latitude"],
+        vdims=["Ping Time", "Longitude", "Latitude"],
+    ).opts(opts_line)
 
     # plot start node
     start = all_pd_data.iloc[0].values.tolist()
 
-    start_node = geoviews.Points([start],
-                                  kdims=['Longitude', 'Latitude'],)\
-                                  .opts(opts_point)
+    start_node = geoviews.Points(
+        [start],
+        kdims=["Longitude", "Latitude"],
+    ).opts(opts_point)
 
     return ship_track * start_node * tiles
 
@@ -230,7 +237,7 @@ class EchoMap(echo_gram.Echogram):
     """
 
     def __init__(self, MVBS_ds):
-        '''
+        """
         Constructs all the necessary attributes for the echogram object.
 
         Parameters
@@ -241,30 +248,21 @@ class EchoMap(echo_gram.Echogram):
         Returns
         -------
         self
-        '''
+        """
 
         super().__init__(MVBS_ds)
 
-        self.opts_line = geoviews.opts(width=600,
-                                       height=400,
-                                       color='blue',
-                                       tools=['hover'],
-                                       line_width=1)
+        self.opts_line = geoviews.opts(
+            width=600, height=400, color="blue", tools=["hover"], line_width=1
+        )
 
-        self.opts_point = geoviews.opts(color='blue',
-                                        tools=['hover'],
-                                        size=8)
+        self.opts_point = geoviews.opts(color="blue", tools=["hover"], size=8)
 
-        self.opts_box_line = geoviews.opts(width=600,
-                                           height=400,
-                                           color='red',
-                                           tools=['hover'],
-                                           alpha=0.7,
-                                           line_width=3)
+        self.opts_box_line = geoviews.opts(
+            width=600, height=400, color="red", tools=["hover"], alpha=0.7, line_width=3
+        )
 
-        self.opts_box_point = geoviews.opts(color='red',
-                                            tools=['hover'],
-                                            size=8)
+        self.opts_box_point = geoviews.opts(color="red", tools=["hover"], size=8)
 
         self.curtain_width = 700
 
@@ -273,105 +271,132 @@ class EchoMap(echo_gram.Echogram):
         self._sync_widge_map()
 
     def _sync_widge_map(self):
-        '''
+        """
         Constructs all the necessary map widgets attributes
-        '''
+        """
 
         # https://panel.holoviz.org/reference/widgets/Button.html#widgets-gallery-button
-        self.map_button = panel.widgets.Button(name='Update Map and Curtain 🗺️',
-                                           button_type='primary')
+        self.map_button = panel.widgets.Button(
+            name="Update Map and Curtain 🗺️", button_type="primary"
+        )
 
         # https://panel.holoviz.org/reference/widgets/FloatInput.html#widgets-gallery-floatinput
         self.ratio_input = panel.widgets.FloatInput(
-            name='Ratio Input (Curtain Z Spacing)', value=0.001, step=1e-5, start=0)
+            name="Ratio Input (Curtain Z Spacing)", value=0.001, step=1e-5, start=0
+        )
 
         # https://panel.holoviz.org/reference/widgets/Select.html#widgets-gallery-select
         # bokeh-gallery-tile-sources
         # https://geoviews.org/gallery/bokeh/tile_sources.html
         self.tile_select = panel.widgets.Select(
-            name='Map Tile Select',
-            value='Wikipedia',
+            name="Map Tile Select",
+            value="Wikipedia",
             options=[
-                'CartoDark', 'CartoEco', 'CartoLight', 'CartoMidnight', 'ESRI',
-                'EsriImagery', 'EsriNatGeo', 'EsriOceanBase',
-                'EsriOceanReference', 'EsriReference', 'EsriTerrain',
-                'EsriUSATopo', 'OSM', 'OpenTopoMap', 'StamenLabels',
-                'StamenTerrain', 'StamenTerrainRetina', 'StamenToner',
-                'StamenTonerBackground', 'StamenWatercolor', 'Wikipedia'
-            ])
+                "CartoDark",
+                "CartoEco",
+                "CartoLight",
+                "CartoMidnight",
+                "ESRI",
+                "EsriImagery",
+                "EsriNatGeo",
+                "EsriOceanBase",
+                "EsriOceanReference",
+                "EsriReference",
+                "EsriTerrain",
+                "EsriUSATopo",
+                "OSM",
+                "OpenTopoMap",
+                "StamenLabels",
+                "StamenTerrain",
+                "StamenTerrainRetina",
+                "StamenToner",
+                "StamenTonerBackground",
+                "StamenWatercolor",
+                "Wikipedia",
+            ],
+        )
 
         self.widgets = panel.WidgetBox(
             self.widgets,
-            panel.WidgetBox(self.tile_select, self.ratio_input, self.map_button))
+            panel.WidgetBox(self.tile_select, self.ratio_input, self.map_button),
+        )
 
-    @param.depends('map_button.value')
+    @param.depends("map_button.value")
     def view_box_map(self):
-        '''
+        """
         Create a map responding to echogram in select box
 
         Returns
         -------
         self.box_track : holoviews.Overlay
             Combined chart(track, start point and map tile) responding to echogram in select box
-        '''
+        """
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        self.box_track = plot_track(self.MVBS_ds.sel(ping_time=time_range),
-                                    map_tiles=self.tile_select.value,
-                                    opts_line=self.opts_box_line,
-                                    opts_point=self.opts_box_point)
+        self.box_track = plot_track(
+            self.MVBS_ds.sel(ping_time=time_range),
+            map_tiles=self.tile_select.value,
+            opts_line=self.opts_box_line,
+            opts_point=self.opts_box_point,
+        )
 
         return self.box_track
 
-    @param.depends('map_button.value')
+    @param.depends("map_button.value")
     def view_map(self):
-        '''
+        """
         Create a map responding to echogram
 
         Returns
         -------
         self.box_track : holoviews.Overlay
             Combined chart( track, start point and map tile ) responding to echogram
-        '''
-        start_time = self.datetime_range_input.value[0] \
-                     if self.datetime_range_input_model==True \
-                     else self.time_range_picker.value[0]
+        """
+        start_time = (
+            self.datetime_range_input.value[0]
+            if self.datetime_range_input_model == True
+            else self.time_range_picker.value[0]
+        )
 
-        end_time = self.datetime_range_input.value[-1] \
-                     if self.datetime_range_input_model==True \
-                     else self.time_range_picker.value[-1]
+        end_time = (
+            self.datetime_range_input.value[-1]
+            if self.datetime_range_input_model == True
+            else self.time_range_picker.value[-1]
+        )
 
         time_range = slice(start_time, end_time)
 
-        self.all_track = plot_track(self.MVBS_ds.sel(ping_time=time_range),
-                                    map_tiles=self.tile_select.value,
-                                    opts_line=self.opts_line,
-                                    opts_point=self.opts_point)
+        self.all_track = plot_track(
+            self.MVBS_ds.sel(ping_time=time_range),
+            map_tiles=self.tile_select.value,
+            opts_line=self.opts_line,
+            opts_point=self.opts_point,
+        )
 
         return self.all_track
 
-    @param.depends('map_button.value')
+    @param.depends("map_button.value")
     def view_all_map(self):
-        '''
+        """
         Create a combined map(echogram in select box + echogram)
 
         Returns
         -------
         self.box_track : holoviews.Overlay
             Combined chart(track, start point and map tile)
-        '''
+        """
         return self.view_map() * self.view_box_map()
 
-    @panel.depends('map_button.value')
+    @panel.depends("map_button.value")
     def view_curtain(self):
-        '''
+        """
         Create a combined map(echogram in select box + echogram)
 
         Returns
         -------
         curtain_panel : panel.Row
             2.5D Pyvista curtain responding to echogram in select box is chiseled in panel Row
-        '''
+        """
 
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
@@ -379,23 +404,28 @@ class EchoMap(echo_gram.Echogram):
 
         channel = self.channel_select.value
 
-        color_map = 'jet' if len(self.color_map.value) == 0 \
-                          else self.color_map.value
+        color_map = "jet" if len(self.color_map.value) == 0 else self.color_map.value
 
         clim = self.range_clim.value
 
         ratio = self.ratio_input.value
 
-        self.curtain = echo_curtain.plot_curtain(self.MVBS_ds.sel(
-            channel=channel, ping_time=time_range, echo_range=echo_range),
-                                                 cmp=color_map,
-                                                 clim=clim,
-                                                 ratio=ratio)
+        self.curtain = echo_curtain.plot_curtain(
+            self.MVBS_ds.sel(
+                channel=channel, ping_time=time_range, echo_range=echo_range
+            ),
+            cmp=color_map,
+            clim=clim,
+            ratio=ratio,
+        )
 
         curtain_panel = panel.Row(
-            panel.panel(self.curtain.ren_win,
-                        height=self.curtain_height,
-                        width=self.curtain_width,
-                        orientation_widget=True))
+            panel.panel(
+                self.curtain.ren_win,
+                height=self.curtain_height,
+                width=self.curtain_width,
+                orientation_widget=True,
+            )
+        )
 
         return curtain_panel
