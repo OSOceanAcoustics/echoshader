@@ -1,4 +1,4 @@
-# Benchmarking and Profiling
+# 3. Benchmarking and Profiling
 
 ## Introduction
 
