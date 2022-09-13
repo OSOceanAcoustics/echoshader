@@ -1,5 +1,9 @@
 # GSoC Contributor's Guide
 
+```{attention}
+This program has ended for this year. Come back next year if you'd like to participate. In the meantime checkout this year's [contribution](2022/index.md).
+```
+
 The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/)
 participants to help us create the capability to interactively visualize large volumes of cloud-based ocean sonar data
 to accelerate the data exploration and discovery process. This project will go hand-in-hand with ongoing development of
