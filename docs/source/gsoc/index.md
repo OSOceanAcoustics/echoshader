@@ -1,7 +1,7 @@
 # Welcome
 
 ```{attention}
-This program has ended for this year. Come back next year if you'd like to participate. In the meantime checkout what this year's [contribution](2022/index.md).
+This program has ended for this year. Come back next year if you'd like to participate. In the meantime checkout this year's [contribution](2022/index.md).
 ```
 
 Hey there! Welcome to the Echoshader Google Summer of Code page.

@@ -1,7 +1,7 @@
 # GSoC Contributor's Guide
 
 ```{attention}
-This program has ended for this year. Come back next year if you'd like to participate. In the meantime checkout what this year's [contribution](2022/index.md).
+This program has ended for this year. Come back next year if you'd like to participate. In the meantime checkout this year's [contribution](2022/index.md).
 ```
 
 The Echoshader team aims to recruit talented [Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/)
