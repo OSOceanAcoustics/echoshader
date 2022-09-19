@@ -1,10 +1,11 @@
-import echo_gram
 import holoviews
 import hvplot.pandas
 import hvplot.xarray
 import pandas
 import panel
 import param
+
+from .echogram import Echogram
 
 
 def simple_hist(echogram):
@@ -52,7 +53,7 @@ def simple_hist(echogram):
     return echogram << hist
 
 
-class EchoStats(echo_gram.Echogram):
+class EchoStats(Echogram):
     """
     A class for plotting echogram with statistic info
 
@@ -195,7 +196,8 @@ class EchoStats(echo_gram.Echogram):
 
     Examples
     --------
-        echostats = echo_stats.EchoStats(MVBS_ds)
+        from echoshader.echostats import EchoStats
+        echostats = EchoStats(MVBS_ds)
         panel.Row(echostats.widgets, panel.Column(echostats.view_gram, echostats.view_all_table, echostats.view_outlay_hist))
     """
 

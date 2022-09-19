@@ -1,9 +1,10 @@
-import echo_curtain
-import echo_gram
 import geoviews
 import pandas
 import panel
 import param
+
+from .curtain import plot_curtain
+from .echogram import Echogram
 
 
 def plot_track(
@@ -73,7 +74,7 @@ def plot_track(
     return ship_track * start_node * tiles
 
 
-class EchoMap(echo_gram.Echogram):
+class EchoMap(Echogram):
 
     """
     A class for plotting echogram with geoinfo
@@ -230,8 +231,9 @@ class EchoMap(echo_gram.Echogram):
 
     Examples
     --------
-        echomap = echo_map.EchoMap(MVBS_ds)
+        from echoshader.echomap import EchoMap
 
+        echomap = EchoMap(MVBS_ds)
         panel.Row(echomap.widgets, panel.Column(echomap.view_gram, echomap.view_all_map, echomap.view_curtain))
 
     """
@@ -410,7 +412,7 @@ class EchoMap(echo_gram.Echogram):
 
         ratio = self.ratio_input.value
 
-        self.curtain = echo_curtain.plot_curtain(
+        self.curtain = plot_curtain(
             self.MVBS_ds.sel(
                 channel=channel, ping_time=time_range, echo_range=echo_range
             ),
