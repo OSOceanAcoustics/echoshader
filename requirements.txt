@@ -1,24 +1,17 @@
-# NOTE: Development dependencies only
-# for use with conda
 xarray
 netCDF4
 zarr
 fsspec
-pytest
-pytest-cov
-pytest-flake8
-pytest-xdist
-pytest-mock
-black
-check-manifest
-flake8
-flake8-builtins
-flake8-comprehensions
-flake8-mutable
-flake8-print
-isort
-mypy
-numpydoc
-pre-commit
-codespell
-pylint
+panel
+pyvista
+holoviews
+hvplot
+param
+geoviews
+# ============================
+# 09/19/2022: Currently unable
+# to install cartopy from pip
+cartopy
+# ============================
+echopype
+datashader

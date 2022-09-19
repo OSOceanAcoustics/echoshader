@@ -1,9 +1,8 @@
+import numpy
 import panel
+import pyvista
 
 panel.extension("vtk")
-
-import numpy
-import pyvista
 
 
 def plot_curtain(MVBS_ds, cmp="jet", clim=None, ratio=0.001):

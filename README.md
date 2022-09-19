@@ -13,7 +13,7 @@ The setup below assumes that you have installed [Conda](https://docs.conda.io/pr
 1. Install echoshader conda environment
 
     ```bash
-    conda create -n echoshader-dev -c conda-forge --file requirements.txt
+    conda create -n echoshader-dev -c conda-forge python=3.9 --file requirements.txt
     ```
 
 2. Activate the `echoshader-dev` environment
@@ -25,5 +25,5 @@ The setup below assumes that you have installed [Conda](https://docs.conda.io/pr
 3. Install development version of echoshader package
 
     ```bash
-    pip install -e .
+    pip install -e .[all]
     ```

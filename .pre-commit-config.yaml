@@ -36,12 +36,14 @@ repos:
     rev: v0.32.1
     hooks:
       - id: markdownlint
-        args: ["**/**/*.md", "--enable", "MD013", "--disable", "MD043", "line_length", "--fix"]
+        args: ["**/**/*.md", "--ignore", "docs/source/gsoc", "--enable", "MD013", "--disable", "MD043", "line_length", "--fix"]
         # uncomment the below line and comment out the above line to check the lines over 90
 #        args: ["**/**/*.md", "--enable", "MD013", "--disable", "MD043", "--fix"]
 
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.1.0
-    hooks:
-      - id: codespell
-        args: ["-w", "docs/source", "echoshader"]
+  # 09/19/2022 Don.S.: Comment out and not use codespell at the moment
+  # doesn't seem to be ignoring .ipynb when specified...
+  # - repo: https://github.com/codespell-project/codespell
+  #   rev: v2.1.0
+  #   hooks:
+  #     - id: codespell
+  #       args: ["-w", "docs/source", "echoshader"]

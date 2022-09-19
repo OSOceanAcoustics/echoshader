@@ -1,12 +1,9 @@
-import panel
-
-panel.extension("vtk")
-
 import warnings
 
 import holoviews
-import hvplot.xarray
+import hvplot.xarray  # noqa
 import pandas
+import panel
 import param
 
 warnings.simplefilter("ignore")
@@ -118,7 +115,7 @@ class Echogram(param.Parameterized):
 
         panel.Row(echogram.widgets, echogram.view_gram)
 
-    """
+    """  # noqa
 
     def __init__(self, MVBS_ds):
         """
@@ -234,7 +231,7 @@ class Echogram(param.Parameterized):
         self.widgets = panel.WidgetBox(
             str(self.lower_time) + " to " + str(self.upper_time),
             self.datetime_range_input
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker,
             self.channel_select,
             self.color_map,
@@ -262,13 +259,13 @@ class Echogram(param.Parameterized):
         """
         start_time = (
             self.datetime_range_input.value[0]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[0]
         )
 
         end_time = (
             self.datetime_range_input.value[-1]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[-1]
         )
 
@@ -337,13 +334,13 @@ class Echogram(param.Parameterized):
         """
         start_time = (
             self.datetime_range_input.value[0]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[0]
         )
 
         end_time = (
             self.datetime_range_input.value[-1]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[-1]
         )
 

@@ -1,6 +1,6 @@
 import holoviews
 import hvplot.pandas
-import hvplot.xarray
+import hvplot.xarray  # noqa
 import pandas
 import panel
 import param
@@ -199,7 +199,7 @@ class EchoStats(Echogram):
         from echoshader.echostats import EchoStats
         echostats = EchoStats(MVBS_ds)
         panel.Row(echostats.widgets, panel.Column(echostats.view_gram, echostats.view_all_table, echostats.view_outlay_hist))
-    """
+    """  # noqa
 
     def __init__(self, MVBS_ds):
         """
@@ -345,7 +345,10 @@ class EchoStats(Echogram):
             obj_df_channel.loc[len(obj_df_channel)] = ["skew", skew]
             obj_df_channel.loc[len(obj_df_channel)] = ["kurtosis", kurt]
 
-            head = pandas.DataFrame(data=["Channel", channel])
+            # 09/19/2022 Don.S: head is currently unused,
+            # not deleting at the moment as I don't know
+            # if there are any side effects, so ignore for flake8
+            head = pandas.DataFrame(data=["Channel", channel])  # noqa
 
             obj_desc = pandas.concat([obj_desc, obj_df_channel])
 

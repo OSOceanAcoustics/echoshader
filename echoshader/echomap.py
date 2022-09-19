@@ -236,7 +236,7 @@ class EchoMap(Echogram):
         echomap = EchoMap(MVBS_ds)
         panel.Row(echomap.widgets, panel.Column(echomap.view_gram, echomap.view_all_map, echomap.view_curtain))
 
-    """
+    """  # noqa
 
     def __init__(self, MVBS_ds):
         """
@@ -356,13 +356,13 @@ class EchoMap(Echogram):
         """
         start_time = (
             self.datetime_range_input.value[0]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[0]
         )
 
         end_time = (
             self.datetime_range_input.value[-1]
-            if self.datetime_range_input_model == True
+            if self.datetime_range_input_model is True
             else self.time_range_picker.value[-1]
         )
 
