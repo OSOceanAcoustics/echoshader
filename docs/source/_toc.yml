@@ -9,7 +9,7 @@ parts:
   - file: gsoc/index
   - file: gsoc/2022/index
     sections:
-    - file: gsoc/2022/Echogram&EchoStats
+    - file: gsoc/2022/Echogram_EchoStats
     - file: gsoc/2022/EchoMap
     - file: gsoc/2022/Benchmarking
   - file: gsoc/contributors_guide

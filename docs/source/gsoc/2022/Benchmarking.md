@@ -61,9 +61,10 @@ The `/admin` panel provides an overview of the current application and provides 
 For example, we build a new testing file called 'your_file_name.py' or 'your_file_name.ipynb' below:
 
 ```python
-import echo_gram
 import xarray as xr
 from pathlib import Path
+
+from echoshader import echogram
 
 MVBS_ds = xr.open_mfdataset(
     str('test_admin.nc'),
@@ -71,9 +72,9 @@ MVBS_ds = xr.open_mfdataset(
     combine='by_coords'
 )
 
-pn = echo_gram.panel
+pn = echogram.panel
 
-echogram = echo_gram.Echogram(MVBS_ds)
+echogram = echogram.Echogram(MVBS_ds)
 
 pn.Row(echogram.widgets, echogram.view_gram).servable()
 ```
