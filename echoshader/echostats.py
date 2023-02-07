@@ -328,7 +328,6 @@ class EchoStats(Echogram):
         obj_desc.loc[len(obj_desc)] = ["kurtosis", kurt]
 
         for channel in self.MVBS_ds.channel.values:
-
             obj_desc.loc[len(obj_desc)] = [" ", " "]
 
             obj_desc.loc[len(obj_desc)] = ["Channel", channel]
