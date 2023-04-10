@@ -25,5 +25,5 @@ The setup below assumes that you have installed [Conda](https://docs.conda.io/pr
 3. Install development version of echoshader package
 
     ```bash
-    pip install -e .[all]
+    pip install -e ".[all]"
     ```
