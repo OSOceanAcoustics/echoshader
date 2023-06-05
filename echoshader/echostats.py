@@ -4,7 +4,6 @@ import hvplot.xarray  # noqa
 import pandas
 import panel
 import param
-
 from echogram import Echogram
 
 

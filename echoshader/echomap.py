@@ -2,7 +2,6 @@ import geoviews
 import pandas
 import panel
 import param
-
 from curtain import plot_curtain
 from echogram import Echogram
 
