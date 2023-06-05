@@ -146,7 +146,7 @@ class Echogram(param.Parameterized):
 
         # http://holoviews.org/user_guide/Applying_Customizations.html
         self.gram_opts = holoviews.opts(
-            invert_yaxis=False, tools=["hover", "box_select"]
+            invert_yaxis=False, tools=["hover", "box_select", "lasso_select"]
         )
 
         self.bound_opts = holoviews.opts(line_width=1.5, line_color="white")
