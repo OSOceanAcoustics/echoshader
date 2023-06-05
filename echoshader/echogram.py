@@ -145,7 +145,7 @@ class Echogram(param.Parameterized):
         self.upper_time = pandas.to_datetime(self.MVBS_ds.ping_time.data[-1])
 
         # http://holoviews.org/user_guide/Applying_Customizations.html
-        self.gram_opts = holoviews.opts(invert_yaxis=True, tools=["hover","box_select"])
+        self.gram_opts = holoviews.opts(invert_yaxis=False, tools=["hover","box_select"])
 
         self.bound_opts = holoviews.opts(line_width=1.5, line_color="white")
 
