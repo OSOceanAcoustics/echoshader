@@ -421,11 +421,10 @@ class EchoMap(Echogram):
         )
 
         curtain_panel = panel.panel(
-                self.curtain.ren_win,
-                height=self.curtain_height,
-                width=self.curtain_width,
-                orientation_widget=True,
+            self.curtain.ren_win,
+            height=self.curtain_height,
+            width=self.curtain_width,
+            orientation_widget=True,
         )
-        
 
         return curtain_panel
