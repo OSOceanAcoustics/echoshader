@@ -3,8 +3,8 @@ import pandas
 import panel
 import param
 
-from .curtain import plot_curtain
-from .echogram import Echogram
+from curtain import plot_curtain
+from echogram import Echogram
 
 
 def plot_track(

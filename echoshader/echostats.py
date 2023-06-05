@@ -5,7 +5,7 @@ import pandas
 import panel
 import param
 
-from .echogram import Echogram
+from echogram import Echogram
 
 
 def simple_hist(echogram):
