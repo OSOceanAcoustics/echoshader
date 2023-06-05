@@ -401,7 +401,7 @@ class EchoMap(Echogram):
 
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         channel = self.channel_select.value
 

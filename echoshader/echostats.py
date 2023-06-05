@@ -253,7 +253,7 @@ class EchoStats(Echogram):
         """
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         channel = self.channel_select.value
 
@@ -286,7 +286,7 @@ class EchoStats(Echogram):
 
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         channel = self.channel_select.value
 
@@ -311,7 +311,7 @@ class EchoStats(Echogram):
         """
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         # Apply current ranges
         obj_df = self.MVBS_ds.sel(
@@ -365,7 +365,7 @@ class EchoStats(Echogram):
 
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         # Apply current ranges
         obj_df = self.MVBS_ds.sel(
@@ -388,7 +388,7 @@ class EchoStats(Echogram):
         """
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         return (
             self.MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
@@ -415,7 +415,7 @@ class EchoStats(Echogram):
         """
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range=slice(self.box.bounds[1], self.box.bounds[3]) if self.box.bounds[3]>self.box.bounds[1] else slice(self.box.bounds[3], self.box.bounds[1])
 
         return (
             self.MVBS_ds.sel(ping_time=time_range, echo_range=echo_range)
