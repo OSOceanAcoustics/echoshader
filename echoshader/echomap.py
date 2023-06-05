@@ -420,13 +420,12 @@ class EchoMap(Echogram):
             ratio=ratio,
         )
 
-        curtain_panel = panel.Row(
-            panel.panel(
+        curtain_panel = panel.panel(
                 self.curtain.ren_win,
                 height=self.curtain_height,
                 width=self.curtain_width,
                 orientation_widget=True,
-            )
         )
+        
 
         return curtain_panel
