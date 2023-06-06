@@ -5,10 +5,11 @@ import hvplot.xarray  # noqa
 import pandas
 import panel
 import param
+import xarray
 
 warnings.simplefilter("ignore")
 
-
+@xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
     """
     A class for plotting basic echogram
