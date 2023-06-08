@@ -9,6 +9,7 @@ import xarray
 
 warnings.simplefilter("ignore")
 
+
 @xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
     """
