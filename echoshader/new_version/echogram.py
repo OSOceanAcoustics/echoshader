@@ -64,7 +64,7 @@ class Echogram(param.Parameterized):
         if vmin is None:
             vmin=self.MVBS_ds.Sv.actual_range[0]
 
-        if vmax==None:
+        if vmax is None:
             vmax=self.MVBS_ds.Sv.actual_range[-1]
 
         self.gram_opts['Image']['clim']=(vmin, vmax)
