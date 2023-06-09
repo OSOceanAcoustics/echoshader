@@ -29,7 +29,8 @@ class Echogram(param.Parameterized):
 
     def _init_widget(self):
         self.channel_select = panel.widgets.Select(
-            name="Channel Select", options=self.MVBS_ds.channel.values.tolist()
+            name="Channel Select", 
+            options=self.MVBS_ds.channel.values.tolist()
         )
 
         self.Sv_range_slider = panel.widgets.EditableRangeSlider(
@@ -41,7 +42,9 @@ class Echogram(param.Parameterized):
         )
 
         self.color_map = panel.widgets.TextInput(
-            name="Color Map", value="jet", placeholder="jet"
+            name="Color Map", 
+            value="jet", 
+            placeholder="jet"
         )
 
     def echograms(
@@ -58,13 +61,13 @@ class Echogram(param.Parameterized):
     ):
         self.gram_opts["Image"]["cmap"] = cmap
 
-        if vmin == None:
-            vmin = self.MVBS_ds.Sv.actual_range[0]
+        if vmin is None:
+            vmin=self.MVBS_ds.Sv.actual_range[0]
 
-        if vmax == None:
-            vmax = self.MVBS_ds.Sv.actual_range[-1]
+        if vmax==None:
+            vmax=self.MVBS_ds.Sv.actual_range[-1]
 
-        self.gram_opts["Image"]["clim"] = (vmin, vmax)
+        self.gram_opts['Image']['clim']=(vmin, vmax)
 
         if layout == "single_frequency":
             tabs = panel.Tabs()
@@ -126,36 +129,36 @@ class Echogram(param.Parameterized):
 
     @param.depends("channel_select.value", "Sv_range_slider.value", "color_map.value")
     def echogram(
-        self,
-        channel: str = None,
-        cmap: str = None,
-        vmin: float = None,
-        vmax: float = None,
-        *args,
-        **kwargs
-    ):
-        if channel != None:
+            self,
+            channel: str = None,
+            cmap: str = None, 
+            vmin: float = None, 
+            vmax: float = None, 
+            *args, 
+            **kwargs):
+        
+        if channel is not None:
             self.channel_select.value = channel
-
-        if cmap != None:
+        
+        if cmap is not None:
             self.color_map.value = cmap
 
         self.gram_opts["Image"]["cmap"] = self.color_map.value
 
-        if vmin != None and vmax != None:
-            self.Sv_range_slider.start = vmin
-            self.Sv_range_slider.end = vmax
-            self.Sv_range_slider.value = (vmin, vmax)
+        if vmin is not None and vmax is not None:
+            self.Sv_range_slider.start=vmin
+            self.Sv_range_slider.end=vmax
+            self.Sv_range_slider.value=(vmin,vmax)
 
-        elif vmin != None:
-            self.Sv_range_slider.start = vmin
-            old_vmax = self.Sv_range_slider.value[1]
-            self.Sv_range_slider.value = (vmin, old_vmax)
+        elif vmin is not None:
+            self.Sv_range_slider.start=vmin
+            old_vmax=self.Sv_range_slider.value[1]
+            self.Sv_range_slider.value=(vmin,old_vmax)
 
-        elif vmax != None:
-            self.Sv_range_slider.end = vmax
-            old_vmin = self.Sv_range_slider.value[0]
-            self.Sv_range_slider.value = (old_vmin, old_vmax)
+        elif vmax is not None:
+            self.Sv_range_slider.end=vmax
+            old_vmin=self.Sv_range_slider.value[0]
+            self.Sv_range_slider.value=(old_vmin,old_vmax)
 
         self.gram_opts["Image"]["clim"] = self.Sv_range_slider.value
 
