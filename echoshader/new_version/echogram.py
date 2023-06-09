@@ -206,5 +206,4 @@ class Echogram(param.Parameterized):
                 kdims=["ping_time","echo_range"]
                 ).opts(self.gram_opts)
         
-        return plot
-
+        return plots
