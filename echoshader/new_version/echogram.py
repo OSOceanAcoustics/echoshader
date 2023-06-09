@@ -1,4 +1,4 @@
-from typing import Union, Dict, List
+from typing import Dict, List, Union
 
 import holoviews
 import panel
@@ -6,6 +6,7 @@ import param
 import xarray
 from get_rgb import convert_to_color
 from get_string_list import convert_string_to_list
+
 
 @xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
@@ -63,9 +64,7 @@ class Echogram(param.Parameterized):
         vmin: float = None,
         vmax: float = None,
         layout: Union[
-            str("single_frequency"), 
-            str("multiple_frequency"), 
-            str("composite")
+            str("single_frequency"), str("multiple_frequency"), str("composite")
         ] = "single_frequency",
         rgb_map: Dict[str, str] = {},
         *args,
@@ -75,7 +74,7 @@ class Echogram(param.Parameterized):
         Generate general echogram visualizations without specified channel and control widgets.
 
         Args:
-            cmap (str or list, optional): The colormap(s) to use. Input list like ['#0000ff'] to customize. Defaults to 'jet'. 
+            cmap (str or list, optional): The colormap(s) to use. Input list like ['#0000ff'] to customize. Defaults to 'jet'.
             vmin (float, optional): The minimum value for the color range. Defaults to None.
             vmax (float, optional): The maximum value for the color range. Defaults to None.
             layout (str, optional): The layout of the echogram visualizations.
@@ -157,10 +156,7 @@ class Echogram(param.Parameterized):
 
             return rgb
 
-    @param.depends(
-            "channel_select.value", 
-            "Sv_range_slider.value", 
-            "color_map.value")
+    @param.depends("channel_select.value", "Sv_range_slider.value", "color_map.value")
     def echogram(
         self,
         channel: str = None,
@@ -175,7 +171,7 @@ class Echogram(param.Parameterized):
 
         Args:
             channel (str, optional): The channel to visualize. Defaults to None.
-            cmap (str or list, optional): The colormap(s) to use. Input list like ['#0000ff'] to customize. Defaults to None. 
+            cmap (str or list, optional): The colormap(s) to use. Input list like ['#0000ff'] to customize. Defaults to None.
             vmin (float, optional): The minimum value for the color range. Defaults to None.
             vmax (float, optional): The maximum value for the color range. Defaults to None.
             *args: Additional arguments.
@@ -191,7 +187,9 @@ class Echogram(param.Parameterized):
             self.color_map.value = cmap
 
         list_camp = convert_string_to_list(self.color_map.value)
-        self.gram_opts['Image']['cmap'] = list_camp if list_camp != False else self.color_map.value
+        self.gram_opts["Image"]["cmap"] = (
+            list_camp if list_camp != False else self.color_map.value
+        )
 
         if vmin is not None and vmax is not None:
             self.Sv_range_slider.start = vmin
