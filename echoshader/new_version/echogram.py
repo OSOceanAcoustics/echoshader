@@ -9,8 +9,17 @@ from get_rgb import convert_to_color
 
 @xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
+    """
+    A class for creating echogram visualizations from MVBS datasets.
+    """
 
     def __init__(self, MVBS_ds):
+        """
+        Initialize the Echogram object.
+
+        Args:
+            MVBS_ds (xarray.Dataset): The MVBS dataset.
+        """
         super().__init__()
 
         self.MVBS_ds = MVBS_ds
@@ -32,7 +41,9 @@ class Echogram(param.Parameterized):
         self._init_widget()
         
     def _init_widget(self):
-        
+        """
+        Initialize the interactive widgets for controlling the echogram visualization.
+        """
         self.channel_select = panel.widgets.Select(
             name="Channel Select", 
             options=self.MVBS_ds.channel.values.tolist()
@@ -63,7 +74,24 @@ class Echogram(param.Parameterized):
             rgb_map: Dict[str, str] = {},
             *args, 
             **kwargs):
-        
+        """
+        Generate general echogram visualizations without specified channel and control widgets.
+
+        Args:
+            cmap (str, optional): The colormap to use. Defaults to 'jet'.
+            vmin (float, optional): The minimum value for the color range. Defaults to None.
+            vmax (float, optional): The maximum value for the color range. Defaults to None.
+            layout (str, optional): The layout of the echogram visualizations.
+                Must be one of 'single_frequency', 'multiple_frequency', or 'composite'.
+                Defaults to 'single_frequency'.
+            rgb_map (Dict[str, str], optional): The mapping of channels to RGB color channels
+                for composite visualization. Defaults to an empty dictionary.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            panel.Tabs or panel.Column or holoviews.RGB: The generated visualizations.
+        """       
         self.gram_opts['Image']['cmap']=cmap
 
         if vmin is None:
@@ -134,7 +162,20 @@ class Echogram(param.Parameterized):
             vmax: float = None, 
             *args, 
             **kwargs):
-        
+        """
+        Generate an echogram visualization for a specific channel and settings.
+
+        Args:
+            channel (str, optional): The channel to visualize. Defaults to None.
+            cmap (str, optional): The colormap to use. Defaults to None.
+            vmin (float, optional): The minimum value for the color range. Defaults to None.
+            vmax (float, optional): The maximum value for the color range. Defaults to None.
+            *args: Additional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            holoviews.Image: The generated echogram visualization.
+        """        
         if channel is not None:
             self.channel_select.value = channel
         
