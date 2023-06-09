@@ -210,4 +210,4 @@ class Echogram(param.Parameterized):
             .opts(self.gram_opts)
         )
 
-        return plots
+        return plot
