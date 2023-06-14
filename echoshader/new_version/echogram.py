@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Literal
 
 import holoviews
 import panel
@@ -63,8 +63,8 @@ class Echogram(param.Parameterized):
         cmap: Union[str, List[str]] = "jet",
         vmin: float = None,
         vmax: float = None,
-        layout: Union[
-            str("single_frequency"), str("multiple_frequency"), str("composite")
+        layout: Literal[
+            "single_frequency", "multiple_frequency", "composite"
         ] = "single_frequency",
         rgb_map: Dict[str, str] = {},
         *args,
