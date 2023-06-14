@@ -58,7 +58,7 @@ class Echogram(param.Parameterized):
             name="Color Map", value="jet", placeholder="jet"
         )
 
-    def echograms(
+    def echogram_multiple_frequency(
         self,
         cmap: Union[str, List[str]] = "jet",
         vmin: float = None,
