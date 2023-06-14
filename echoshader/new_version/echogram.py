@@ -157,7 +157,7 @@ class Echogram(param.Parameterized):
             return rgb
 
     @param.depends("channel_select.value", "Sv_range_slider.value", "color_map.value")
-    def echogram(
+    def echogram_single_frequency(
         self,
         channel: str = None,
         cmap: Union[str, List[str]] = None,
