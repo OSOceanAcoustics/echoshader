@@ -98,7 +98,7 @@ class Echogram(param.Parameterized):
 
         self.gram_opts["Image"]["clim"] = (vmin, vmax)
 
-        if layout == "single_frequency":
+        if layout == str("single_frequency"):
             tabs = panel.Tabs()
 
             for index, channel in enumerate(self.MVBS_ds.channel.values):
@@ -114,7 +114,7 @@ class Echogram(param.Parameterized):
 
             return tabs
 
-        elif layout == "multiple_frequency":
+        elif layout == str("multiple_frequency"):
             col = panel.Column()
 
             for index, channel in enumerate(self.MVBS_ds.channel.values):
@@ -131,7 +131,7 @@ class Echogram(param.Parameterized):
 
             return col
 
-        elif layout == "composite":
+        elif layout == str("composite"):
             if rgb_map == {}:
                 rgb_map[self.MVBS_ds.channel.values[0]] = "R"
                 rgb_map[self.MVBS_ds.channel.values[1]] = "G"
