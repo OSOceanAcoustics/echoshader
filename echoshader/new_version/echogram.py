@@ -74,7 +74,7 @@ class Echogram(param.Parameterized):
         Generate general echogram visualizations without specified channel and control widgets.
 
         Args:
-            cmap (str or list, optional): The colormap(s) to use. 
+            cmap (str or list, optional): The colormap(s) to use.
             Input list like ['#0000ff'] to customize. Defaults to 'jet'.
             vmin (float, optional): The minimum value for the color range. Defaults to None.
             vmax (float, optional): The maximum value for the color range. Defaults to None.
@@ -172,7 +172,7 @@ class Echogram(param.Parameterized):
 
         Args:
             channel (str, optional): The channel to visualize. Defaults to None.
-            cmap (str or list, optional): The colormap(s) to use. 
+            cmap (str or list, optional): The colormap(s) to use.
             Input list like ['#0000ff'] to customize. Defaults to None.
             vmin (float, optional): The minimum value for the color range. Defaults to None.
             vmax (float, optional): The maximum value for the color range. Defaults to None.
@@ -189,7 +189,9 @@ class Echogram(param.Parameterized):
             self.color_map.value = cmap
 
         list_camp = convert_string_to_list(self.color_map.value)
-        self.gram_opts["Image"]["cmap"] = list_camp if list_camp != False else self.color_map.value
+        self.gram_opts["Image"]["cmap"] = (
+            list_camp if list_camp != False else self.color_map.value
+        )
 
         if vmin is not None and vmax is not None:
             self.Sv_range_slider.start = vmin
