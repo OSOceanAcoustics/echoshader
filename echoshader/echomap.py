@@ -2,9 +2,8 @@ import geoviews
 import pandas
 import panel
 import param
-
-from .curtain import plot_curtain
-from .echogram import Echogram
+from curtain import plot_curtain
+from echogram import Echogram
 
 
 def plot_track(
@@ -402,7 +401,11 @@ class EchoMap(Echogram):
 
         time_range = slice(self.box.bounds[0], self.box.bounds[2])
 
-        echo_range = slice(self.box.bounds[3], self.box.bounds[1])
+        echo_range = (
+            slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1])
+        )
 
         channel = self.channel_select.value
 
@@ -421,13 +424,11 @@ class EchoMap(Echogram):
             ratio=ratio,
         )
 
-        curtain_panel = panel.Row(
-            panel.panel(
-                self.curtain.ren_win,
-                height=self.curtain_height,
-                width=self.curtain_width,
-                orientation_widget=True,
-            )
+        curtain_panel = panel.panel(
+            self.curtain.ren_win,
+            height=self.curtain_height,
+            width=self.curtain_width,
+            orientation_widget=True,
         )
 
         return curtain_panel

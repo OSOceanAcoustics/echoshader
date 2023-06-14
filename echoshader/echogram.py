@@ -145,7 +145,9 @@ class Echogram(param.Parameterized):
         self.upper_time = pandas.to_datetime(self.MVBS_ds.ping_time.data[-1])
 
         # http://holoviews.org/user_guide/Applying_Customizations.html
-        self.gram_opts = holoviews.opts(invert_yaxis=True)
+        self.gram_opts = holoviews.opts(
+            invert_yaxis=False, tools=["hover", "box_select", "lasso_select"]
+        )
 
         self.bound_opts = holoviews.opts(line_width=1.5, line_color="white")
 
@@ -301,9 +303,9 @@ class Echogram(param.Parameterized):
             source=self.gram,
             bounds=(
                 self.MVBS_ds.sel(ping_time=time_range).ping_time.values[0],
-                self.MVBS_ds.echo_range.values[-1],
-                self.MVBS_ds.sel(ping_time=time_range).ping_time.values[-1],
                 self.MVBS_ds.echo_range.values[0],
+                self.MVBS_ds.sel(ping_time=time_range).ping_time.values[-1],
+                self.MVBS_ds.echo_range.values[-1],
             ),
         )
 
@@ -394,9 +396,9 @@ class Echogram(param.Parameterized):
             source=self.all_gram[0],
             bounds=(
                 self.MVBS_ds.sel(ping_time=time_range).ping_time.values[0],
-                self.MVBS_ds.echo_range.values[-1],
-                self.MVBS_ds.sel(ping_time=time_range).ping_time.values[-1],
                 self.MVBS_ds.echo_range.values[0],
+                self.MVBS_ds.sel(ping_time=time_range).ping_time.values[-1],
+                self.MVBS_ds.echo_range.values[-1],
             ),
         )
 
@@ -419,7 +421,9 @@ class Echogram(param.Parameterized):
         return self.MVBS_ds.sel(
             channel=self.channel_select.value,
             ping_time=slice(self.box.bounds[0], self.box.bounds[2]),
-            echo_range=slice(self.box.bounds[3], self.box.bounds[1]),
+            echo_range=slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1]),
         )
 
     def get_all_box_data(self):
@@ -432,7 +436,9 @@ class Echogram(param.Parameterized):
         """
         return self.MVBS_ds.sel(
             ping_time=slice(self.box.bounds[0], self.box.bounds[2]),
-            echo_range=slice(self.box.bounds[3], self.box.bounds[1]),
+            echo_range=slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1]),
         )
 
 
