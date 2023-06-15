@@ -232,7 +232,7 @@ class Echogram(param.Parameterized):
         Get MVBS data with a specific frequency from the selected box
 
         Parameters:
-            all_channels (bool, optional): Flag indicating whether to extract data from all channels or not.
+            all_channels (bool, optional): Indicate whether to extract data from all channels.
                 Defaults to True.
 
         Returns:
