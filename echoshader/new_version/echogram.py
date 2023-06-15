@@ -4,12 +4,12 @@ import holoviews
 import panel
 import param
 import xarray
-
 from get_box import get_box_plot, get_box_stream
 from get_rgb import convert_to_color
 from get_string_list import convert_string_to_list
 
 holoviews.extension("bokeh", logo=False)
+
 
 @xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
