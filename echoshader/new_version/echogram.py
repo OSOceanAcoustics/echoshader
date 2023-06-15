@@ -235,6 +235,14 @@ class Echogram(param.Parameterized):
                               all_channels: bool = True):
         """
         Get MVBS data with a specific frequency from the selected box
+        
+        Parameters:
+            all_channels (bool, optional): Flag indicating whether to extract data from all channels or not.
+                Defaults to True.
+                
+        Returns:
+            xarray.Dataset: A subset of the MVBS dataset containing data within the specified box.
+                The subset is determined by the selected channels, ping time, and echo range.
         """
 
         return self.MVBS_ds.sel(
