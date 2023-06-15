@@ -4,9 +4,12 @@ import holoviews
 import panel
 import param
 import xarray
+
+from get_box import get_box_plot, get_box_stream
 from get_rgb import convert_to_color
 from get_string_list import convert_string_to_list
 
+holoviews.extension("bokeh", logo=False)
 
 @xarray.register_dataset_accessor("eshader")
 class Echogram(param.Parameterized):
@@ -210,10 +213,39 @@ class Echogram(param.Parameterized):
 
         self.gram_opts["Image"]["clim"] = self.Sv_range_slider.value
 
-        plot = (
+        gram_plot = (
             holoviews.Dataset(self.MVBS_ds.sel(channel=self.channel_select.value))
             .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
             .opts(self.gram_opts)
         )
 
-        return plot
+        # get box from echogram
+        self.box = get_box_stream(gram_plot)
+
+        # plot box
+        bounds = get_box_plot(self.box)
+
+        return gram_plot * bounds
+
+    def extract_data_from_box(self, all_channels: bool = True):
+        """
+        Get MVBS data with a specific frequency from the selected box
+
+        Parameters:
+            all_channels (bool, optional): Flag indicating whether to extract data from all channels or not.
+                Defaults to True.
+
+        Returns:
+            xarray.Dataset: A subset of the MVBS dataset containing data within the specified box.
+                The subset is determined by the selected channels, ping time, and echo range.
+        """
+
+        return self.MVBS_ds.sel(
+            channel=self.MVBS_ds.channel.values
+            if all_channels is True
+            else self.channel_select.value,
+            ping_time=slice(self.box.bounds[0], self.box.bounds[2]),
+            echo_range=slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1]),
+        )
