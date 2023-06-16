@@ -4,9 +4,11 @@ import holoviews
 import panel
 import param
 import xarray
+
 from get_rgb import convert_to_color
 from get_string_list import convert_string_to_list
 from get_box import get_box_stream, get_box_plot
+from get_map import plot_tiles, plot_track, plot_point
 
 holoviews.extension("bokeh", logo=False)
 
@@ -253,4 +255,12 @@ class Echogram(param.Parameterized):
             if self.box.bounds[3] > self.box.bounds[1]
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
-
+    
+    def ship_track(self):
+        return plot_track(self.MVBS_ds)
+    
+    def moored_point(self):
+        return plot_point(self.MVBS_ds)
+    
+    def tile(self, map_tiles="OSM"):
+        return plot_tiles(map_tiles=map_tiles)
