@@ -213,23 +213,23 @@ class Echogram(param.Parameterized):
 
         self.gram_opts["Image"]["clim"] = self.Sv_range_slider.value
 
-        gram_plot = (
+        echogram = (
             holoviews.Dataset(self.MVBS_ds.sel(channel=self.channel_select.value))
             .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
             .opts(self.gram_opts)
         )
 
         # get box from echogram
-        self.box = get_box_stream(gram_plot)
+        self.box = get_box_stream(echogram)
 
         # plot box
         bounds = get_box_plot(self.box)
 
-        return gram_plot * bounds
+        return echogram * bounds
 
     def extract_data_from_box(self, all_channels: bool = True):
         """
-        Get MVBS data with a specific frequency from the selected box
+        Get Sv data with a specific frequency from the selected box
 
         Parameters:
             all_channels (bool, optional): Indicate whether to extract data from all channels.
