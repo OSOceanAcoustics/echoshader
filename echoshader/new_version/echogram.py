@@ -8,7 +8,7 @@ import xarray
 from get_rgb import convert_to_color
 from get_string_list import convert_string_to_list
 from get_box import get_box_stream, get_box_plot
-from get_map import plot_tiles, plot_track, plot_point
+from get_map import plot_tiles, plot_track, plot_point, plot_curtain
 
 holoviews.extension("bokeh", logo=False)
 
@@ -256,11 +256,42 @@ class Echogram(param.Parameterized):
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
     
-    def ship_track(self):
-        return plot_track(self.MVBS_ds)
+    def ship_track(self,
+                   ping_time):
+        return plot_track(self.MVBS_ds.sel(ping_time=ping_time))
     
     def moored_point(self):
         return plot_point(self.MVBS_ds)
     
-    def tile(self, map_tiles="OSM"):
+    def tile(self, 
+             map_tiles="OSM"):
         return plot_tiles(map_tiles=map_tiles)
+    
+    def curtain(self, 
+                channel, 
+                ping_time, 
+                echo_range, 
+                colormap, 
+                vmin,
+                vmax,
+                ratio):
+
+        self.curtain = plot_curtain(
+            self.MVBS_ds.sel(
+                channel=channel, 
+                ping_time=ping_time, 
+                echo_range=echo_range
+            ),
+            cmp=colormap,
+            clim=(vmin, vmax),
+            ratio=ratio,
+        )
+
+        curtain_panel = panel.panel(
+            self.curtain.ren_win,
+            height=self.curtain_height,
+            width=self.curtain_width,
+            orientation_widget=True,
+        )
+
+        return curtain_panel
