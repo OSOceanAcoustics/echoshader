@@ -11,5 +11,5 @@ def convert_to_color(ds_Sv, channel_sel, th_bottom, th_top):
     # da_color = ((da_color - th_bottom) / (th_top - th_bottom) *255).astype('int')
     # # this would produce false extreme values from float NaNs
     da_color = (da_color - th_bottom) / (th_top - th_bottom)
-    da_color = numpy.squeeze(da_color.Sv.data).transpose().compute()
+    da_color = numpy.squeeze(da_color.Sv.data).transpose()
     return da_color

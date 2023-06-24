@@ -1,12 +1,13 @@
 from typing import Dict, List, Literal, Union
 
+import numpy as np
 import holoviews
 import panel
 import param
 import xarray
-from get_box import get_box_plot, get_box_stream
-from get_rgb import convert_to_color
-from get_string_list import convert_string_to_list
+from .get_box import get_box_plot, get_box_stream
+from .get_rgb import convert_to_color
+from .get_string_list import convert_string_to_list
 
 holoviews.extension("bokeh", logo=False)
 
@@ -35,8 +36,14 @@ class Echogram(param.Parameterized):
                 "tools": ["box_select", "lasso_select", "hover"],
                 "invert_yaxis": False,
                 "width": 600,
+                "yticks": self._get_inverted_echo_range(),
             },
-            "RGB": {"tools": ["hover"], "invert_yaxis": False, "width": 600},
+            "RGB": {
+                "tools": ["hover"],
+                "invert_yaxis": False,
+                "width": 600,
+                "yticks": self._get_inverted_echo_range(),
+            },
         }
 
         self._init_widget()
@@ -60,6 +67,12 @@ class Echogram(param.Parameterized):
         self.color_map = panel.widgets.TextInput(
             name="Color Map", value="jet", placeholder="jet"
         )
+
+    def _get_inverted_echo_range(self):
+        echo_range_max = self.MVBS_ds["echo_range"].data[0]
+        yticks_labels = np.arange(0, echo_range_max, 50)
+        yticks_values = echo_range_max - yticks_labels
+        return list(zip(yticks_values, yticks_labels.astype(int).astype(str)))
 
     def echogram_multiple_frequency(
         self,
@@ -137,9 +150,9 @@ class Echogram(param.Parameterized):
 
         elif layout == str("composite"):
             if rgb_map == {}:
-                rgb_map[self.MVBS_ds.channel.values[0]] = "R"
+                rgb_map[self.MVBS_ds.channel.values[2]] = "R"
                 rgb_map[self.MVBS_ds.channel.values[1]] = "G"
-                rgb_map[self.MVBS_ds.channel.values[2]] = "B"
+                rgb_map[self.MVBS_ds.channel.values[0]] = "B"
 
             rgb_ch = {"R": None, "G": None, "B": None}
 
