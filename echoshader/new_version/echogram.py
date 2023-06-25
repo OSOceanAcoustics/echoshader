@@ -35,13 +35,15 @@ class Echogram(param.Parameterized):
                 "colorbar": True,
                 "tools": ["box_select", "lasso_select", "hover"],
                 "invert_yaxis": False,
-                "width": 600,
+                "width": 1800,
+                "height": 350,
                 "yticks": self._get_inverted_echo_range(),
             },
             "RGB": {
                 "tools": ["hover"],
                 "invert_yaxis": False,
-                "width": 600,
+                "width": 1800,
+                "height": 800,
                 "yticks": self._get_inverted_echo_range(),
             },
         }
@@ -83,6 +85,7 @@ class Echogram(param.Parameterized):
             "single_frequency", "multiple_frequency", "composite"
         ] = "single_frequency",
         rgb_map: Dict[str, str] = {},
+        clipping_colors: dict = {},
         *args,
         **kwargs
     ):
@@ -106,6 +109,7 @@ class Echogram(param.Parameterized):
             panel.Tabs or panel.Column or holoviews.RGB: The generated visualizations.
         """
         self.gram_opts["Image"]["cmap"] = cmap
+        self.gram_opts["Image"]["clipping_colors"] = clipping_colors
 
         if vmin is None:
             vmin = self.MVBS_ds.Sv.actual_range[0]
@@ -143,7 +147,7 @@ class Echogram(param.Parameterized):
                     .opts(self.gram_opts)
                 )
 
-                col.append(panel.pane.Markdown("## " + channel))
+                col.append(panel.pane.Markdown("### " + channel))
                 col.append(plot)
 
             return col
