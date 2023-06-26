@@ -1,10 +1,11 @@
 from typing import Dict, List, Literal, Union
 
-import numpy as np
 import holoviews
+import numpy as np
 import panel
 import param
 import xarray
+
 from .get_box import get_box_plot, get_box_stream
 from .get_rgb import convert_to_color
 from .get_string_list import convert_string_to_list
