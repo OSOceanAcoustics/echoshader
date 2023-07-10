@@ -4,10 +4,11 @@ import holoviews
 import panel
 import param
 import xarray
+import numpy
 
 from get_rgb import convert_to_color
-from get_string_list import convert_string_to_list
-from get_box import get_box_stream, get_box_plot
+from get_box import get_box_stream, get_lasso_stream, get_box_plot
+from get_map import get_tile_options, convert_EPSG
 from get_map import plot_tiles, plot_track, plot_point, plot_curtain
 
 holoviews.extension("bokeh", logo=False)
@@ -18,7 +19,8 @@ class Echogram(param.Parameterized):
     A class for creating echogram visualizations from MVBS datasets.
     """
 
-    def __init__(self, MVBS_ds):
+    def __init__(self, 
+                 MVBS_ds: xarray.Dataset):
         """
         Initialize the Echogram object.
 
@@ -54,6 +56,10 @@ class Echogram(param.Parameterized):
             name="Channel Select", options=self.MVBS_ds.channel.values.tolist()
         )
 
+        self.color_map = panel.widgets.LiteralInput(
+            name="Color Map", value="jet", type=(str, list)
+        )
+
         self.Sv_range_slider = panel.widgets.EditableRangeSlider(
             name="Sv Range Slider",
             start=self.MVBS_ds.Sv.actual_range[0],
@@ -62,8 +68,28 @@ class Echogram(param.Parameterized):
             step=0.01,
         )
 
-        self.color_map = panel.widgets.TextInput(
-            name="Color Map", value="jet", placeholder="jet"
+        self.tile_select = panel.widgets.Select(
+            name="Map Tile Select",
+            value="OSM",
+            options=get_tile_options()
+        )
+
+        self.curtain_ratio = panel.widgets.FloatInput(
+            name="Ratio Input (Z Spacing)", value=0.001, step=1e-5, start=0
+        )
+
+        self.link_mode_select = panel.widgets.select(
+            name='Link Mode Select', 
+            options={'Track controled by Echogram': True, 
+                     'Echogram controled by Track': False},
+        )
+
+        self.update_map_button = panel.widgets.Button(
+            name="Update 🗺️", button_type="primary"
+        )
+
+        self.update_stats_button = panel.widgets.Button(
+            name="Update 📊", button_type="primary"
         )
 
     def echogram_multiple_frequency(
@@ -165,13 +191,17 @@ class Echogram(param.Parameterized):
 
             return rgb
 
-    @param.depends("channel_select.value", "Sv_range_slider.value", "color_map.value")
+    @param.depends("channel_select.value", 
+                   "Sv_range_slider.value", 
+                   "color_map.value"
+                   "link_mode_select.value")
     def echogram_single_frequency(
         self,
         channel: str = None,
         cmap: Union[str, List[str]] = None,
         vmin: float = None,
         vmax: float = None,
+        link_to_track: bool = None,
         *args,
         **kwargs
     ):
@@ -196,38 +226,38 @@ class Echogram(param.Parameterized):
         if cmap is not None:
             self.color_map.value = cmap
 
-        list_camp = convert_string_to_list(self.color_map.value)
-        self.gram_opts["Image"]["cmap"] = (
-            list_camp if list_camp is not False else self.color_map.value
-        )
+        self.gram_opts["Image"]["cmap"] = self.color_map.value
 
-        if vmin is not None and vmax is not None:
-            self.Sv_range_slider.start = vmin
-            self.Sv_range_slider.end = vmax
-            self.Sv_range_slider.value = (vmin, vmax)
-
-        elif vmin is not None:
-            self.Sv_range_slider.start = vmin
-            old_vmax = self.Sv_range_slider.value[1]
-            self.Sv_range_slider.value = (vmin, old_vmax)
-
-        elif vmax is not None:
-            self.Sv_range_slider.end = vmax
-            old_vmin = self.Sv_range_slider.value[0]
-            self.Sv_range_slider.value = (old_vmin, old_vmax)
-
+        old_vmin = self.Sv_range_slider.value[0]
+        old_vmax = self.Sv_range_slider.value[1]
+        self.Sv_range_slider.value = (vmin if vmin is not None else old_vmin, 
+                                      vmax if vmax is not None else old_vmax)
         self.gram_opts["Image"]["clim"] = self.Sv_range_slider.value
 
-        gram_plot = (
-            holoviews.Dataset(self.MVBS_ds.sel(channel=self.channel_select.value))
-            .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
-            .opts(self.gram_opts)
-        )
+        if link_to_track is not None:
+            self.link_mode_select.value = not link_to_track
+        
+        if self.link_mode_select.value is False and self.track_box is not None:
+            gram_plot = (
+                holoviews.Dataset(self.MVBS_ds.where().sel(channel=self.channel_select.value))
+                .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
+                .opts(self.gram_opts)
+            )            
+            
+        else:
+            gram_plot = (
+                holoviews.Dataset(self.MVBS_ds.sel(channel=self.channel_select.value))
+                .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
+                .opts(self.gram_opts)
+            )
 
-        # get box from echogram
+        # get box stream from echogram
         self.box = get_box_stream(gram_plot)
 
-        # plot box
+        # get lasso stream from echogram
+        self.lasso = get_lasso_stream(gram_plot)
+
+        # plot box using bounds
         bounds = get_box_plot(self.box)
 
         return gram_plot * bounds
@@ -256,39 +286,107 @@ class Echogram(param.Parameterized):
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
     
+    @param.depends("update_map_button.value")    
     def ship_track(self,
-                   ping_time):
-        return plot_track(self.MVBS_ds.sel(ping_time=ping_time))
-    
-    def moored_point(self):
-        return plot_point(self.MVBS_ds)
-    
-    def tile(self, 
-             map_tiles="OSM"):
-        return plot_tiles(map_tiles=map_tiles)
-    
-    def curtain(self, 
-                channel, 
-                ping_time, 
-                echo_range, 
-                colormap, 
-                vmin,
-                vmax,
-                ratio):
+                   link_to_echogram: bool = None):
+        
+        if link_to_echogram is not None:
+            self.link_mode_select.value = link_to_echogram
+            
+        if self.link_mode_select.value is True:
+            time_range = slice(self.box.bounds[0], self.box.bounds[2])
+            track_plot = plot_track(MVBS_ds = self.MVBS_ds.sel(ping_time=time_range)) 
+        else:
+            track_plot = plot_track(MVBS_ds = self.MVBS_ds)
 
-        self.curtain = plot_curtain(
-            self.MVBS_ds.sel(
-                channel=channel, 
+        l = numpy.nanmin(self.MVBS_ds.longitude.values)
+        b = numpy.nanmin(self.MVBS_ds.latitude.values)
+        r = numpy.nanmax(self.MVBS_ds.longitude.values)
+        t = numpy.nanmax(self.MVBS_ds.latitude.values)
+
+        # get box stream
+        self.track_box = get_box_stream(track_plot, (l, b, r, t))
+
+        return track_plot
+        
+    @param.depends("update_map_button.value")
+    def moored_point(self):
+        point_plot = plot_point(self.MVBS_ds)
+        return point_plot
+    
+    @param.depends("update_map_button.value")
+    def tile(self, 
+             map_tiles: str = None):
+        if map_tiles is not None:
+            self.tile_select.value = map_tiles
+
+        tile_plot = plot_tiles(self.tile_select.value)
+
+        l = numpy.nanmin(self.MVBS_ds.longitude.values)
+        b = numpy.nanmin(self.MVBS_ds.latitude.values)
+        r = numpy.nanmax(self.MVBS_ds.longitude.values)
+        t = numpy.nanmax(self.MVBS_ds.latitude.values)
+
+        b, l = convert_EPSG(lat = b, lon = l, mercator_to_coord = False)
+        t, r = convert_EPSG(lat = t, lon = r, mercator_to_coord = False)
+
+        # get box stream
+        map_box = get_box_stream(tile_plot, (l, b, r, t))
+
+        # plot box using bounds
+        bounds = get_box_plot(map_box)
+
+        return tile_plot * bounds
+    
+    @param.depends("update_map_button.value")
+    def curtain(self, 
+                channel: str = None, 
+                cmap: Union[str, List[str]] = None, 
+                vmin: float = None,
+                vmax: float = None,
+                ratio: float = None,
+                link_to_echogram: bool = True):
+
+        if channel is not None:
+            self.channel_select.value = channel 
+
+        if cmap is not None:
+            self.color_map.value = cmap
+        
+        if vmin is not None:
+            self.Sv_range_slider.value[0] = vmin
+
+        if vmax is not None:
+            self.Sv_range_slider.value[1] = vmax
+
+        if ratio is not None:
+            self.curtain_ratio.value = ratio
+        
+        if link_to_echogram is True:
+            ping_time = slice(self.box.bounds[0], self.box.bounds[2])
+        
+            echo_range = (
+                slice(self.box.bounds[1], self.box.bounds[3])
+                if self.box.bounds[3] > self.box.bounds[1]
+                else slice(self.box.bounds[3], self.box.bounds[1])
+            )
+
+        curtain = plot_curtain(
+            MVBS_ds = self.MVBS_ds.sel(
+                channel=self.channel_select.value, 
                 ping_time=ping_time, 
                 echo_range=echo_range
+            ) if link_to_echogram is True else 
+            self.MVBS_ds.sel(
+                echo_range=echo_range
             ),
-            cmp=colormap,
-            clim=(vmin, vmax),
-            ratio=ratio,
+            colormap=self.color_map.value,
+            clim=self.Sv_range_slider.value,
+            ratio=self.curtain_ratio.value,
         )
 
         curtain_panel = panel.panel(
-            self.curtain.ren_win,
+            curtain.ren_win,
             height=self.curtain_height,
             width=self.curtain_width,
             orientation_widget=True,
