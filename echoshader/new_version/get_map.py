@@ -1,25 +1,97 @@
+from typing import Union
+
 import geoviews
+import pyvista
+
+import xarray
 import pandas
 import numpy
-import pyvista
-# import panel
 
-# panel.extension("vtk")
+from pyproj import Transformer
 
-opt_lines=geoviews.opts(width=600, 
-                        height=400, 
-                        color="red", 
-                        tools=["hover", "box_select"], 
-                        line_width=1)
+opt_lines = geoviews.opts(width=600, 
+                          height=400, 
+                          color="red", 
+                          tools=["hover"], 
+                          line_width=1)
 
-opt_start_point=geoviews.opts(color="red", 
-                              size=8)
+opt_point = geoviews.opts(width=600, 
+                          height=400,
+                          color="blue", 
+                          tools=["hover"], 
+                          size=10)
 
-opt_point=geoviews.opts(color="blue", 
-                        tools=["hover"], 
-                        size=12)
+opt_tile=geoviews.opts(tools=["box_select"])
 
-def plot_tiles(map_tiles="OSM"):
+EPSG_mercator = "EPSG:3857"
+
+EPSG_coordsys = "EPSG:4326"
+
+def convert_EPSG(lat: Union[int, float],
+                 lon: Union[int, float],
+                 mercator_to_coord: bool = True):
+    """
+    Converts coordinates between EPSG coordinate reference systems (CRS).
+
+    Args:
+        lat (int, float): Latitude value.
+        lon (int, float): Longitude value.
+        mercator_to_coord (bool, optional): If True, converts from EPSG Mercator to coordinate system.
+            If False, converts from coordinate system to EPSG Mercator. Default is True.
+
+    Returns:
+        tuple: A tuple containing the converted latitude and longitude values.
+
+    Example usage:
+        # Convert from EPSG Mercator to coordinate system
+        lat, lon = convert_EPSG(0, 0)
+        
+        # Convert from coordinate system to EPSG Mercator
+        lat, lon = convert_EPSG(40, -75, False)
+    """
+    if mercator_to_coord is True:
+        transformer = Transformer.from_crs(EPSG_mercator, EPSG_coordsys)
+        (lat, lon) = transformer.transform(xx=lon, yy=lat)
+    else: 
+        transformer = Transformer.from_crs(EPSG_coordsys, EPSG_mercator)
+        (lon, lat) = transformer.transform(xx=lat, yy=lon)
+    
+    return lat, lon
+
+def get_tile_options():
+    """
+    Get a list of available tile options for map visualization.
+
+    Returns:
+        list: A list of available tile options.
+
+    Example usage:
+        tile_options = get_tile_options()
+        print(tile_options)
+    """
+    return ["CartoDark",
+            "CartoEco",
+            "CartoLight",
+            "CartoMidnight",
+            "ESRI",
+            "EsriImagery",
+            "EsriNatGeo",
+            "EsriOceanBase",
+            "EsriOceanReference",
+            "EsriReference",
+            "EsriTerrain",
+            "EsriUSATopo",
+            "OSM",
+            "OpenTopoMap",
+            "StamenLabels",
+            "StamenTerrain",
+            "StamenTerrainRetina",
+            "StamenToner",
+            "StamenTonerBackground",
+            "StamenWatercolor",
+            ]
+
+def plot_tiles(map_tiles: str = "OSM"):
     """
     Plot map tiles using GeoViews.
 
@@ -31,14 +103,14 @@ def plot_tiles(map_tiles="OSM"):
     Returns:
         geoviews.element: Map tiles object from GeoViews representing the specified map tiles.
     """
-    tiles = getattr(geoviews.tile_sources, map_tiles)
+    tiles = getattr(geoviews.tile_sources, map_tiles).opts(opt_tile)
 
     return tiles
 
-def plot_track(
-    MVBS_ds,
-    opts_line=opt_lines,
-    opts_point=opt_start_point,
+def plot_positions(
+    MVBS_ds: xarray.Dataset,
+    opts_line: geoviews.opts = opt_lines,
+    opts_point: geoviews.opts = opt_point,
 ):
     """
     Plot a track using GeoViews.
@@ -53,7 +125,7 @@ def plot_track(
         opts_point (geoviews.opts, optional): Options for styling the starting point.
 
     Returns:
-        holoviews.Overlay: Combined chart consisting of the ship track lines and starting point.
+        holoviews.Overlay: Combined chart consisting of the ship track lines and starting(moored) point.
     """
 
     # convert xarray data to geoviews data
@@ -68,6 +140,18 @@ def plot_track(
 
     all_pd_data = all_pd_data.dropna(axis=0, how="any")
 
+    # plot start node
+    starting_data = all_pd_data.iloc[0].values.tolist()
+
+    starting_node = geoviews.Points(
+        [starting_data],
+        kdims=["Longitude", "Latitude"],
+    ).opts(opts_point)
+
+    # check if all rows has the same latitude and Longitude
+    if all_pd_data["Longitude"].nunique() == 1 & all_pd_data["Latitude"].nunique() == 1:
+        return starting_node
+    
     # plot path
     line = geoviews.Path(
         [all_pd_data],
@@ -75,69 +159,12 @@ def plot_track(
         vdims=["Ping Time", "Longitude", "Latitude"],
     ).opts(opts_line)
 
-    # plot start node
-    start_data = all_pd_data.iloc[0].values.tolist()
+    return line * starting_node
 
-    start_node = geoviews.Points(
-        [start_data],
-        kdims=["Longitude", "Latitude"],
-    ).opts(opts_point)
-
-    return line * start_node
-
-
-def plot_point(
-    MVBS_ds,
-    opts_point=opt_point,
-):
-    """
-    Plot a track using GeoViews.
-
-    Parameters:
-        MVBS_ds (xarray.Dataset): 
-            MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'.
-            MVBS Dataset with values 'latitude', 'longitude'.
-
-        opts_point (geoviews.opts, optional): Options for styling the starting point.
-
-    Returns:
-        geoviews.Points: Stationary point of moored platform.
-    """
-
-    # get the first non-null node
-    index = get_first_non_null_index(MVBS_ds.longitude.values)
-
-    point = geoviews.Points(
-        [
-            [MVBS_ds.longitude.values[index], 
-             MVBS_ds.latitude.values[index], 
-             MVBS_ds.ping_time.values[index]]
-        ],
-        kdims=["Longitude", "Latitude"],
-    ).opts(opts_point)
-
-    return point
-
-
-def get_first_non_null_index(data):
-    """
-    Get the first index of non-null data from a one-dimensional NumPy ndarray.
-
-    Parameters:
-        data (numpy.ndarray): The input one-dimensional ndarray.
-
-    Returns:
-        int or None: The index of the first non-null value from the ndarray, or None if no non-null value is found.
-    """
-    mask = numpy.isnan(data)  # Create boolean mask for null values
-    if numpy.all(mask):  # Check if all values are null
-        return None
-    return numpy.argmax(~mask)  # Find index of first non-null value using argmax
-
-def plot_curtain(MVBS_ds, 
-                 colormap="jet", 
-                 clim=None, 
-                 ratio=0.001):
+def plot_curtain(MVBS_ds: xarray.Dataset, 
+                 cmap: str = "jet", 
+                 clim: tuple = None, 
+                 ratio: float = 0.001):
     """Drape a 2.5D Sv curtain using Pyvista
 
     Parameters:
@@ -146,7 +173,7 @@ def plot_curtain(MVBS_ds,
             MVBS Dataset with values 'latitude', 'longitude'.
             MVBS Dataset with a specific frequency.
 
-        colormap (str, default: 'jet'): Colormap.
+        cmap (str, default: 'jet'): Colormap.
 
         clim (tuple, default: None): Lower and upper bound of the color scale.
 
@@ -160,15 +187,6 @@ def plot_curtain(MVBS_ds,
             Use panel.Row(plotter) to display the curtain in panel.
             See more in:
             https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html?highlight=plotter#pyvista.Plotter
-
-    Examples:
-        MVBS_ds_ = MVBS_ds.sel(channel='GPT  18 kHz 009072058c8d 1-1 ES18-11')
-
-        plotter = plot_curtain(MVBS_ds_, 'jet', (-80, -30), 0.001)
-
-        plotter.show()  # Simply show in Jupyter
-
-        widget_panel = panel.Row(plotter)  # Get panel where the curtain is displayed
     """
 
     data = MVBS_ds.Sv.values[1:].T
@@ -203,7 +221,7 @@ def plot_curtain(MVBS_ds,
     pyvista.global_theme.background = "gray"
 
     curtain = pyvista.Plotter()
-    curtain.add_mesh(grid, cmap=colormap, clim=clim)
+    curtain.add_mesh(grid, cmap=cmap, clim=clim)
     curtain.add_mesh(pyvista.PolyData(path), color="white")
 
     curtain.show_grid()
