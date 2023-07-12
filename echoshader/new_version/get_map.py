@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 import geoviews
 import pyvista
@@ -162,7 +162,7 @@ def plot_positions(
     return line * starting_node
 
 def plot_curtain(MVBS_ds: xarray.Dataset, 
-                 cmap: str = "jet", 
+                 cmap: Union[str, List[str]] = "jet", 
                  clim: tuple = None, 
                  ratio: float = 0.001):
     """Drape a 2.5D Sv curtain using Pyvista
@@ -173,7 +173,7 @@ def plot_curtain(MVBS_ds: xarray.Dataset,
             MVBS Dataset with values 'latitude', 'longitude'.
             MVBS Dataset with a specific frequency.
 
-        cmap (str, default: 'jet'): Colormap.
+        cmap (str, List[str], optional): The colormap(s) to be used for color mapping.
 
         clim (tuple, default: None): Lower and upper bound of the color scale.
 
