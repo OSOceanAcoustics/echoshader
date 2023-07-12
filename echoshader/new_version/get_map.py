@@ -1,35 +1,28 @@
-from typing import Union, List
+from typing import List, Union
 
 import geoviews
-import pyvista
-
-import xarray
-import pandas
 import numpy
-
+import pandas
+import pyvista
+import xarray
 from pyproj import Transformer
 
-opt_lines = geoviews.opts(width=600, 
-                          height=400, 
-                          color="red", 
-                          tools=["hover"], 
-                          line_width=1)
+opt_lines = geoviews.opts(
+    width=600, height=400, color="red", tools=["hover"], line_width=1
+)
 
-opt_point = geoviews.opts(width=600, 
-                          height=400,
-                          color="blue", 
-                          tools=["hover"], 
-                          size=10)
+opt_point = geoviews.opts(width=600, height=400, color="blue", tools=["hover"], size=10)
 
-opt_tile=geoviews.opts(tools=["box_select"])
+opt_tile = geoviews.opts(tools=["box_select"])
 
 EPSG_mercator = "EPSG:3857"
 
 EPSG_coordsys = "EPSG:4326"
 
-def convert_EPSG(lat: Union[int, float],
-                 lon: Union[int, float],
-                 mercator_to_coord: bool = True):
+
+def convert_EPSG(
+    lat: Union[int, float], lon: Union[int, float], mercator_to_coord: bool = True
+):
     """
     Converts coordinates between EPSG coordinate reference systems (CRS).
 
@@ -45,18 +38,19 @@ def convert_EPSG(lat: Union[int, float],
     Example usage:
         # Convert from EPSG Mercator to coordinate system
         lat, lon = convert_EPSG(0, 0)
-        
+
         # Convert from coordinate system to EPSG Mercator
         lat, lon = convert_EPSG(40, -75, False)
     """
     if mercator_to_coord is True:
         transformer = Transformer.from_crs(EPSG_mercator, EPSG_coordsys)
         (lat, lon) = transformer.transform(xx=lon, yy=lat)
-    else: 
+    else:
         transformer = Transformer.from_crs(EPSG_coordsys, EPSG_mercator)
         (lon, lat) = transformer.transform(xx=lat, yy=lon)
-    
+
     return lat, lon
+
 
 def get_tile_options():
     """
@@ -69,27 +63,29 @@ def get_tile_options():
         tile_options = get_tile_options()
         print(tile_options)
     """
-    return ["CartoDark",
-            "CartoEco",
-            "CartoLight",
-            "CartoMidnight",
-            "ESRI",
-            "EsriImagery",
-            "EsriNatGeo",
-            "EsriOceanBase",
-            "EsriOceanReference",
-            "EsriReference",
-            "EsriTerrain",
-            "EsriUSATopo",
-            "OSM",
-            "OpenTopoMap",
-            "StamenLabels",
-            "StamenTerrain",
-            "StamenTerrainRetina",
-            "StamenToner",
-            "StamenTonerBackground",
-            "StamenWatercolor",
-            ]
+    return [
+        "CartoDark",
+        "CartoEco",
+        "CartoLight",
+        "CartoMidnight",
+        "ESRI",
+        "EsriImagery",
+        "EsriNatGeo",
+        "EsriOceanBase",
+        "EsriOceanReference",
+        "EsriReference",
+        "EsriTerrain",
+        "EsriUSATopo",
+        "OSM",
+        "OpenTopoMap",
+        "StamenLabels",
+        "StamenTerrain",
+        "StamenTerrainRetina",
+        "StamenToner",
+        "StamenTonerBackground",
+        "StamenWatercolor",
+    ]
+
 
 def plot_tiles(map_tiles: str = "OSM"):
     """
@@ -97,7 +93,7 @@ def plot_tiles(map_tiles: str = "OSM"):
 
     Parameters:
         map_tiles (str, optional): The type of map tiles to plot.
-            Defaults to "OSM". 
+            Defaults to "OSM".
             See more in : https://holoviews.org/reference/elements/bokeh/Tiles.html
 
     Returns:
@@ -106,6 +102,7 @@ def plot_tiles(map_tiles: str = "OSM"):
     tiles = getattr(geoviews.tile_sources, map_tiles).opts(opt_tile)
 
     return tiles
+
 
 def plot_positions(
     MVBS_ds: xarray.Dataset,
@@ -116,7 +113,7 @@ def plot_positions(
     Plot a track using GeoViews.
 
     Parameters:
-        MVBS_ds (xarray.Dataset): 
+        MVBS_ds (xarray.Dataset):
             MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'.
             MVBS Dataset with values 'latitude', 'longitude'.
 
@@ -151,7 +148,7 @@ def plot_positions(
     # check if all rows has the same latitude and Longitude
     if all_pd_data["Longitude"].nunique() == 1 & all_pd_data["Latitude"].nunique() == 1:
         return starting_node
-    
+
     # plot path
     line = geoviews.Path(
         [all_pd_data],
@@ -161,10 +158,13 @@ def plot_positions(
 
     return line * starting_node
 
-def plot_curtain(MVBS_ds: xarray.Dataset, 
-                 cmap: Union[str, List[str]] = "jet", 
-                 clim: tuple = None, 
-                 ratio: float = 0.001):
+
+def plot_curtain(
+    MVBS_ds: xarray.Dataset,
+    cmap: Union[str, List[str]] = "jet",
+    clim: tuple = None,
+    ratio: float = 0.001,
+):
     """Drape a 2.5D Sv curtain using Pyvista
 
     Parameters:
