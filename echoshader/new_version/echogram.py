@@ -418,7 +418,13 @@ class Echogram(param.Parameterized):
         if ratio is not None:
             self.curtain_ratio.value = ratio
 
-        if self.link_mode_select.value is True and self.box is not None and linked:
+        self.curatin_link = linked
+
+        if (
+            self.link_mode_select.value is True 
+            and self.box is not None 
+            and self.curatin_link
+        ):
             ping_time = slice(self.box.bounds[0], self.box.bounds[2])
 
             echo_range = (
@@ -441,7 +447,7 @@ class Echogram(param.Parameterized):
         elif (
             self.link_mode_select.value is False
             and self.positions_box is not None
-            and linked
+            and self.curatin_link
         ):
             curtain = plot_curtain(
                 MVBS_ds=self.MVBS_ds.where(
