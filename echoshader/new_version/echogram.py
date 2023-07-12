@@ -421,8 +421,8 @@ class Echogram(param.Parameterized):
         self.curatin_link = linked
 
         if (
-            self.link_mode_select.value is True 
-            and self.box is not None 
+            self.link_mode_select.value is True
+            and self.box is not None
             and self.curatin_link
         ):
             ping_time = slice(self.box.bounds[0], self.box.bounds[2])
