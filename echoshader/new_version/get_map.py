@@ -29,7 +29,7 @@ def convert_EPSG(
     Args:
         lat (int, float): Latitude value.
         lon (int, float): Longitude value.
-        mercator_to_coord (bool, optional): 
+        mercator_to_coord (bool, optional):
             If True, converts from EPSG Mercator to coordinate system.
             If False, converts from coordinate system to EPSG Mercator. Default is True.
 
