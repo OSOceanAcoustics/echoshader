@@ -282,7 +282,8 @@ class Echogram(param.Parameterized):
         Get MVBS data with a specific frequency from the selected box
 
         Parameters:
-            all_channels (bool, optional): Flag indicating whether to extract data from all channels or not.
+            all_channels (bool, optional): Flag
+                indicating whether to extract data from all channels or not.
                 Defaults to True.
 
         Returns:
@@ -306,7 +307,7 @@ class Echogram(param.Parameterized):
         Generates a ship track or moored point plot based on the selected options.
 
         Args:
-            link_to_echogram (bool, optional): Whether to link the ship track or moored point plot to the echogram.
+            link_to_echogram (bool, optional): Whether to link the positions plot to the echogram.
 
         Returns:
             holoviews.Overlay: The generated ship or moored point positions plot and starting point.
@@ -322,13 +323,13 @@ class Echogram(param.Parameterized):
         else:
             positions_plot = plot_positions(MVBS_ds=self.MVBS_ds)
 
-        l = numpy.nanmin(self.MVBS_ds.longitude.values)
-        b = numpy.nanmin(self.MVBS_ds.latitude.values)
-        r = numpy.nanmax(self.MVBS_ds.longitude.values)
-        t = numpy.nanmax(self.MVBS_ds.latitude.values)
+        left = numpy.nanmin(self.MVBS_ds.longitude.values)
+        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
+        right = numpy.nanmax(self.MVBS_ds.longitude.values)
+        top = numpy.nanmax(self.MVBS_ds.latitude.values)
 
         # get box stream
-        self.positions_box = get_box_stream(positions_plot, (l, b, r, t))
+        self.positions_box = get_box_stream(positions_plot, (left, bottom, right, top))
 
         return positions_plot
 
@@ -344,23 +345,23 @@ class Echogram(param.Parameterized):
             map_tiles (str, optional): The selected map tiles.
 
         Returns:
-            holoviews.DynamicMap: A geoviews dynamic object containing the generated tile plot and bounds with box select.
+            holoviews.DynamicMap: A geoviews dynamic object.
         """
         if map_tiles is not None:
             self.tile_select.value = map_tiles
 
         tile_plot = plot_tiles(self.tile_select.value)
 
-        l = numpy.nanmin(self.MVBS_ds.longitude.values)
-        b = numpy.nanmin(self.MVBS_ds.latitude.values)
-        r = numpy.nanmax(self.MVBS_ds.longitude.values)
-        t = numpy.nanmax(self.MVBS_ds.latitude.values)
+        left = numpy.nanmin(self.MVBS_ds.longitude.values)
+        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
+        right = numpy.nanmax(self.MVBS_ds.longitude.values)
+        top = numpy.nanmax(self.MVBS_ds.latitude.values)
 
-        b, l = convert_EPSG(lat=b, lon=l, mercator_to_coord=False)
-        t, r = convert_EPSG(lat=t, lon=r, mercator_to_coord=False)
+        bottom, left = convert_EPSG(lat=bottom, lon=left, mercator_to_coord=False)
+        top, right = convert_EPSG(lat=top, lon=right, mercator_to_coord=False)
 
         # get box stream
-        tile_box = get_box_stream(tile_plot, (l, b, r, t))
+        tile_box = get_box_stream(tile_plot, (left, bottom, right, top))
 
         # plot box using bounds
         bounds = get_box_plot(tile_box)
@@ -397,7 +398,7 @@ class Echogram(param.Parameterized):
             vmin (float, optional): The minimum value for color mapping.
             vmax (float, optional): The maximum value for color mapping.
             ratio (float, optional): The aspect ratio of the curtain plot.
-            link_to_echogram (bool, optional): Whether to link the curtain plot to the echogram. Default is True.
+            linked (bool, optional): Link to echogram and positions plot. Default is True.
 
         Returns:
             panel.panel: A Panel panel object containing the generated curtain plot.

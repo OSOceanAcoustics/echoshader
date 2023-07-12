@@ -29,7 +29,8 @@ def convert_EPSG(
     Args:
         lat (int, float): Latitude value.
         lon (int, float): Longitude value.
-        mercator_to_coord (bool, optional): If True, converts from EPSG Mercator to coordinate system.
+        mercator_to_coord (bool, optional): 
+            If True, converts from EPSG Mercator to coordinate system.
             If False, converts from coordinate system to EPSG Mercator. Default is True.
 
     Returns:
@@ -110,7 +111,7 @@ def plot_positions(
     opts_point: geoviews.opts = opt_point,
 ):
     """
-    Plot a track using GeoViews.
+    Plot track and starting point using GeoViews.
 
     Parameters:
         MVBS_ds (xarray.Dataset):
@@ -122,7 +123,7 @@ def plot_positions(
         opts_point (geoviews.opts, optional): Options for styling the starting point.
 
     Returns:
-        holoviews.Overlay: Combined chart consisting of the ship track lines and starting(moored) point.
+        holoviews.Overlay: Combined chart consisting of lines and starting point.
     """
 
     # convert xarray data to geoviews data
