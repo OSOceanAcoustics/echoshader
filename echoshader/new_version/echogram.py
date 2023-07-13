@@ -246,7 +246,7 @@ class Echogram(param.Parameterized):
             self.link_mode_select.value = not link_to_track
 
         if self.link_mode_select.value is False and self.positions_box is not None:
-            gram_plot = (
+            echogram = (
                 holoviews.Dataset(
                     self.MVBS_ds.where(
                         (self.MVBS_ds.longitude > self.positions_box.bounds[0])
@@ -260,22 +260,22 @@ class Echogram(param.Parameterized):
             )
 
         else:
-            gram_plot = (
+            echogram = (
                 holoviews.Dataset(self.MVBS_ds.sel(channel=self.channel_select.value))
                 .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
                 .opts(self.gram_opts)
             )
 
         # get box stream from echogram
-        self.box = get_box_stream(gram_plot)
+        self.box = get_box_stream(echogram)
 
         # get lasso stream from echogram
-        self.lasso = get_lasso_stream(gram_plot)
+        self.lasso = get_lasso_stream(echogram)
 
         # plot box using bounds
         bounds = get_box_plot(self.box)
 
-        return gram_plot * bounds
+        return echogram * bounds
 
     def extract_data_from_box(self, all_channels: bool = True):
         """
