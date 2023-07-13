@@ -234,8 +234,8 @@ class Echogram(param.Parameterized):
 
         self.gram_opts["Image"]["cmap"] = self.color_map.value
 
-        old_vmin = self.Sv_range_slider.value[0]
-        old_vmax = self.Sv_range_slider.value[1]
+        data_vmin = self.Sv_range_slider.value[0]
+        data_vmax = self.Sv_range_slider.value[1]
         self.Sv_range_slider.value = (
             vmin if vmin is not None else old_vmin,
             vmax if vmax is not None else old_vmax,
