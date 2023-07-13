@@ -15,6 +15,7 @@ def get_box_stream(source_pic, bounds: tuple = None):
     """
     box_stream = holoviews.streams.BoundsXY(
         source=source_pic,
+        # define left, bottom,right,top corner of source plot as default bounds
         bounds=(
             source_pic.lbrt[0],
             source_pic.lbrt[1],
