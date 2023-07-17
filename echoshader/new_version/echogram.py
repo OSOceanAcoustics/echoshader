@@ -14,6 +14,7 @@ from get_map import (
     plot_tiles,
 )
 from get_rgb import convert_to_color
+from get_stats import plot_hist, plot_table
 
 holoviews.extension("bokeh", logo=False)
 
@@ -94,6 +95,14 @@ class Echogram(param.Parameterized):
 
         self.update_positions_button = panel.widgets.Button(
             name="Update/Reset Positions 🗺️", button_type="primary"
+        )
+
+        self.bin_size_input = panel.widgets.IntInput(
+            name="Bin Size Input", value=24, step=10, start=0
+        )
+
+        self.overlay_layout_toggle = panel.widgets.Toggle(
+            name="Overlay & Layout Toggle", value=True
         )
 
     def echogram_multiple_frequency(
@@ -481,3 +490,54 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
+    
+    @param.depends(
+        "box.bounds",
+        "bin_size_input.value",
+        "overlay_layout_toggle.value",
+    )
+    def histogram(self,
+                  bins: int = None,
+                  overlay: bool = None,
+                  ):
+        
+        if bins is not None:
+            self.bin_size_input.value = bins
+        
+        if overlay is not None:
+            self.overlay_layout_toggle.value = overlay
+
+        ping_time = slice(self.box.bounds[0], self.box.bounds[2])
+
+        echo_range = (
+            slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1])
+        )
+
+        return plot_hist(
+            MVBS_ds=self.MVBS_ds.sel(
+                ping_time=ping_time,
+                echo_range=echo_range,
+            ),
+            bins = self.bin_size_input.value,
+            overlay = self.overlay_layout_toggle.value
+        )
+    
+    @param.depends("box.bounds")
+    def table(self):
+        ping_time = slice(self.box.bounds[0], self.box.bounds[2])
+
+        echo_range = (
+            slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1])
+        )
+
+        return plot_table(
+            MVBS_ds=self.MVBS_ds.sel(
+                ping_time=ping_time,
+                echo_range=echo_range,
+            )
+        )
+        
