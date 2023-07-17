@@ -490,20 +490,20 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
-    
+
     @param.depends(
         "box.bounds",
         "bin_size_input.value",
         "overlay_layout_toggle.value",
     )
-    def histogram(self,
-                  bins: int = None,
-                  overlay: bool = None,
-                  ):
-        
+    def histogram(
+        self,
+        bins: int = None,
+        overlay: bool = None,
+    ):
         if bins is not None:
             self.bin_size_input.value = bins
-        
+
         if overlay is not None:
             self.overlay_layout_toggle.value = overlay
 
@@ -520,10 +520,10 @@ class Echogram(param.Parameterized):
                 ping_time=ping_time,
                 echo_range=echo_range,
             ),
-            bins = self.bin_size_input.value,
-            overlay = self.overlay_layout_toggle.value
+            bins=self.bin_size_input.value,
+            overlay=self.overlay_layout_toggle.value,
         )
-    
+
     @param.depends("box.bounds")
     def table(self):
         ping_time = slice(self.box.bounds[0], self.box.bounds[2])
@@ -540,4 +540,3 @@ class Echogram(param.Parameterized):
                 echo_range=echo_range,
             )
         )
-        
