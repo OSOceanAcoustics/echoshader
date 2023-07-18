@@ -480,20 +480,20 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
-    
+
     @param.depends(
         "box.bounds",
         "bin_size_input.value",
         "overlay_layout_toggle.value",
     )
-    def histogram(self,
-                  bins: int = None,
-                  overlay: bool = None,
-                  ):
-        
+    def histogram(
+        self,
+        bins: int = None,
+        overlay: bool = None,
+    ):
         if bins is not None:
             self.bin_size_input.value = bins
-        
+
         if overlay is not None:
             self.overlay_layout_toggle.value = overlay
 
