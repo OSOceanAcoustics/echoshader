@@ -1,9 +1,7 @@
 import holoviews
-import panel
 import hvplot.xarray
 
 import pandas
-
 
 hist_opts = holoviews.opts(width=700, fontsize={'legend': 5})
 
@@ -108,4 +106,6 @@ def plot_table(MVBS_ds):
 
         obj_desc = pandas.merge(obj_desc, obj_df_channel, on='index')
 
-    return holoviews.Table(obj_desc).opts(table_opts)
+    table = holoviews.Table(obj_desc).opts(table_opts)
+
+    return table

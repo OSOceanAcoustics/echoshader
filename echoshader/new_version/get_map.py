@@ -1,10 +1,12 @@
 from typing import List, Union
 
 import geoviews
+import pyvista
+
 import numpy
 import pandas
-import pyvista
 import xarray
+
 from pyproj import Transformer
 
 opt_lines = geoviews.opts(
@@ -19,6 +21,13 @@ EPSG_mercator = "EPSG:3857"
 
 EPSG_coordsys = "EPSG:4326"
 
+def get_track_corners(MVBS_ds):
+    left = numpy.nanmin(MVBS_ds.longitude.values)
+    bottom = numpy.nanmin(MVBS_ds.latitude.values)
+    right = numpy.nanmax(MVBS_ds.longitude.values)
+    top = numpy.nanmax(MVBS_ds.latitude.values)
+
+    return left, bottom, right, top
 
 def convert_EPSG(
     lat: Union[int, float], lon: Union[int, float], mercator_to_coord: bool = True
