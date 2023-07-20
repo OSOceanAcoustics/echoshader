@@ -1,10 +1,10 @@
 from typing import Dict, List, Literal, Union
 
 import holoviews
-import numpy
 import panel
 import param
 import xarray
+
 from get_box import (
     get_box_plot, 
     get_box_stream, 
