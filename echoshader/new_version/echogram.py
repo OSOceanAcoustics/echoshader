@@ -5,16 +5,11 @@ import numpy
 import panel
 import param
 import xarray
-from get_box import (
-    get_box_plot, 
-    get_box_stream, 
-    get_lasso_stream,
-)
+from get_box import get_box_plot, get_box_stream, get_lasso_stream
 from get_map import (
     convert_EPSG,
     get_tile_options,
     get_track_corners,
-
     plot_curtain,
     plot_positions,
     plot_tiles,
@@ -479,7 +474,7 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
-    
+
     @param.depends(
         "box.bounds",
         "bin_size_input.value",
@@ -513,4 +508,3 @@ class Echogram(param.Parameterized):
         table_plot = plot_table(MVBS_ds=MVBS_ds_in_box)
 
         return table_plot
-
