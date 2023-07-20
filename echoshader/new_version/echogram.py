@@ -1,11 +1,14 @@
 from typing import Dict, List, Literal, Union
 
 import holoviews
-import numpy
 import panel
 import param
 import xarray
-from get_box import get_box_plot, get_box_stream, get_lasso_stream
+from get_box import (
+    get_box_plot, 
+    get_box_stream, 
+    get_lasso_stream,
+)
 from get_map import (
     convert_EPSG,
     get_tile_options,
@@ -474,7 +477,7 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
-
+    
     @param.depends(
         "box.bounds",
         "bin_size_input.value",
@@ -485,6 +488,23 @@ class Echogram(param.Parameterized):
         bins: int = None,
         overlay: bool = None,
     ):
+        """
+        Create a histogram based on data extracted from the specified box.
+
+        Parameters
+        ----------
+        bins : int, optional
+            Number of bins to use for the histogram. If not provided, the number of bins will be automatically set
+            based on the data. Default is None.
+        overlay : bool, optional
+            If True, multiple histograms will be overlaid on the same plot. If False, each histogram will be plotted
+            separately. Default is None.
+
+        Returns
+        -------
+        hvplot.hist
+            The generated histogram plot as a Plotly Figure object.
+        """
         if bins is not None:
             self.bin_size_input.value = bins
 
@@ -503,8 +523,17 @@ class Echogram(param.Parameterized):
 
     @param.depends("box.bounds")
     def table(self):
+        """
+        Create a table containing stats info based on data extracted from the specified box.
+
+        Returns
+        -------
+        holoviews.Table
+            The generated table plot which contains stats info.
+        """
         MVBS_ds_in_box = self.extract_data_from_box()
 
         table_plot = plot_table(MVBS_ds=MVBS_ds_in_box)
 
         return table_plot
+
