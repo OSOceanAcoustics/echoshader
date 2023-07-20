@@ -20,7 +20,37 @@ EPSG_mercator = "EPSG:3857"
 EPSG_coordsys = "EPSG:4326"
 
 
-def get_track_corners(MVBS_ds):
+def get_track_corners(MVBS_ds: xarray.Dataset):
+    """
+    Calculate the geographic bounding box corners of the track from a given MVBS_ds.
+
+    Parameters
+    ----------
+    MVBS_ds : xarray.Dataset
+        A dataset containing the track data.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the geographic bounding box corners (left, bottom, right, top) of the track.
+
+    Notes
+    -----
+    This function calculates the minimum and maximum latitude and longitude values from the provided xarray dataset
+    `MVBS_ds`. These values represent the geographic bounding box of the track. The `MVBS_ds` should contain the
+    necessary variables 'longitude' and 'latitude' representing the spatial coordinates of the track.
+
+    The returned tuple contains four values:
+    - left: The minimum longitude value (westernmost point) of the track.
+    - bottom: The minimum latitude value (southernmost point) of the track.
+    - right: The maximum longitude value (easternmost point) of the track.
+    - top: The maximum latitude value (northernmost point) of the track.
+
+    Example
+    -------
+        corners = get_track_corners(MVBS_ds)
+        print(corners)
+    """
     left = numpy.nanmin(MVBS_ds.longitude.values)
     bottom = numpy.nanmin(MVBS_ds.latitude.values)
     right = numpy.nanmax(MVBS_ds.longitude.values)
