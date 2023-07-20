@@ -1,9 +1,8 @@
 import holoviews
 import hvplot.xarray
-
 import pandas
 
-hist_opts = holoviews.opts(width=700, fontsize={'legend': 5})
+hist_opts = holoviews.opts(width=700, fontsize={"legend": 5})
 
 table_opts = holoviews.opts(width=700)
 

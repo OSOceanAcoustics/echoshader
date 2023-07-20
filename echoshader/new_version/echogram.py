@@ -4,16 +4,15 @@ import holoviews
 import panel
 import param
 import xarray
-
 from get_box import (
     get_box_plot, 
     get_box_stream, 
     get_lasso_stream,
 )
 from get_map import (
-    get_track_corners,
     convert_EPSG,
     get_tile_options,
+    get_track_corners,
     plot_curtain,
     plot_positions,
     plot_tiles,
@@ -49,10 +48,7 @@ class Echogram(param.Parameterized):
                 "invert_yaxis": False,
                 "width": 600,
             },
-
-            "RGB": {"tools": ["hover"], 
-                    "invert_yaxis": False, 
-                    "width": 600},
+            "RGB": {"tools": ["hover"], "invert_yaxis": False, "width": 600},
         }
 
         self.curtain_width = 700
@@ -264,9 +260,7 @@ class Echogram(param.Parameterized):
 
         if self.link_mode_select.value is False and self.positions_box is not None:
             echogram = (
-                holoviews.Dataset(
-                    self.extract_data_from_track_box(all_channels = False)
-                )
+                holoviews.Dataset(self.extract_data_from_track_box(all_channels=False))
                 .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
                 .opts(self.gram_opts)
             )
@@ -312,7 +306,7 @@ class Echogram(param.Parameterized):
             if self.box.bounds[3] > self.box.bounds[1]
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
-    
+
     def extract_data_from_track_box(self, all_channels: bool = True):
         """
         Get MVBS data with a specific frequency from selected box on track map
@@ -332,9 +326,12 @@ class Echogram(param.Parameterized):
             & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
             & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
             & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
-            ).sel(channel = self.MVBS_ds.channel.values if all_channels is True
-                  else self.channel_select.value)
-    
+        ).sel(
+            channel=self.MVBS_ds.channel.values
+            if all_channels is True
+            else self.channel_select.value
+        )
+
     @param.depends("update_positions_button.value")
     def positions(self, link_to_echogram: bool = None):
         """
@@ -460,23 +457,23 @@ class Echogram(param.Parameterized):
             and self.positions_box is not None
             and self.curatin_link
         ):
-            MVBS_ds_for_curtain = self.extract_data_from_track_box(all_channels = False)
+            MVBS_ds_for_curtain = self.extract_data_from_track_box(all_channels=False)
 
         else:
             MVBS_ds_for_curtain = self.MVBS_ds.sel(channel=self.channel_select.value)
 
         curtain = plot_curtain(
-            MVBS_ds = MVBS_ds_for_curtain,
-            cmap = self.color_map.value,
-            clim = self.Sv_range_slider.value,
-            ratio = self.curtain_ratio.value,
+            MVBS_ds=MVBS_ds_for_curtain,
+            cmap=self.color_map.value,
+            clim=self.Sv_range_slider.value,
+            ratio=self.curtain_ratio.value,
         )
 
         curtain_panel = panel.panel(
             curtain.ren_win,
-            height = self.curtain_height,
-            width = self.curtain_width,
-            orientation_widget = True,
+            height=self.curtain_height,
+            width=self.curtain_width,
+            orientation_widget=True,
         )
 
         return curtain_panel
@@ -501,20 +498,16 @@ class Echogram(param.Parameterized):
 
         hist_plot = plot_hist(
             MVBS_ds_in_box,
-            bins = self.bin_size_input.value,
-            overlay = self.overlay_layout_toggle.value
+            bins=self.bin_size_input.value,
+            overlay=self.overlay_layout_toggle.value,
         )
 
         return hist_plot
-    
+
     @param.depends("box.bounds")
     def table(self):
-
         MVBS_ds_in_box = self.extract_data_from_box()
 
-        table_plot = plot_table(
-            MVBS_ds=MVBS_ds_in_box
-        )
+        table_plot = plot_table(MVBS_ds=MVBS_ds_in_box)
 
         return table_plot
-        
