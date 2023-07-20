@@ -1,9 +1,11 @@
 from typing import Dict, List, Literal, Union
 
 import holoviews
+import numpy
 import panel
 import param
 import xarray
+<<<<<<< HEAD
 from get_box import (
     get_box_plot, 
     get_box_stream, 
@@ -13,12 +15,21 @@ from get_map import (
     convert_EPSG,
     get_tile_options,
     get_track_corners,
+=======
+from get_box import get_box_plot, get_box_stream, get_lasso_stream
+from get_map import (
+    convert_EPSG,
+    get_tile_options,
+>>>>>>> origin/dev
     plot_curtain,
     plot_positions,
     plot_tiles,
 )
 from get_rgb import convert_to_color
+<<<<<<< HEAD
 from get_stats import plot_hist, plot_table
+=======
+>>>>>>> origin/dev
 
 holoviews.extension("bokeh", logo=False)
 
@@ -99,6 +110,7 @@ class Echogram(param.Parameterized):
 
         self.update_positions_button = panel.widgets.Button(
             name="Update/Reset Positions 🗺️", button_type="primary"
+<<<<<<< HEAD
         )
 
         self.bin_size_input = panel.widgets.IntInput(
@@ -107,6 +119,8 @@ class Echogram(param.Parameterized):
 
         self.overlay_layout_toggle = panel.widgets.Toggle(
             name="Overlay & Layout Toggle", value=True
+=======
+>>>>>>> origin/dev
         )
 
     def echogram_multiple_frequency(
@@ -260,7 +274,18 @@ class Echogram(param.Parameterized):
 
         if self.link_mode_select.value is False and self.positions_box is not None:
             echogram = (
+<<<<<<< HEAD
                 holoviews.Dataset(self.extract_data_from_track_box(all_channels=False))
+=======
+                holoviews.Dataset(
+                    self.MVBS_ds.where(
+                        (self.MVBS_ds.longitude > self.positions_box.bounds[0])
+                        & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
+                        & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
+                        & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
+                    ).sel(channel=self.channel_select.value)
+                )
+>>>>>>> origin/dev
                 .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
                 .opts(self.gram_opts)
             )
@@ -307,6 +332,7 @@ class Echogram(param.Parameterized):
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
 
+<<<<<<< HEAD
     def extract_data_from_track_box(self, all_channels: bool = True):
         """
         Get MVBS data with a specific frequency from selected box on track map
@@ -332,6 +358,8 @@ class Echogram(param.Parameterized):
             else self.channel_select.value
         )
 
+=======
+>>>>>>> origin/dev
     @param.depends("update_positions_button.value")
     def positions(self, link_to_echogram: bool = None):
         """
@@ -354,7 +382,14 @@ class Echogram(param.Parameterized):
         else:
             positions_plot = plot_positions(MVBS_ds=self.MVBS_ds)
 
+<<<<<<< HEAD
         left, bottom, right, top = get_track_corners(self.MVBS_ds)
+=======
+        left = numpy.nanmin(self.MVBS_ds.longitude.values)
+        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
+        right = numpy.nanmax(self.MVBS_ds.longitude.values)
+        top = numpy.nanmax(self.MVBS_ds.latitude.values)
+>>>>>>> origin/dev
 
         # get box stream
         self.positions_box = get_box_stream(positions_plot, (left, bottom, right, top))
@@ -380,16 +415,30 @@ class Echogram(param.Parameterized):
 
         tile_plot = plot_tiles(self.tile_select.value)
 
+<<<<<<< HEAD
         left, bottom, right, top = get_track_corners(self.MVBS_ds)
+=======
+        left = numpy.nanmin(self.MVBS_ds.longitude.values)
+        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
+        right = numpy.nanmax(self.MVBS_ds.longitude.values)
+        top = numpy.nanmax(self.MVBS_ds.latitude.values)
+>>>>>>> origin/dev
 
         bottom, left = convert_EPSG(lat=bottom, lon=left, mercator_to_coord=False)
         top, right = convert_EPSG(lat=top, lon=right, mercator_to_coord=False)
 
         # get box stream
+<<<<<<< HEAD
         self.tile_box = get_box_stream(tile_plot, (left, bottom, right, top))
 
         # plot box using bounds
         bounds = get_box_plot(self.tile_box)
+=======
+        tile_box = get_box_stream(tile_plot, (left, bottom, right, top))
+
+        # plot box using bounds
+        bounds = get_box_plot(tile_box)
+>>>>>>> origin/dev
 
         return tile_plot * bounds
 
@@ -450,13 +499,35 @@ class Echogram(param.Parameterized):
             and self.box is not None
             and self.curatin_link
         ):
+<<<<<<< HEAD
             MVBS_ds_for_curtain = self.extract_data_from_box(all_channels=False)
+=======
+            ping_time = slice(self.box.bounds[0], self.box.bounds[2])
+
+            echo_range = (
+                slice(self.box.bounds[1], self.box.bounds[3])
+                if self.box.bounds[3] > self.box.bounds[1]
+                else slice(self.box.bounds[3], self.box.bounds[1])
+            )
+
+            curtain = plot_curtain(
+                MVBS_ds=self.MVBS_ds.sel(
+                    channel=self.channel_select.value,
+                    ping_time=ping_time,
+                    echo_range=echo_range,
+                ),
+                cmap=self.color_map.value,
+                clim=self.Sv_range_slider.value,
+                ratio=self.curtain_ratio.value,
+            )
+>>>>>>> origin/dev
 
         elif (
             self.link_mode_select.value is False
             and self.positions_box is not None
             and self.curatin_link
         ):
+<<<<<<< HEAD
             MVBS_ds_for_curtain = self.extract_data_from_track_box(all_channels=False)
 
         else:
@@ -468,6 +539,31 @@ class Echogram(param.Parameterized):
             clim=self.Sv_range_slider.value,
             ratio=self.curtain_ratio.value,
         )
+=======
+            curtain = plot_curtain(
+                MVBS_ds=self.MVBS_ds.where(
+                    (self.MVBS_ds.longitude > self.positions_box.bounds[0])
+                    & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
+                    & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
+                    & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
+                ).sel(
+                    channel=self.channel_select.value,
+                ),
+                cmap=self.color_map.value,
+                clim=self.Sv_range_slider.value,
+                ratio=self.curtain_ratio.value,
+            )
+
+        else:
+            curtain = plot_curtain(
+                MVBS_ds=self.MVBS_ds.sel(
+                    channel=self.channel_select.value,
+                ),
+                cmap=self.color_map.value,
+                clim=self.Sv_range_slider.value,
+                ratio=self.curtain_ratio.value,
+            )
+>>>>>>> origin/dev
 
         curtain_panel = panel.panel(
             curtain.ren_win,
@@ -477,6 +573,7 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
+<<<<<<< HEAD
 
     @param.depends(
         "box.bounds",
@@ -511,3 +608,5 @@ class Echogram(param.Parameterized):
         table_plot = plot_table(MVBS_ds=MVBS_ds_in_box)
 
         return table_plot
+=======
+>>>>>>> origin/dev
