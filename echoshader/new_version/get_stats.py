@@ -50,9 +50,7 @@ def plot_side_hist(echogram: hvplot.image):
     return echogram << hist
 
 
-def plot_hist(MVBS_ds: xarray.Dataset,
-              bins: int = 24, 
-              overlay: bool = True):
+def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
     """
     Create histograms for the Sv data.
 
