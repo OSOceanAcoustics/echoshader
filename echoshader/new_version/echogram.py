@@ -1,7 +1,6 @@
 from typing import Dict, List, Literal, Union
 
 import holoviews
-import numpy
 import panel
 import param
 import xarray
@@ -9,11 +8,13 @@ from get_box import get_box_plot, get_box_stream, get_lasso_stream
 from get_map import (
     convert_EPSG,
     get_tile_options,
+    get_track_corners,
     plot_curtain,
     plot_positions,
     plot_tiles,
 )
 from get_rgb import convert_to_color
+from get_stats import plot_hist, plot_table
 
 holoviews.extension("bokeh", logo=False)
 
@@ -94,6 +95,14 @@ class Echogram(param.Parameterized):
 
         self.update_positions_button = panel.widgets.Button(
             name="Update/Reset Positions 🗺️", button_type="primary"
+        )
+
+        self.bin_size_input = panel.widgets.IntInput(
+            name="Bin Size Input", value=24, step=10, start=0
+        )
+
+        self.overlay_layout_toggle = panel.widgets.Toggle(
+            name="Overlay & Layout Toggle", value=True
         )
 
     def echogram_multiple_frequency(
@@ -247,14 +256,7 @@ class Echogram(param.Parameterized):
 
         if self.link_mode_select.value is False and self.positions_box is not None:
             echogram = (
-                holoviews.Dataset(
-                    self.MVBS_ds.where(
-                        (self.MVBS_ds.longitude > self.positions_box.bounds[0])
-                        & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
-                        & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
-                        & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
-                    ).sel(channel=self.channel_select.value)
-                )
+                holoviews.Dataset(self.extract_data_from_track_box(all_channels=False))
                 .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
                 .opts(self.gram_opts)
             )
@@ -301,6 +303,31 @@ class Echogram(param.Parameterized):
             else slice(self.box.bounds[3], self.box.bounds[1]),
         )
 
+    def extract_data_from_track_box(self, all_channels: bool = True):
+        """
+        Get MVBS data with a specific frequency from selected box on track map
+
+        Parameters:
+            all_channels (bool, optional): Flag
+                indicating whether to extract data from all channels or not.
+                Defaults to True.
+
+        Returns:
+            xarray.Dataset: A subset of the MVBS dataset containing data within the specified box.
+                The subset is determined by the selected channels, ping time, and echo range.
+        """
+
+        return self.MVBS_ds.where(
+            (self.MVBS_ds.longitude > self.positions_box.bounds[0])
+            & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
+            & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
+            & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
+        ).sel(
+            channel=self.MVBS_ds.channel.values
+            if all_channels is True
+            else self.channel_select.value
+        )
+
     @param.depends("update_positions_button.value")
     def positions(self, link_to_echogram: bool = None):
         """
@@ -310,7 +337,7 @@ class Echogram(param.Parameterized):
             link_to_echogram (bool, optional): Whether to link the positions plot to the echogram.
 
         Returns:
-            holoviews.Overlay: The generated ship or moored point positions plot and starting point.
+            holoviews.Overlay: The ship or moored point positions plot and starting point.
         """
         if link_to_echogram is not None:
             self.link_mode_select.value = link_to_echogram
@@ -323,10 +350,7 @@ class Echogram(param.Parameterized):
         else:
             positions_plot = plot_positions(MVBS_ds=self.MVBS_ds)
 
-        left = numpy.nanmin(self.MVBS_ds.longitude.values)
-        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
-        right = numpy.nanmax(self.MVBS_ds.longitude.values)
-        top = numpy.nanmax(self.MVBS_ds.latitude.values)
+        left, bottom, right, top = get_track_corners(self.MVBS_ds)
 
         # get box stream
         self.positions_box = get_box_stream(positions_plot, (left, bottom, right, top))
@@ -352,19 +376,16 @@ class Echogram(param.Parameterized):
 
         tile_plot = plot_tiles(self.tile_select.value)
 
-        left = numpy.nanmin(self.MVBS_ds.longitude.values)
-        bottom = numpy.nanmin(self.MVBS_ds.latitude.values)
-        right = numpy.nanmax(self.MVBS_ds.longitude.values)
-        top = numpy.nanmax(self.MVBS_ds.latitude.values)
+        left, bottom, right, top = get_track_corners(self.MVBS_ds)
 
         bottom, left = convert_EPSG(lat=bottom, lon=left, mercator_to_coord=False)
         top, right = convert_EPSG(lat=top, lon=right, mercator_to_coord=False)
 
         # get box stream
-        tile_box = get_box_stream(tile_plot, (left, bottom, right, top))
+        self.tile_box = get_box_stream(tile_plot, (left, bottom, right, top))
 
         # plot box using bounds
-        bounds = get_box_plot(tile_box)
+        bounds = get_box_plot(self.tile_box)
 
         return tile_plot * bounds
 
@@ -425,53 +446,24 @@ class Echogram(param.Parameterized):
             and self.box is not None
             and self.curatin_link
         ):
-            ping_time = slice(self.box.bounds[0], self.box.bounds[2])
-
-            echo_range = (
-                slice(self.box.bounds[1], self.box.bounds[3])
-                if self.box.bounds[3] > self.box.bounds[1]
-                else slice(self.box.bounds[3], self.box.bounds[1])
-            )
-
-            curtain = plot_curtain(
-                MVBS_ds=self.MVBS_ds.sel(
-                    channel=self.channel_select.value,
-                    ping_time=ping_time,
-                    echo_range=echo_range,
-                ),
-                cmap=self.color_map.value,
-                clim=self.Sv_range_slider.value,
-                ratio=self.curtain_ratio.value,
-            )
+            MVBS_ds_for_curtain = self.extract_data_from_box(all_channels=False)
 
         elif (
             self.link_mode_select.value is False
             and self.positions_box is not None
             and self.curatin_link
         ):
-            curtain = plot_curtain(
-                MVBS_ds=self.MVBS_ds.where(
-                    (self.MVBS_ds.longitude > self.positions_box.bounds[0])
-                    & (self.MVBS_ds.latitude > self.positions_box.bounds[1])
-                    & (self.MVBS_ds.longitude < self.positions_box.bounds[2])
-                    & (self.MVBS_ds.latitude < self.positions_box.bounds[3])
-                ).sel(
-                    channel=self.channel_select.value,
-                ),
-                cmap=self.color_map.value,
-                clim=self.Sv_range_slider.value,
-                ratio=self.curtain_ratio.value,
-            )
+            MVBS_ds_for_curtain = self.extract_data_from_track_box(all_channels=False)
 
         else:
-            curtain = plot_curtain(
-                MVBS_ds=self.MVBS_ds.sel(
-                    channel=self.channel_select.value,
-                ),
-                cmap=self.color_map.value,
-                clim=self.Sv_range_slider.value,
-                ratio=self.curtain_ratio.value,
-            )
+            MVBS_ds_for_curtain = self.MVBS_ds.sel(channel=self.channel_select.value)
+
+        curtain = plot_curtain(
+            MVBS_ds=MVBS_ds_for_curtain,
+            cmap=self.color_map.value,
+            clim=self.Sv_range_slider.value,
+            ratio=self.curtain_ratio.value,
+        )
 
         curtain_panel = panel.panel(
             curtain.ren_win,
@@ -481,3 +473,63 @@ class Echogram(param.Parameterized):
         )
 
         return curtain_panel
+
+    @param.depends(
+        "box.bounds",
+        "bin_size_input.value",
+        "overlay_layout_toggle.value",
+    )
+    def histogram(
+        self,
+        bins: int = None,
+        overlay: bool = None,
+    ):
+        """
+        Create a histogram based on data extracted from the specified box.
+
+        Parameters
+        ----------
+        bins : int, optional
+            Number of bins to use for the histogram.
+            If not provided, the number of bins will be automatically set.
+            Default is None.
+        overlay : bool, optional
+            If True, multiple histograms will be overlaid on the same plot.
+            If False, each histogram will be plotted separately. Default is None.
+
+        Returns
+        -------
+        hvplot.hist
+            The generated histogram plot as a Plotly Figure object.
+        """
+        if bins is not None:
+            self.bin_size_input.value = bins
+
+        if overlay is not None:
+            self.overlay_layout_toggle.value = overlay
+
+        MVBS_ds_in_box = self.extract_data_from_box()
+
+        hist_plot = plot_hist(
+            MVBS_ds_in_box,
+            bins=self.bin_size_input.value,
+            overlay=self.overlay_layout_toggle.value,
+        )
+
+        return hist_plot
+
+    @param.depends("box.bounds")
+    def table(self):
+        """
+        Create a table containing stats info based on data extracted from the specified box.
+
+        Returns
+        -------
+        holoviews.Table
+            The generated table plot which contains stats info.
+        """
+        MVBS_ds_in_box = self.extract_data_from_box()
+
+        table_plot = plot_table(MVBS_ds=MVBS_ds_in_box)
+
+        return table_plot
