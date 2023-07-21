@@ -52,7 +52,7 @@ def plot_side_hist(echogram: hvplot.image):
     # Define a RangeXY stream linked to the image
     rangexy = holoviews.streams.RangeXY(source=echogram)
     hist = holoviews.DynamicMap(selected_range_hist, streams=[rangexy])
-    
+
     return echogram << hist
 
 
