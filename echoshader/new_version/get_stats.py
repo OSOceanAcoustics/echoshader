@@ -38,17 +38,21 @@ def plot_side_hist(echogram: hvplot.image):
         simple_hist(echogram)
     """
 
-    # Apply current ranges and compute histogram
-    selected_range_hist = lambda x_range, y_range: holoviews.operation.histogram(
-        echogram.select(ping_time=x_range, echo_range=y_range)
-        if x_range and y_range
-        else echogram
-    )
+    def selected_range_hist(x_range, y_range):
+        # Apply current ranges
+        obj = (
+            echogram.select(ping_time=x_range, echo_range=y_range)
+            if x_range and y_range
+            else echogram
+        )
+
+        # Compute histogram
+        return holoviews.operation.histogram(obj)
 
     # Define a RangeXY stream linked to the image
     rangexy = holoviews.streams.RangeXY(source=echogram)
     hist = holoviews.DynamicMap(selected_range_hist, streams=[rangexy])
-
+    
     return echogram << hist
 
 
