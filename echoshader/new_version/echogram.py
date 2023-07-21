@@ -490,11 +490,11 @@ class Echogram(param.Parameterized):
         Parameters
         ----------
         bins : int, optional
-            Number of bins to use for the histogram. 
+            Number of bins to use for the histogram.
             If not provided, the number of bins will be automatically set.
             Default is None.
         overlay : bool, optional
-            If True, multiple histograms will be overlaid on the same plot. 
+            If True, multiple histograms will be overlaid on the same plot.
             If False, each histogram will be plotted separately. Default is None.
 
         Returns
