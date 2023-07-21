@@ -36,9 +36,9 @@ def get_track_corners(MVBS_ds: xarray.Dataset):
 
     Notes
     -----
-    This function calculates the minimum and maximum latitude and longitude values from the 
-    provided xarray dataset `MVBS_ds`. These values represent the geographic bounding box of the 
-    track. The `MVBS_ds` should contain thenecessary variables 'longitude' and 'latitude' 
+    This function calculates the minimum and maximum latitude and longitude values from the
+    provided xarray dataset `MVBS_ds`. These values represent the geographic bounding box of the
+    track. The `MVBS_ds` should contain thenecessary variables 'longitude' and 'latitude'
     representing the spatial coordinates of the track.
 
     The returned tuple contains four values:

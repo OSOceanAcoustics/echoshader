@@ -67,7 +67,7 @@ def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
     bins : int, optional
         Number of bins to use for the histogram. Default is 24.
     overlay : bool, optional
-        If True, multiple histograms will be overlaid on the same plot. If False, each histogram 
+        If True, multiple histograms will be overlaid on the same plot. If False, each histogram
         will be plotted separately. Default is True.
 
     Returns
@@ -77,9 +77,9 @@ def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
 
     Notes
     -----
-    This function uses HoloViews' hvplot library to generate the histogram plot based on the 
-    provided dataset. The dataset `MVBS_ds` should contain a variable named 'Sv', and the 
-    histogram will be generated using this variable. Additional options for customization 
+    This function uses HoloViews' hvplot library to generate the histogram plot based on the
+    provided dataset. The dataset `MVBS_ds` should contain a variable named 'Sv', and the
+    histogram will be generated using this variable. Additional options for customization
     can be applied using `hvplot.hist` and `hist_opts`.
 
     Example
@@ -128,9 +128,9 @@ def plot_table(MVBS_ds: xarray.Dataset):
 
     Notes
     -----
-    This function converts the data from the dataset `MVBS_d` into a pandas DataFrame and 
-    calculates basic statistics like skew and kurtosis for the variable 'Sv'. The resulting 
-    DataFrame is then transformed into a HoloViews Table. The function assumes that 
+    This function converts the data from the dataset `MVBS_d` into a pandas DataFrame and
+    calculates basic statistics like skew and kurtosis for the variable 'Sv'. The resulting
+    DataFrame is then transformed into a HoloViews Table. The function assumes that
     the dataset contains a variable named 'Sv' that holds the data to be analyzed.
 
     Example
