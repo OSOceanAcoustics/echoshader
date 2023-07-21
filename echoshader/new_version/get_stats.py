@@ -2,6 +2,7 @@ import holoviews
 import hvplot
 import hvplot.xarray
 import pandas
+import xarray
 
 hist_opts = holoviews.opts(width=700, fontsize={"legend": 5})
 
@@ -25,7 +26,8 @@ def plot_side_hist(echogram: hvplot.image):
 
     Examples
     --------
-        echogram = ds_Sv.sel(channel='GPT  38 kHz 00907208dd13 5-1 OOI.38|200').hvplot(kind='image',
+        echogram = ds_Sv.sel(channel='GPT  38 kHz 00907208dd13 5-1 OOI.38|200').hvplot(
+                    kind='image',
                      x='ping_time',
                      y='echo_range',
                      c='Sv',
@@ -61,8 +63,8 @@ def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
     bins : int, optional
         Number of bins to use for the histogram. Default is 24.
     overlay : bool, optional
-        If True, multiple histograms will be overlaid on the same plot. If False, each histogram will be plotted
-        separately. Default is True.
+        If True, multiple histograms will be overlaid on the same plot. If False, each histogram 
+        will be plotted separately. Default is True.
 
     Returns
     -------
@@ -71,9 +73,10 @@ def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
 
     Notes
     -----
-    This function uses HoloViews' hvplot library to generate the histogram plot based on the provided dataset.
-    The dataset `MVBS_ds` should contain a variable named 'Sv', and the histogram will be generated using this variable.
-    Additional options for customization can be applied using `hvplot.hist` and `hist_opts`.
+    This function uses HoloViews' hvplot library to generate the histogram plot based on the 
+    provided dataset. The dataset `MVBS_ds` should contain a variable named 'Sv', and the 
+    histogram will be generated using this variable. Additional options for customization 
+    can be applied using `hvplot.hist` and `hist_opts`.
 
     Example
     -------
@@ -117,13 +120,14 @@ def plot_table(MVBS_ds: xarray.Dataset):
     Returns
     -------
     holoviews.Table
-        A HoloViews Table object containing basic statistics information such as skew and kurtosis.
+        A HoloViews Table object containing statistics information such as skew and kurtosis.
 
     Notes
     -----
-    This function converts the data from the dataset `MVBS_d` into a pandas DataFrame and calculates basic statistics
-    like skew and kurtosis for the variable 'Sv'. The resulting DataFrame is then transformed into a HoloViews Table.
-    The function assumes that the dataset contains a variable named 'Sv' that holds the data to be analyzed.
+    This function converts the data from the dataset `MVBS_d` into a pandas DataFrame and 
+    calculates basic statistics like skew and kurtosis for the variable 'Sv'. The resulting 
+    DataFrame is then transformed into a HoloViews Table. The function assumes that 
+    the dataset contains a variable named 'Sv' that holds the data to be analyzed.
 
     Example
     -------

@@ -32,13 +32,14 @@ def get_track_corners(MVBS_ds: xarray.Dataset):
     Returns
     -------
     tuple
-        A tuple containing the geographic bounding box corners (left, bottom, right, top) of the track.
+        A tuple containing the four geographic bounding box corners of the track.
 
     Notes
     -----
-    This function calculates the minimum and maximum latitude and longitude values from the provided xarray dataset
-    `MVBS_ds`. These values represent the geographic bounding box of the track. The `MVBS_ds` should contain the
-    necessary variables 'longitude' and 'latitude' representing the spatial coordinates of the track.
+    This function calculates the minimum and maximum latitude and longitude values from the 
+    provided xarray dataset `MVBS_ds`. These values represent the geographic bounding box of the 
+    track. The `MVBS_ds` should contain thenecessary variables 'longitude' and 'latitude' 
+    representing the spatial coordinates of the track.
 
     The returned tuple contains four values:
     - left: The minimum longitude value (westernmost point) of the track.
@@ -224,8 +225,6 @@ def plot_curtain(
             Create a pyVista structure made up of 'grid' and 'curtain'.
             Use plotter.show() to display the curtain in a Jupyter cell.
             Use panel.Row(plotter) to display the curtain in panel.
-            See more in:
-            https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html?highlight=plotter#pyvista.Plotter
     """
 
     data = MVBS_ds.Sv.values[1:].T

@@ -337,7 +337,7 @@ class Echogram(param.Parameterized):
             link_to_echogram (bool, optional): Whether to link the positions plot to the echogram.
 
         Returns:
-            holoviews.Overlay: The generated ship or moored point positions plot and starting point.
+            holoviews.Overlay: The ship or moored point positions plot and starting point.
         """
         if link_to_echogram is not None:
             self.link_mode_select.value = link_to_echogram
@@ -490,11 +490,12 @@ class Echogram(param.Parameterized):
         Parameters
         ----------
         bins : int, optional
-            Number of bins to use for the histogram. If not provided, the number of bins will be automatically set
-            based on the data. Default is None.
+            Number of bins to use for the histogram. 
+            If not provided, the number of bins will be automatically set.
+            Default is None.
         overlay : bool, optional
-            If True, multiple histograms will be overlaid on the same plot. If False, each histogram will be plotted
-            separately. Default is None.
+            If True, multiple histograms will be overlaid on the same plot. 
+            If False, each histogram will be plotted separately. Default is None.
 
         Returns
         -------
