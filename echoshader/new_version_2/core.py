@@ -1,7 +1,7 @@
 import param
 import xarray
 from echogram import echogram_single_frequency
-from map import tile, track
+from map import tile, track, point
 
 
 @xarray.register_dataset_accessor("eshader")
@@ -19,3 +19,6 @@ class Echoshader(param.Parameterized):
 
     def track(self):
         return track()
+    
+    def point(self):
+        return point()
