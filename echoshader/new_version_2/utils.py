@@ -6,12 +6,7 @@ gram_opts = {
         "invert_yaxis": False,
         "width": 600,
     },
-
-    "RGB": {
-        "tools": ["hover"], 
-        "invert_yaxis": False, 
-        "width": 600
-    },
+    "RGB": {"tools": ["hover"], "invert_yaxis": False, "width": 600},
 }
 
 tiles = [

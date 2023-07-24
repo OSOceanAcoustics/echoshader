@@ -1,8 +1,10 @@
 from typing import List, Union
+
 import holoviews
 from utils import gram_opts
 
 holoviews.extension("bokeh", logo=False)
+
 
 def echogram_single_frequency(
     self,
@@ -11,7 +13,6 @@ def echogram_single_frequency(
     vmin: float,
     vmax: float,
 ):
-
     gram_opts["Image"]["cmap"] = cmap
 
     gram_opts["Image"]["clim"] = (vmin, vmax)

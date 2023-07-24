@@ -1,14 +1,16 @@
-import xarray
 import geoviews
 import pandas
+import xarray
+
 
 def tile(
-        map_tiles: str,
-        opt_tile: geoviews.opts,
-        ):
+    map_tiles: str,
+    opt_tile: geoviews.opts,
+):
     tiles = getattr(geoviews.tile_sources, map_tiles).opts(opt_tile)
 
     return tiles
+
 
 def track(
     MVBS_ds: xarray.Dataset,
