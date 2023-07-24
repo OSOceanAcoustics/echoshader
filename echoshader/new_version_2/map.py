@@ -1,11 +1,10 @@
 import geoviews
 import pandas
 import xarray
-
 from utils import gram_opts
 
+
 def convert_MVBS_to_pandas(MVBS_ds: xarray.Dataset):
-    
     all_pd_data = pandas.concat(
         [
             pandas.DataFrame(MVBS_ds.longitude.values, columns=["Longitude"]),
@@ -19,14 +18,14 @@ def convert_MVBS_to_pandas(MVBS_ds: xarray.Dataset):
 
     return all_pd_data
 
-def tile(map_tiles: str):
 
+def tile(map_tiles: str):
     tiles = getattr(geoviews.tile_sources, map_tiles).opts(gram_opts)
 
     return tiles
 
-def track(MVBS_ds: xarray.Dataset):
 
+def track(MVBS_ds: xarray.Dataset):
     all_pd_data = convert_MVBS_to_pandas(MVBS_ds)
 
     starting_data = all_pd_data.iloc[0].values.tolist()
@@ -46,8 +45,8 @@ def track(MVBS_ds: xarray.Dataset):
 
     return ship_path * starting_point
 
+
 def point(MVBS_ds: xarray.Dataset):
-    
     all_pd_data = convert_MVBS_to_pandas(MVBS_ds)
 
     starting_data = all_pd_data.iloc[0].values.tolist()
@@ -55,6 +54,7 @@ def point(MVBS_ds: xarray.Dataset):
     # plot moored point
     moored_point = geoviews.Points(
         [starting_data],
-        kdims=["Longitude", "Latitude"],).opts(gram_opts)
-    
-    return moored_point 
+        kdims=["Longitude", "Latitude"],
+    ).opts(gram_opts)
+
+    return moored_point
