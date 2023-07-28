@@ -3,9 +3,11 @@ from typing import Dict, List, Literal, Union
 import param
 import panel
 import xarray
+import param
 from echogram import echogram_single_frequency, tricolor_echogram
-from map import point, tile, track
+from map import point_plot, track_plot
 from box import get_box_plot, get_box_stream, get_lasso_stream
+from utils import tiles
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
@@ -14,32 +16,17 @@ class Echoshader(param.Parameterized):
 
         self.MVBS_ds = MVBS_ds
 
+        self.MVBS_ds_box = MVBS_ds
+
+        self.box_list = param.List([])
+
         self._init_color_map()
 
         self._init_Sv_range_slider()
 
         self._init_echogram()
 
-    def echogram_with_bound(
-            self,
-            MVBS_ds: xarray,
-            channel: str,
-            cmap: Union[str, List[str]],
-            value_range: tuple[float, float]
-        ):
-        
-        echogram = echogram_single_frequency(MVBS_ds, channel, cmap, value_range)
-
-        # get box stream from echogram
-        self.box = get_box_stream(echogram)
-
-        # get lasso stream from echogram
-        self.lasso = get_lasso_stream(echogram)
-
-        # plot box using bounds
-        bounds = get_box_plot(self.box)
-
-        return echogram * bounds
+        self._init_tile_select()
 
     def _init_color_map(self):
         self.color_map_dict = {}
@@ -72,6 +59,27 @@ class Echoshader(param.Parameterized):
 
             self.Sv_range_slider_dict[channel] = Sv_range_slider
 
+    def echogram_with_bound(
+            self,
+            MVBS_ds: xarray,
+            channel: str,
+            cmap: Union[str, List[str]],
+            value_range: tuple[float, float]
+        ):
+        
+        echogram = echogram_single_frequency(MVBS_ds, channel, cmap, value_range)
+
+        # get box stream from echogram
+        self.box = get_box_stream(echogram)
+
+        # get lasso stream from echogram
+        self.lasso = get_lasso_stream(echogram)
+
+        # plot box using bounds
+        bounds = get_box_plot(self.box)
+
+        return echogram * bounds
+    
     def _init_echogram(self):
         self.echogram_dict = {}
 
@@ -83,7 +91,30 @@ class Echoshader(param.Parameterized):
                                   value_range = self.Sv_range_slider_dict[channel],
                                 )
             self.echogram_dict[channel] = echogram
+        
+    def _init_tile_select(self):
+        self.tile_select = panel.widgets.Select(
+            name="Map Tile Select", value="OSM", options=tiles
+        )
+        
+    def color_map(self,
+                  channel: List[str]):
+        color_map_list = []
 
+        for ch in channel:
+            color_map_list.append(self.color_map_dict[ch])
+        
+        return color_map_list
+
+    def Sv_range_slider(self,
+                        channel: List[str]):
+        Sv_range_slider_list = []
+
+        for ch in channel:
+            Sv_range_slider_list.append(self.Sv_range_slider_dict[ch])
+        
+        return Sv_range_slider_list
+    
     def echogram(
             self, 
             channel: List[str],
@@ -110,12 +141,26 @@ class Echoshader(param.Parameterized):
             return echogram_list[0]
         else:
             return echogram_list
+        
+    @param.depends("box.bounds")
+    def track(self,
+              map_tiles: str = "OSM"):
+        self.tile_select.value = map_tiles
 
-    def tile(self):
-        return tile()
+        self.MVBS_ds_box = self.extract_data_from_box()
 
-    def track(self):
-        return track()
+        self.track_map = panel.bind(
+            track_plot,
+            self.MVBS_ds_box, 
+            map_tiles = self.tile_select
+        )
 
-    def point(self):
-        return point()
+        return self.track_map
+    
+    def extract_data_from_box(self):
+        return self.MVBS_ds.sel(
+            ping_time=slice(self.box.bounds[0], self.box.bounds[2]),
+            echo_range=slice(self.box.bounds[1], self.box.bounds[3])
+            if self.box.bounds[3] > self.box.bounds[1]
+            else slice(self.box.bounds[3], self.box.bounds[1]),
+        )

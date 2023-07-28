@@ -45,7 +45,7 @@ def convert_MVBS_to_pandas(MVBS_ds: xarray.Dataset):
     return all_pd_data
 
 
-def tile(map_tiles: str):
+def tile_plot(map_tiles: str):
     """
     Load and customize map tiles from GeoViews tile sources.
 
@@ -68,14 +68,14 @@ def tile(map_tiles: str):
     Examples
     --------
     # Load and customize the "OSM" (OpenStreetMap) map tiles
-    osm_tiles = tile("OSM")
+    osm_tiles = tile_plot("OSM")
     """
     tiles = getattr(geoviews.tile_sources, map_tiles).opts(gram_opts)
 
     return tiles
 
 
-def track(MVBS_ds: xarray.Dataset):
+def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
     """
     Plot the ship's track on a map using GeoViews.
 
@@ -101,10 +101,10 @@ def track(MVBS_ds: xarray.Dataset):
     --------
     # Assuming MVBS_ds is an xarray.Dataset containing MVBS data
     # Plot the ship's track on a map using GeoViews
-    track_plot = track(MVBS_ds)
+    track_plot = track_plot(MVBS_ds)
 
     # Load and customize the "OSM" (OpenStreetMap) map tiles
-    osm_tiles = tile("OSM")
+    osm_tiles = tile_plot("OSM")
 
     # Display the ship's track using Panel
     panel.Column(track_plot * osm_tiles)
@@ -126,10 +126,10 @@ def track(MVBS_ds: xarray.Dataset):
         vdims=["Ping Time", "Longitude", "Latitude"],
     ).opts(gram_opts)
 
-    return ship_path * starting_point
+    return ship_path * starting_point * tile_plot(map_tiles)
 
 
-def point(MVBS_ds: xarray.Dataset):
+def point_plot(MVBS_ds: xarray.Dataset):
     """
     Plot a moored point on a map using GeoViews.
 
@@ -152,10 +152,10 @@ def point(MVBS_ds: xarray.Dataset):
     --------
     # Assuming MVBS_ds is an xarray.Dataset containing MVBS data
     # Plot a moored point on a map using GeoViews
-    moored_point_plot = point(MVBS_ds)
+    moored_point_plot = point_plot(MVBS_ds)
 
     # Load and customize the "OSM" (OpenStreetMap) map tiles
-    osm_tiles = tile("OSM")
+    osm_tiles = tile_plot("OSM")
 
     # Display the moored point using Panel
     Panel.Row(moored_point_plot * osm_tiles)

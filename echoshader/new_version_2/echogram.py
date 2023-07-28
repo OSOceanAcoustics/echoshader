@@ -5,8 +5,6 @@ import numpy
 import holoviews
 from utils import gram_opts
 
-from box import get_box_plot, get_box_stream, get_lasso_stream
-
 holoviews.extension("bokeh", logo=False)
 
 def echogram_single_frequency(
