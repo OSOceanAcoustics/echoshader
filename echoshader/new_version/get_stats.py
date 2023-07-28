@@ -1,5 +1,4 @@
 import holoviews
-import hvplot.xarray
 import pandas
 import xarray
 

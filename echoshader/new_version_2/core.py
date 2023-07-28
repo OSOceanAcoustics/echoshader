@@ -1,11 +1,11 @@
-from typing import Dict, List, Literal, Union
+from typing import Dict, List, Union
 
 import panel
 import param
 import xarray
 from box import get_box_plot, get_box_stream, get_lasso_stream
 from echogram import echogram_single_frequency, tricolor_echogram
-from map import point_plot, track_plot
+from map import track_plot
 from utils import tiles
 
 
