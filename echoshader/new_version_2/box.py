@@ -2,8 +2,7 @@ import holoviews
 import numpy
 
 
-def get_box_stream(source_pic: holoviews.element, 
-                   bounds: tuple = None):
+def get_box_stream(source_pic: holoviews.element, bounds: tuple = None):
     """
     Get a Holoviews BoundsXY stream for a source plot with optional default bounds.
 
@@ -58,8 +57,7 @@ def get_box_stream(source_pic: holoviews.element,
     return box_stream
 
 
-def get_lasso_stream(source_pic: holoviews.element,
-                     geometry: numpy.array = None):
+def get_lasso_stream(source_pic: holoviews.element, geometry: numpy.array = None):
     """
     Get a Holoviews Lasso stream for a source plot with optional default geometry.
 
@@ -91,7 +89,7 @@ def get_lasso_stream(source_pic: holoviews.element,
     lasso_stream = get_lasso_stream(source_pic)
 
     # Alternatively, provide custom default geometry
-    custom_geometry = np.array([[0, 0], [5, 5], [10, 0]])  
+    custom_geometry = np.array([[0, 0], [5, 5], [10, 0]])
     # (x, y) coordinate pairs forming the lasso shape
     lasso_stream = get_lasso_stream(source_pic, geometry=custom_geometry)
 

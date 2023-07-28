@@ -1,17 +1,18 @@
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
-import xarray
-import numpy
 import holoviews
+import numpy
+import xarray
 from utils import gram_opts
 
 holoviews.extension("bokeh", logo=False)
+
 
 def echogram_single_frequency(
     MVBS_ds: xarray,
     channel: str,
     cmap: Union[str, List[str]],
-    value_range: tuple[float, float]
+    value_range: tuple[float, float],
 ):
     """
     Generate an echogram for a single frequency channel.
@@ -70,11 +71,12 @@ def echogram_single_frequency(
 
     return echogram
 
+
 def echogram_multiple_frequency(
     MVBS_ds: xarray,
     channel: str,
     cmap: Union[str, List[str]],
-    value_range: tuple[float, float]
+    value_range: tuple[float, float],
 ):
     """
     Generate multiple echograms for different frequency channels.
@@ -131,10 +133,10 @@ def echogram_multiple_frequency(
         .opts(gram_opts)
     )
 
-    for _, channel_ in enumerate(MVBS_ds.channel.values): 
+    for _, channel_ in enumerate(MVBS_ds.channel.values):
         if channel_ == channel:
             continue
-        
+
         gram_opts["Image"]["title"] = channel_
 
         echogram = (
@@ -144,19 +146,19 @@ def echogram_multiple_frequency(
         )
 
         echograms += echogram
-        
+
     return echograms.cols(1)
 
-def convert_to_color(MVBS_ds: xarray, 
-                     channel_sel: str, 
-                     th_bottom: float, 
-                     th_top: float):
+
+def convert_to_color(
+    MVBS_ds: xarray, channel_sel: str, th_bottom: float, th_top: float
+):
     """
     Convert backscatter data to a color array based on threshold values.
 
     This function takes an xarray.Dataset containing MVBS (Multibeam Backscatter) data,
     extracts the data for a specific `channel_sel`, and converts the backscatter values (Sv)
-    to a color array based on specified threshold values. Values above `th_top` and below 
+    to a color array based on specified threshold values. Values above `th_top` and below
     `th_bottom` are masked (NaN), and the remaining values are scaled
     to a range between 0 and 1, representing colors from minimum to maximum.
 
@@ -168,9 +170,9 @@ def convert_to_color(MVBS_ds: xarray,
         The name of the frequency channel for which the color array will be generated.
         It should be a valid channel name present in the 'channel' dimension of MVBS_ds.
     th_bottom : float
-        The lower threshold value for backscatter data. 
+        The lower threshold value for backscatter data.
     th_top : float
-        The upper threshold value for backscatter data. 
+        The upper threshold value for backscatter data.
 
     Returns
     -------
@@ -199,16 +201,16 @@ def convert_to_color(MVBS_ds: xarray,
     da_color = numpy.squeeze(da_color.Sv.data).transpose().compute()
     return da_color
 
-def tricolor_echogram(MVBS_ds: xarray,
-                      vmin: float,
-                      vmax: float,
-                      rgb_map: Dict[str, str] = {}):
+
+def tricolor_echogram(
+    MVBS_ds: xarray, vmin: float, vmax: float, rgb_map: Dict[str, str] = {}
+):
     """
     Create a tricolor echogram for multiple frequency channels.
 
-    This function generates a tricolor echogram from an xarray.Dataset containing MVBS 
-    (Multibeam Backscatter) data, where each color channel represents a different frequency 
-    channel's backscatter values. The function allows custom mapping of frequency channels to 
+    This function generates a tricolor echogram from an xarray.Dataset containing MVBS
+    (Multibeam Backscatter) data, where each color channel represents a different frequency
+    channel's backscatter values. The function allows custom mapping of frequency channels to
     RGB color channels using the `rgb_map` dictionary.
 
     Parameters
@@ -221,15 +223,15 @@ def tricolor_echogram(MVBS_ds: xarray,
         The maximum value for the color scale of the echogram.
     rgb_map : Dict[str, str], optional
         A dictionary specifying the mapping of frequency channels to RGB color channels.
-        The keys are the frequency channel names, and the values are the corresponding 
-        RGB channel names. If not provided, the function will assign the first three frequency 
+        The keys are the frequency channel names, and the values are the corresponding
+        RGB channel names. If not provided, the function will assign the first three frequency
         channels to the "R", "G", and "B" channels, respectively.
 
     Returns
     -------
     holoviews.element.RGB
-        A tricolor echogram, where each color channel represents the backscatter values (Sv) of 
-        a different frequency channel. The echogram is rendered using Holoviews with the provided 
+        A tricolor echogram, where each color channel represents the backscatter values (Sv) of
+        a different frequency channel. The echogram is rendered using Holoviews with the provided
         colormap and color scale limits.
 
     Examples
@@ -272,4 +274,3 @@ def tricolor_echogram(MVBS_ds: xarray,
     ).opts(gram_opts)
 
     return rgb
-

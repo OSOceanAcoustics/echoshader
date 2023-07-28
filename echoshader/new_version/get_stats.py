@@ -7,6 +7,7 @@ hist_opts = holoviews.opts(width=700, fontsize={"legend": 5})
 
 table_opts = holoviews.opts(width=700)
 
+
 def plot_hist(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
     """
     Create histograms for the Sv data.

@@ -93,7 +93,7 @@ def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
     Returns
     -------
     geoviews.element.Path * geoviews.element.Points
-        The ship's track plotted as a line (ship_path) and the starting point plotted as 
+        The ship's track plotted as a line (ship_path) and the starting point plotted as
         a point (starting_point).
         Both elements are combined and rendered using GeoViews with the provided `gram_opts`.
 
