@@ -1,4 +1,6 @@
 import warnings
+import logging
+
 from typing import List, Union
 
 import panel
@@ -11,11 +13,7 @@ from map import track_plot
 from utils import tiles
 
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
-
-import logging
-
 logging.getLogger("param").setLevel(logging.CRITICAL)
-
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
