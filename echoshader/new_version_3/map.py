@@ -1,9 +1,9 @@
+import warnings
+
 import geoviews
 import pandas
 import xarray
 from utils import gram_opts
-
-import warnings
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -119,7 +119,7 @@ def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
 
     if all_pd_data["Longitude"].nunique() == 1 & all_pd_data["Latitude"].nunique() == 1:
         return point_plot(MVBS_ds, map_tiles)
-    
+
     starting_data = all_pd_data.iloc[0].values.tolist()
 
     # plot starting point

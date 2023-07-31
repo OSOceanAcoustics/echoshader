@@ -71,6 +71,7 @@ def single_echogram(
 
     return echogram
 
+
 def convert_to_color(
     MVBS_ds: xarray, channel_sel: str, th_bottom: float, th_top: float
 ):

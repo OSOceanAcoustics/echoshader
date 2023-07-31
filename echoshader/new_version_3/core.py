@@ -1,19 +1,21 @@
+import warnings
 from typing import List, Union
 
 import panel
 import param
 import xarray
+from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from echogram import single_echogram, tricolor_echogram
 from map import track_plot
 from utils import tiles
 
-from bokeh.util.warnings import BokehUserWarning 
-import warnings 
-warnings.simplefilter(action='ignore', category=BokehUserWarning)
+warnings.simplefilter(action="ignore", category=BokehUserWarning)
 
 import logging
+
 logging.getLogger("param").setLevel(logging.CRITICAL)
+
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
@@ -42,7 +44,7 @@ class Echoshader(param.Parameterized):
 
     Methods
     -------
-    echogram(channel: Union[str, List[str]], cmap: Union[str, List[str]] = None, 
+    echogram(channel: Union[str, List[str]], cmap: Union[str, List[str]] = None,
              vmin: float = None, vmax: float = None, rgb_composite: bool = False, *args, **kwargs)
         Create and display an echogram visualization for the specified channel(s).
 
@@ -50,7 +52,7 @@ class Echoshader(param.Parameterized):
         Create and display a track plot for the specified channel.
 
     extract_data_from_gram_box()
-        Extract data from the selected region on the echogram 
+        Extract data from the selected region on the echogram
         (not directly used in user interface).
 
     _tricolor_echogram_plot()
@@ -76,6 +78,7 @@ class Echoshader(param.Parameterized):
                 MVBS_ds.eshader.track('GPT 120 kHz 00907205a6d0 4-1 ES120-7C'),
     )
     """
+
     def __init__(self, MVBS_ds: xarray.Dataset):
         super().__init__()
 
@@ -90,7 +93,6 @@ class Echoshader(param.Parameterized):
         self._init_param()
 
     def _init_widget(self):
-
         self.color_map = panel.widgets.LiteralInput(
             name="Color Map", value="jet", type=(str, list)
         )
@@ -118,22 +120,22 @@ class Echoshader(param.Parameterized):
         self.overlay_layout_toggle = panel.widgets.Toggle(
             name="Overlay & Layout Toggle", value=True
         )
-        
-    def _init_param(self):
 
+    def _init_param(self):
         self.box_dict = {}
-        
+
         self.gram_box = param.ObjectSelector()
 
-    def echogram(self,
-                 channel: Union[str, List[str]],
-                 cmap: Union[str, List[str]] = None,
-                 vmin: float = None,
-                 vmax: float = None,
-                 rgb_composite: bool = False,        
-                 *args,
-                 **kwargs):
-                            
+    def echogram(
+        self,
+        channel: Union[str, List[str]],
+        cmap: Union[str, List[str]] = None,
+        vmin: float = None,
+        vmax: float = None,
+        rgb_composite: bool = False,
+        *args,
+        **kwargs
+    ):
         if cmap is not None:
             self.color_map.value = cmap
 
@@ -144,22 +146,22 @@ class Echoshader(param.Parameterized):
             vmin if vmin is not None else data_vmin,
             vmax if vmax is not None else data_vmax,
         )
-    
+
         if rgb_composite is True:
             if len(channel) != 3:
                 raise ValueError(
                     "Must have exactly 3 frequency channels for tricolor echogram."
                 )
-            
+
             self.tri_channel = channel
 
             return self._tricolor_echogram_plot
-        
+
         else:
             self.channel = channel
 
             return self._echogram_plot
-        
+
     @param.depends(
         "Sv_range_slider.value",
     )
@@ -169,11 +171,13 @@ class Echoshader(param.Parameterized):
         rgb_map[self.tri_channel[1]] = "G"
         rgb_map[self.tri_channel[2]] = "B"
 
-        echogram = tricolor_echogram(self.MVBS_ds, 
-                                     self.Sv_range_slider.value[0], 
-                                     self.Sv_range_slider.value[1], 
-                                     rgb_map)
-                
+        echogram = tricolor_echogram(
+            self.MVBS_ds,
+            self.Sv_range_slider.value[0],
+            self.Sv_range_slider.value[1],
+            rgb_map,
+        )
+
         # get box stream from echogram
         self.box_dict["rgb_composite"] = get_box_stream(echogram)
 
@@ -181,19 +185,21 @@ class Echoshader(param.Parameterized):
         bounds = get_box_plot(get_box_stream(echogram))
 
         return echogram * bounds
-    
+
     @param.depends(
         "Sv_range_slider.value",
         "color_map.value",
     )
     def _echogram_plot(self):
-        echograms = single_echogram(self.MVBS_ds,
-                                    self.channel[0],
-                                    self.color_map.value,
-                                    self.Sv_range_slider.value)
-                
+        echograms = single_echogram(
+            self.MVBS_ds,
+            self.channel[0],
+            self.color_map.value,
+            self.Sv_range_slider.value,
+        )
+
         # get box stream from echogram
-        self.box_dict[self.channel[0]]= get_box_stream(echograms)
+        self.box_dict[self.channel[0]] = get_box_stream(echograms)
 
         # plot box using bounds
         bounds = get_box_plot(get_box_stream(echograms))
@@ -204,27 +210,25 @@ class Echoshader(param.Parameterized):
             if ch == self.channel[0]:
                 continue
 
-            echogram = single_echogram(self.MVBS_ds,
-                                       ch,
-                                       self.color_map.value,
-                                       self.Sv_range_slider.value)
+            echogram = single_echogram(
+                self.MVBS_ds, ch, self.color_map.value, self.Sv_range_slider.value
+            )
 
             # get box stream from echogram
-            self.box_dict[ch]= get_box_stream(echogram)
+            self.box_dict[ch] = get_box_stream(echogram)
 
             # plot box using bounds
             bounds = get_box_plot(get_box_stream(echogram))
 
-            echograms += (echogram * bounds)
+            echograms += echogram * bounds
 
         if len(self.channel) == 1:
             return echograms
-        
+
         return echograms.cols(1)
-    
+
     def extract_data_from_gram_box(self):
-        
-        MVBS_ds_in_box =  self.MVBS_ds.sel(
+        MVBS_ds_in_box = self.MVBS_ds.sel(
             ping_time=slice(self.gram_box.bounds[0], self.gram_box.bounds[2]),
             echo_range=slice(self.gram_box.bounds[1], self.gram_box.bounds[3])
             if self.gram_box.bounds[3] > self.gram_box.bounds[1]
@@ -232,34 +236,23 @@ class Echoshader(param.Parameterized):
         )
 
         return MVBS_ds_in_box
-    
-    def track(self,
-              channel: str, 
-              tile: str = None,
-              *args,
-              **kwargs):
-        
+
+    def track(self, channel: str, tile: str = None, *args, **kwargs):
         if tile is not None:
             self.tile_select.value = tile
-        
+
         track_from_channel = channel
 
         self.gram_box = self.box_dict[track_from_channel]
 
         return self._track_plot
-    
-    @param.depends("tile_select.value",
-                   "gram_box.bounds")
+
+    @param.depends("tile_select.value", "gram_box.bounds")
     def _track_plot(self):
-        
         self.MVBS_ds_gram_box = self.extract_data_from_gram_box()
 
-        track = track_plot(MVBS_ds = self.MVBS_ds_gram_box, 
-                           map_tiles = self.tile_select.value)
+        track = track_plot(
+            MVBS_ds=self.MVBS_ds_gram_box, map_tiles=self.tile_select.value
+        )
 
-        return track        
-        
-
-
-
-
+        return track
