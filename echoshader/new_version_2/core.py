@@ -18,8 +18,6 @@ class Echoshader(param.Parameterized):
 
         self.MVBS_ds_box = MVBS_ds
 
-        self.box_list = param.List([])
-
         self._init_color_map()
 
         self._init_Sv_range_slider()
@@ -119,7 +117,7 @@ class Echoshader(param.Parameterized):
         rgb_map: Dict[str, str] = {},
     ):
         if rgb_composite is True:
-            if str(channel) != 3:
+            if len(channel) != 3:
                 raise ValueError(
                     "Must have exactly 3 frequency channels for tricolor echogram."
                 )
