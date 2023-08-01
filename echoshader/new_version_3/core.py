@@ -7,7 +7,6 @@ import param
 import xarray
 from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
-from curtain import curtain_plot
 from echogram import single_echogram, tricolor_echogram
 from map import track_plot
 from utils import tiles
@@ -118,6 +117,18 @@ class Echoshader(param.Parameterized):
 
         self.overlay_layout_toggle = panel.widgets.Toggle(
             name="Overlay & Layout Toggle", value=True
+        )
+
+        self.update_echogram_button = panel.widgets.Button(
+            name="Update Echogram 🔈", button_type="primary"
+        )
+
+        self.update_track_button = panel.widgets.Button(
+            name="Update Positions 🗺️", button_type="primary"
+        )
+
+        self.update_stats_button = panel.widgets.Button(
+            name="Update Positions 📊", button_type="primary"
         )
 
     def _init_param(self):
