@@ -9,6 +9,7 @@ from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from echogram import single_echogram, tricolor_echogram
 from map import track_plot
+from curtain import curtain_plot
 from utils import tiles
 
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
