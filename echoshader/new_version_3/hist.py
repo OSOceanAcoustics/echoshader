@@ -1,8 +1,8 @@
 import holoviews
 import pandas
+import utils
 import xarray
 
-import utils
 
 def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
     """
@@ -17,7 +17,7 @@ def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
         Number of bins to use for the histogram. Default is 24.
 
     overlay : bool, optional
-        If True, multiple histograms will be overlaid on the same plot. 
+        If True, multiple histograms will be overlaid on the same plot.
         If False, each histogram will be plotted vertically. Default is True.
 
     Returns
@@ -27,12 +27,12 @@ def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
 
     Notes
     -----
-    This function uses HoloViews' hvplot library to generate the histogram plot based on the 
-    'Sv' data in the provided xarray dataset `MVBS_ds`. The 'Sv' data should contain the values 
+    This function uses HoloViews' hvplot library to generate the histogram plot based on the
+    'Sv' data in the provided xarray dataset `MVBS_ds`. The 'Sv' data should contain the values
     to be plotted.
 
-    If `overlay` is set to True, the histogram plot will show multiple histograms, each 
-    representing a different channel from the dataset, stacked on top of each other. 
+    If `overlay` is set to True, the histogram plot will show multiple histograms, each
+    representing a different channel from the dataset, stacked on top of each other.
     If set to False, each channel will have its histogram plotted separately.
 
     Example
@@ -67,7 +67,7 @@ def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
 
 def table_plot(MVBS_ds: xarray.Dataset):
     """
-    Create and display a table containing summary statistics for the 'Sv' data in the given 
+    Create and display a table containing summary statistics for the 'Sv' data in the given
     xarray dataset.
 
     Parameters
@@ -78,14 +78,14 @@ def table_plot(MVBS_ds: xarray.Dataset):
     Returns
     -------
     holoviews.Table
-        A HoloViews Table object containing summary statistics such as mean, min, max, 
+        A HoloViews Table object containing summary statistics such as mean, min, max,
         skewness, and kurtosis for each channel's 'Sv' data.
 
     Notes
     -----
-    This function calculates summary statistics for the 'Sv' data in the provided xarray 
-    dataset `MVBS_ds`, including mean, standard deviation, minimum, 25th percentile, median, 
-    75th percentile, and maximum. Additionally, it computes the skewness and kurtosis for 
+    This function calculates summary statistics for the 'Sv' data in the provided xarray
+    dataset `MVBS_ds`, including mean, standard deviation, minimum, 25th percentile, median,
+    75th percentile, and maximum. Additionally, it computes the skewness and kurtosis for
     each channel's 'Sv' data.
 
     The resulting table will display summary statistics for each channel in the dataset,

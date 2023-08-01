@@ -1,8 +1,9 @@
 from typing import List, Union
 
-import xarray
 import numpy
 import pyvista
+import xarray
+
 
 def curtain_plot(
     MVBS_ds: xarray.Dataset,
@@ -22,7 +23,7 @@ def curtain_plot(
         Colormap(s) to use for the curtain plot. Default is 'jet'.
 
     clim : tuple, optional
-        Color limits (min, max) for the colormap. Default is None, which automatically 
+        Color limits (min, max) for the colormap. Default is None, which automatically
         determines the limits based on data.
 
     ratio : float, optional
@@ -35,10 +36,10 @@ def curtain_plot(
 
     Notes
     -----
-    This function creates a 2D curtain plot from the given dataset `MVBS_ds`, and the depth 
+    This function creates a 2D curtain plot from the given dataset `MVBS_ds`, and the depth
     (echo_range) information is draped along the given latitude and longitude coordinates.
 
-    The `MVBS_ds` dataset should contain a variable named 'Sv' representing the sonar data. 
+    The `MVBS_ds` dataset should contain a variable named 'Sv' representing the sonar data.
     The latitude and longitude coordinates must be present for each trace in the dataset.
 
     Example
