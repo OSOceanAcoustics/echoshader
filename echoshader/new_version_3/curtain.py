@@ -81,7 +81,6 @@ def curtain_plot(
     # Add the data array - note the ordering!
     grid["values"] = data.ravel(order="F")
 
-    pyvista.global_theme.jupyter_backend = "panel"
     pyvista.global_theme.background = "gray"
 
     curtain = pyvista.Plotter()

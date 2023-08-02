@@ -1,7 +1,7 @@
 import holoviews
 import pandas
 import utils
-import xarray
+import hvplot.xarray  # noqa
 
 
 def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):

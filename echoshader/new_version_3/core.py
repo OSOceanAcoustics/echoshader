@@ -1,17 +1,18 @@
-import logging
-import warnings
 from typing import List, Union
 
 import panel
 import param
 import xarray
-from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from curtain import curtain_plot
 from echogram import single_echogram, tricolor_echogram
 from hist import hist_plot, table_plot
 from map import track_plot
 from utils import curtain_opts, tiles
+
+import logging
+import warnings
+from bokeh.util.warnings import BokehUserWarning
 
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
