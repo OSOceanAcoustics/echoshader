@@ -1,8 +1,8 @@
 import holoviews
+import hvplot.xarray  # noqa
 import pandas
 import xarray
-import hvplot.xarray  # noqa
- 
+
 hist_opts = holoviews.opts(width=700, fontsize={"legend": 5})
 
 table_opts = holoviews.opts(width=700)
