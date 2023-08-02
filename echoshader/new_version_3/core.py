@@ -9,7 +9,9 @@ from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from echogram import single_echogram, tricolor_echogram
 from map import track_plot
-from utils import tiles
+from curtain import curtain_plot
+from hist import hist_plot, table_plot
+from utils import tiles, curtain_opts
 
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
@@ -82,15 +84,12 @@ class Echoshader(param.Parameterized):
 
         self.MVBS_ds = MVBS_ds
 
-        self.MVBS_ds_gram_box = MVBS_ds
-
-        self.MVBS_ds_track_box = MVBS_ds
-
         self._init_widget()
 
         self._init_param()
 
     def _init_widget(self):
+
         self.color_map = panel.widgets.LiteralInput(
             name="Color Map", value="jet", type=(str, list)
         )
@@ -101,6 +100,10 @@ class Echoshader(param.Parameterized):
             end=self.MVBS_ds.Sv.actual_range[-1],
             value=(self.MVBS_ds.Sv.actual_range[0], self.MVBS_ds.Sv.actual_range[-1]),
             step=0.01,
+        )
+
+        self.channel_select = panel.widgets.Select(
+            name="Channel Select", options=self.MVBS_ds.channel.values.tolist()
         )
 
         self.tile_select = panel.widgets.Select(
@@ -131,14 +134,24 @@ class Echoshader(param.Parameterized):
             name="Update Positions 📊", button_type="primary"
         )
 
+        self.reset_button = panel.widgets.Button(
+            name="Reset 🔁", button_type="primary"
+        )
+
     def _init_param(self):
         self.box_dict = {}
 
-        self.gram_box = param.ObjectSelector()
+        self.gram_box = None
+
+        self.track_box = None
+
+        self.MVBS_ds_gram_box = self.MVBS_ds
+
+        self.MVBS_ds_track_box = self.MVBS_ds
 
     def echogram(
         self,
-        channel: Union[str, List[str]],
+        channel: List[str],
         cmap: Union[str, List[str]] = None,
         vmin: float = None,
         vmax: float = None,
@@ -174,6 +187,7 @@ class Echoshader(param.Parameterized):
 
     @param.depends(
         "Sv_range_slider.value",
+        "update_echogram_button.value",
     )
     def _tricolor_echogram_plot(self):
         rgb_map = {}
@@ -199,6 +213,7 @@ class Echoshader(param.Parameterized):
     @param.depends(
         "Sv_range_slider.value",
         "color_map.value",
+        "update_echogram_button.value",
     )
     def _echogram_plot(self):
         echograms = single_echogram(
@@ -237,27 +252,22 @@ class Echoshader(param.Parameterized):
 
         return echograms.cols(1)
 
-    def extract_data_from_gram_box(self):
-        MVBS_ds_in_box = self.MVBS_ds.sel(
-            ping_time=slice(self.gram_box.bounds[0], self.gram_box.bounds[2]),
-            echo_range=slice(self.gram_box.bounds[1], self.gram_box.bounds[3])
-            if self.gram_box.bounds[3] > self.gram_box.bounds[1]
-            else slice(self.gram_box.bounds[3], self.gram_box.bounds[1]),
-        )
-
-        return MVBS_ds_in_box
-
-    def track(self, channel: str, tile: str = None, *args, **kwargs):
+    def track(
+        self, 
+        channel: str, 
+        tile: str = None, 
+        *args, 
+        **kwargs
+    ):
         if tile is not None:
             self.tile_select.value = tile
 
-        track_from_channel = channel
-
-        self.gram_box = self.box_dict[track_from_channel]
+        self.gram_box = self.box_dict[channel]
 
         return self._track_plot
 
-    @param.depends("tile_select.value", "gram_box.bounds")
+    @param.depends("tile_select.value", 
+                   "update_track_button.value")
     def _track_plot(self):
         self.MVBS_ds_gram_box = self.extract_data_from_gram_box()
 
@@ -266,3 +276,105 @@ class Echoshader(param.Parameterized):
         )
 
         return track
+    
+    def curtain(
+        self,
+        ratio: float = None,
+    ):
+        if ratio is not None:
+            self.curtain_ratio.value = ratio
+
+        return self._curtain_plot
+    
+    @param.depends(
+        "color_map.value",
+        "Sv_range_slider.value",
+        "curtain_ratio.value",
+    )
+    def _curtain_plot(self):
+
+        self.MVBS_ds_gram_box = self.extract_data_from_gram_box()
+
+        curtain = curtain_plot(
+            MVBS_ds = self.MVBS_ds_gram_box,
+            cmap = self.color_map.value,
+            clim = self.Sv_range_slider.value,
+            ratio = self.curtain_ratio.value,
+        )
+
+        curtain_panel = panel.panel(
+            curtain.ren_win,
+            height=curtain_opts["height"],
+            width=curtain_opts["width"],
+            orientation_widget=True,
+        )
+
+        return curtain_panel
+
+        
+    def hist(self,        
+             bins: int = None,
+             overlay: bool = None
+    ):
+        if bins is not None:
+            self.bin_size_input.value = bins
+
+        if overlay is not None:
+            self.overlay_layout_toggle.value = overlay
+        
+
+        return self._hist_plot
+
+    @param.depends(
+        "bin_size_input.value",
+        "overlay_layout_toggle.value",
+        "update_stats_button.value",
+    )
+    def _hist_plot(self):
+        MVBS_ds_in_box = self.extract_data_from_gram_box()
+
+        hist = hist_plot(
+            MVBS_ds_in_box,
+            bins=self.bin_size_input.value,
+            overlay=self.overlay_layout_toggle.value,
+        )
+
+        return hist
+    
+    def table(self):
+        return self._table_plot
+
+    @param.depends("update_stats_button.value")
+    def _table_plot(self):
+        MVBS_ds_in_box = self.extract_data_from_gram_box()
+
+        table = table_plot(MVBS_ds=MVBS_ds_in_box)
+
+        return table
+    
+    @param.depends("reset.value")
+    def reset(self):
+        pass
+        
+    def extract_data_from_gram_box(self):
+        MVBS_ds_in_gram_box = self.MVBS_ds.sel(
+            ping_time=slice(self.gram_box.bounds[0], self.gram_box.bounds[2]),
+            echo_range=slice(self.gram_box.bounds[1], self.gram_box.bounds[3])
+            if self.gram_box.bounds[3] > self.gram_box.bounds[1]
+            else slice(self.gram_box.bounds[3], self.gram_box.bounds[1]),
+        )
+
+        return MVBS_ds_in_gram_box
+    
+    def extract_data_from_track_box(self):
+        MVBS_ds_in_track_box = self.MVBS_ds.sel(
+            ping_time=slice(self.track_box.bounds[0], self.track_box.bounds[2]),
+            echo_range=slice(self.track_box.bounds[1], self.track_box.bounds[3])
+            if self.track_box.bounds[3] > self.track_box.bounds[1]
+            else slice(self.track_box.bounds[3], self.track_box.bounds[1]),
+        )
+
+        return MVBS_ds_in_track_box
+
+    def extract_data_from_box(self):
+        pass
