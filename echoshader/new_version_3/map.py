@@ -1,14 +1,14 @@
 from typing import Union
 
 import geoviews
+import numpy
 import pandas
 import xarray
-import numpy
 from pyproj import Transformer
-
-from utils import gram_opts, EPSG_mercator, EPSG_coordsys
+from utils import EPSG_coordsys, EPSG_mercator, gram_opts
 
 opt_tile = geoviews.opts(tools=["box_select"])
+
 
 def get_track_corners(MVBS_ds: xarray.Dataset):
     """
@@ -48,10 +48,9 @@ def get_track_corners(MVBS_ds: xarray.Dataset):
     top = numpy.nanmax(MVBS_ds.latitude.values)
     return left, bottom, right, top
 
+
 def convert_EPSG(
-    lat: Union[int, float], 
-    lon: Union[int, float], 
-    mercator_to_coord: bool = True
+    lat: Union[int, float], lon: Union[int, float], mercator_to_coord: bool = True
 ):
     """
     Converts coordinates between EPSG coordinate reference systems (CRS).
@@ -81,6 +80,7 @@ def convert_EPSG(
         (lon, lat) = transformer.transform(xx=lat, yy=lon)
 
     return lat, lon
+
 
 def convert_MVBS_to_pandas(MVBS_ds: xarray.Dataset):
     """
@@ -210,6 +210,7 @@ def track_plot(MVBS_ds: xarray.Dataset):
     ).opts(gram_opts)
 
     return ship_path * starting_point
+
 
 def point_plot(MVBS_ds: xarray.Dataset):
     """
