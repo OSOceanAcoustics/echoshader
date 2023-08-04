@@ -1,12 +1,86 @@
-import warnings
+from typing import Union
 
 import geoviews
 import pandas
 import xarray
-from utils import gram_opts
+import numpy
+from pyproj import Transformer
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
+from utils import gram_opts, EPSG_mercator, EPSG_coordsys
 
+opt_tile = geoviews.opts(tools=["box_select"])
+
+def get_track_corners(MVBS_ds: xarray.Dataset):
+    """
+    Calculate the geographic bounding box corners of the track from a given MVBS_ds.
+
+    Parameters
+    ----------
+    MVBS_ds : xarray.Dataset
+        A dataset containing the track data.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the four geographic bounding box corners of the track.
+
+    Notes
+    -----
+    This function calculates the minimum and maximum latitude and longitude values from the
+    provided xarray dataset `MVBS_ds`. These values represent the geographic bounding box of the
+    track. The `MVBS_ds` should contain thenecessary variables 'longitude' and 'latitude'
+    representing the spatial coordinates of the track.
+
+    The returned tuple contains four values:
+    - left: The minimum longitude value (westernmost point) of the track.
+    - bottom: The minimum latitude value (southernmost point) of the track.
+    - right: The maximum longitude value (easternmost point) of the track.
+    - top: The maximum latitude value (northernmost point) of the track.
+
+    Example
+    -------
+        corners = get_track_corners(MVBS_ds)
+        print(corners)
+    """
+    left = numpy.nanmin(MVBS_ds.longitude.values)
+    bottom = numpy.nanmin(MVBS_ds.latitude.values)
+    right = numpy.nanmax(MVBS_ds.longitude.values)
+    top = numpy.nanmax(MVBS_ds.latitude.values)
+    return left, bottom, right, top
+
+def convert_EPSG(
+    lat: Union[int, float], 
+    lon: Union[int, float], 
+    mercator_to_coord: bool = True
+):
+    """
+    Converts coordinates between EPSG coordinate reference systems (CRS).
+
+    Args:
+        lat (int, float): Latitude value.
+        lon (int, float): Longitude value.
+        mercator_to_coord (bool, optional):
+            If True, converts from EPSG Mercator to coordinate system.
+            If False, converts from coordinate system to EPSG Mercator. Default is True.
+
+    Returns:
+        tuple: A tuple containing the converted latitude and longitude values.
+
+    Example usage:
+        # Convert from EPSG Mercator to coordinate system
+        lat, lon = convert_EPSG(0, 0)
+
+        # Convert from coordinate system to EPSG Mercator
+        lat, lon = convert_EPSG(40, -75, False)
+    """
+    if mercator_to_coord is True:
+        transformer = Transformer.from_crs(EPSG_mercator, EPSG_coordsys)
+        (lat, lon) = transformer.transform(xx=lon, yy=lat)
+    else:
+        transformer = Transformer.from_crs(EPSG_coordsys, EPSG_mercator)
+        (lon, lat) = transformer.transform(xx=lat, yy=lon)
+
+    return lat, lon
 
 def convert_MVBS_to_pandas(MVBS_ds: xarray.Dataset):
     """
@@ -74,12 +148,12 @@ def tile_plot(map_tiles: str):
     # Load and customize the "OSM" (OpenStreetMap) map tiles
     osm_tiles = tile_plot("OSM")
     """
-    tiles = getattr(geoviews.tile_sources, map_tiles).opts(gram_opts)
+    tiles = getattr(geoviews.tile_sources, map_tiles).opts(opt_tile)
 
     return tiles
 
 
-def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
+def track_plot(MVBS_ds: xarray.Dataset):
     """
     Plot the ship's track on a map using GeoViews.
 
@@ -118,7 +192,7 @@ def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
     all_pd_data = convert_MVBS_to_pandas(MVBS_ds)
 
     if all_pd_data["Longitude"].nunique() == 1 & all_pd_data["Latitude"].nunique() == 1:
-        return point_plot(MVBS_ds, map_tiles)
+        return point_plot(MVBS_ds)
 
     starting_data = all_pd_data.iloc[0].values.tolist()
 
@@ -135,10 +209,9 @@ def track_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
         vdims=["Ping Time", "Longitude", "Latitude"],
     ).opts(gram_opts)
 
-    return ship_path * starting_point * tile_plot(map_tiles)
+    return ship_path * starting_point
 
-
-def point_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
+def point_plot(MVBS_ds: xarray.Dataset):
     """
     Plot a moored point on a map using GeoViews.
 
@@ -179,4 +252,4 @@ def point_plot(MVBS_ds: xarray.Dataset, map_tiles: str):
         kdims=["Longitude", "Latitude"],
     ).opts(gram_opts)
 
-    return moored_point * tile_plot(map_tiles)
+    return moored_point

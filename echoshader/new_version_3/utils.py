@@ -16,6 +16,7 @@ gram_opts = {
     "Tiles": {"tools": ["box_select"]},
     "Histogram": {"fontsize": {"legend": 5}, "width": 600},
     "Table": {"width": 600},
+    "Bounds": {"line_width": 1, "line_color": "white"},
 }
 
 curtain_opts = {"width": 700, "height": 500}
@@ -42,3 +43,7 @@ tiles = [
     "StamenTonerBackground",
     "StamenWatercolor",
 ]
+
+EPSG_mercator = "EPSG:3857"
+
+EPSG_coordsys = "EPSG:4326"

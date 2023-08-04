@@ -1,6 +1,8 @@
 import holoviews
 import numpy
 
+from utils import gram_opts
+
 
 def get_box_stream(source_pic, bounds: tuple = None):
     """
@@ -153,10 +155,8 @@ def get_box_plot(box_stream: holoviews.streams):
     # When the user interacts with the box_stream (selecting a rectangular region on the plot),
     # the box plot will be dynamically updated to show the selected region as a box.
     """
-    box_opts = holoviews.opts(line_width=1, line_color="white")
-
     box_plot = holoviews.DynamicMap(
-        lambda bounds: holoviews.Bounds(bounds).opts(box_opts),
+        lambda bounds: holoviews.Bounds(bounds).opts(gram_opts),
         streams=[box_stream],
     )
 
