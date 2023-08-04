@@ -19,6 +19,8 @@ warnings.simplefilter(action="ignore", category=BokehUserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
 
+panel.extension("pyvista")
+holoviews.extension("bokeh", logo=False)
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
@@ -44,12 +46,12 @@ class Echoshader(param.Parameterized):
             step=0.01,
         )
 
-        self.channel_select = panel.widgets.Select(
-            name="Channel Select", options=self.MVBS_ds.channel.values.tolist()
-        )
-
         self.tile_select = panel.widgets.Select(
             name="Map Tile Select", value="OSM", options=tiles
+        )
+
+        self.channel_select = panel.widgets.Select(
+            name="Channel Select", options=self.MVBS_ds.channel.values.tolist()
         )
 
         self.curtain_ratio = panel.widgets.FloatInput(
@@ -106,7 +108,7 @@ class Echoshader(param.Parameterized):
                 )
 
             self.tri_channel = channel
-
+            
             return self._tricolor_echogram_plot
 
         else:
@@ -114,6 +116,8 @@ class Echoshader(param.Parameterized):
                 self.channel = self.MVBS_ds.channel.values
             else:
                 self.channel = channel
+
+            self.channel_select.options = self.channel.tolist()
 
             return self._echogram_plot
         
@@ -202,6 +206,9 @@ class Echoshader(param.Parameterized):
 
         self.MVBS_ds_in_track_box = self.extract_data_from_track_box()
 
+        self.MVBS_ds_in_track_box = self.MVBS_ds_in_track_box.dropna(dim="ping_time", how="all")
+
+
     @param.depends(
         "tile_select.value", 
         "gram_box_stream.bounds",
@@ -242,37 +249,44 @@ class Echoshader(param.Parameterized):
 
         return track
 
-    # def curtain(
-    #     self,
-    #     ratio: float = None,
-    # ):
-    #     if ratio is not None:
-    #         self.curtain_ratio.value = ratio
+    def curtain(
+        self,
+        channel: str = None,
+        ratio: float = None,
+    ):
+        if channel is not None:
+           self.channel_select.value =  channel
 
-    #     return self._curtain_plot
+        if ratio is not None:
+            self.curtain_ratio.value = ratio
 
-    # @param.depends(
-    #     "colormap.value",
-    #     "Sv_range_slider.value",
-    #     "curtain_ratio.value",
-    # )
-    # def _curtain_plot(self):
+        return self._curtain_plot
 
-    #     curtain = curtain_plot(
-    #         MVBS_ds=self.MVBS_ds_gram_box,
-    #         cmap=self.colormap.value,
-    #         clim=self.Sv_range_slider.value,
-    #         ratio=self.curtain_ratio.value,
-    #     )
+    @param.depends(
+        "colormap.value",
+        "Sv_range_slider.value",
+        "channel_select.value",
+        "curtain_ratio.value",
+        "gram_box_stream.bounds",
+    )
+    def _curtain_plot(self):
+        self.MVBS_ds_in_gram_box = self.extract_data_from_gram_box()
 
-    #     curtain_panel = panel.panel(
-    #         curtain.ren_win,
-    #         height=curtain_opts["height"],
-    #         width=curtain_opts["width"],
-    #         orientation_widget=True,
-    #     )
+        curtain = curtain_plot(
+            MVBS_ds=self.MVBS_ds_in_gram_box.sel(channel = self.channel_select.value),
+            cmap=self.colormap.value,
+            clim=self.Sv_range_slider.value,
+            ratio=self.curtain_ratio.value,
+        )
 
-    #     return curtain_panel
+        curtain_panel = panel.panel(
+            curtain.ren_win,
+            height=curtain_opts["height"],
+            width=curtain_opts["width"],
+            orientation_widget=True,
+        )
+
+        return curtain_panel
 
     def hist(self, bins: int = None, overlay: bool = None):
         if bins is not None:

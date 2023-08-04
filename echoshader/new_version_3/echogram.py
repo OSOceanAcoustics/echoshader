@@ -5,9 +5,6 @@ import numpy
 import xarray
 from utils import gram_opts
 
-holoviews.extension("bokeh", logo=False)
-
-
 def single_echogram(
     MVBS_ds: xarray,
     channel: str,
