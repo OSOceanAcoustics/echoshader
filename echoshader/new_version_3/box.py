@@ -1,6 +1,5 @@
 import holoviews
 import numpy
-
 from utils import gram_opts
 
 
