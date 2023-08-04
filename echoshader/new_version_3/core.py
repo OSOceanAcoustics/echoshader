@@ -21,6 +21,7 @@ logging.getLogger("param").setLevel(logging.CRITICAL)
 panel.extension("pyvista")
 holoviews.extension("bokeh", logo=False)
 
+
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
     def __init__(self, MVBS_ds: xarray.Dataset):
@@ -104,7 +105,7 @@ class Echoshader(param.Parameterized):
                 )
 
             self.tri_channel = channel
-            
+
             return self._tricolor_echogram_plot
 
         else:
@@ -192,8 +193,9 @@ class Echoshader(param.Parameterized):
     def _update_track_box(self, bounds):
         self.MVBS_ds_in_track_box = self.extract_data_from_track_box()
 
-        self.MVBS_ds_in_track_box = self.MVBS_ds_in_track_box.dropna(dim="ping_time", how="all")
-
+        self.MVBS_ds_in_track_box = self.MVBS_ds_in_track_box.dropna(
+            dim="ping_time", how="all"
+        )
 
     @param.depends(
         "tile_select.value",
@@ -239,7 +241,7 @@ class Echoshader(param.Parameterized):
         ratio: float = None,
     ):
         if channel is not None:
-           self.channel_select.value =  channel
+            self.channel_select.value = channel
 
         if ratio is not None:
             self.curtain_ratio.value = ratio
@@ -257,7 +259,7 @@ class Echoshader(param.Parameterized):
         self.MVBS_ds_in_gram_box = self.extract_data_from_gram_box()
 
         curtain = curtain_plot(
-            MVBS_ds=self.MVBS_ds_in_gram_box.sel(channel = self.channel_select.value),
+            MVBS_ds=self.MVBS_ds_in_gram_box.sel(channel=self.channel_select.value),
             cmap=self.colormap.value,
             clim=self.Sv_range_slider.value,
             ratio=self.curtain_ratio.value,

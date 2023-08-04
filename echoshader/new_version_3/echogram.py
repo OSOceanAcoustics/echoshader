@@ -5,6 +5,7 @@ import numpy
 import xarray
 from utils import gram_opts
 
+
 def single_echogram(
     MVBS_ds: xarray,
     channel: str,
