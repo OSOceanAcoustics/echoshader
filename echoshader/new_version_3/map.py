@@ -128,7 +128,7 @@ def tile_plot(map_tiles: str):
     Load and customize map tiles from GeoViews tile sources.
 
     This function loads a specific map tile layer from GeoViews tile sources module
-    and applies the specified `gram_opts` (plotting options) to customize the appearance.
+    and applies the specified `opt_tile` (plotting options) to customize the appearance.
 
     Parameters
     ----------
@@ -141,7 +141,7 @@ def tile_plot(map_tiles: str):
     -------
     geoviews.element.Tiles
         A customized map tile layer (tiles) loaded from GeoViews tile sources,
-        rendered with the provided `gram_opts`.
+        rendered with the provided `opt_tile`.
 
     Examples
     --------
