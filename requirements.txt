@@ -1,17 +1,5 @@
-xarray
-netCDF4
-zarr
-fsspec
-panel
-pyvista
-holoviews
-hvplot
-param
-geoviews
-# ============================
-# 09/19/2022: Currently unable
-# to install cartopy from pip
-cartopy
-# ============================
 echopype
-datashader
+hvplot
+geoviews
+pyvista
+ipykernel
