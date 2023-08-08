@@ -1,9 +1,12 @@
+import logging
+import warnings
 from typing import List, Union
 
 import holoviews
 import panel
 import param
 import xarray
+from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from curtain import curtain_plot
 from echogram import single_echogram, tricolor_echogram
@@ -11,9 +14,6 @@ from hist import hist_plot, table_plot
 from map import convert_EPSG, get_track_corners, tile_plot, track_plot
 from utils import curtain_opts, tiles
 
-import logging
-import warnings
-from bokeh.util.warnings import BokehUserWarning
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
@@ -129,14 +129,13 @@ class Echoshader(param.Parameterized):
 
     def _update_gram_box(self, bounds):
         self.gram_box_stream.update(bounds=bounds)
-        
+
         self.MVBS_ds_in_gram_box = self._extract_data_from_gram_box(bounds)
 
         if self.control_mode_select.value is True:
             self.update_track_flag.event()
 
     def _update_gram_reset(self, resetting):
-
         self.update_gram_flag.event()
 
     def _extract_data_from_gram_box(self, bounds):
@@ -184,11 +183,11 @@ class Echoshader(param.Parameterized):
         # set inital value of box stream
         self._update_gram_box(tuple(echogram.lbrt))
 
-        reset_stream = holoviews.streams.PlotReset(source = bounds)
+        reset_stream = holoviews.streams.PlotReset(source=bounds)
 
         reset_stream.add_subscriber(self._update_gram_reset)
 
-        bounds  =  self.gram_bounds
+        bounds = self.gram_bounds
 
         return echogram * bounds
 
@@ -197,7 +196,7 @@ class Echoshader(param.Parameterized):
         "colormap.value",
         "update_gram_flag.counter",
     )
-    def _echogram_plot(self):        
+    def _echogram_plot(self):
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds
         else:
@@ -207,10 +206,7 @@ class Echoshader(param.Parameterized):
 
         for channel in self.channel:
             echogram = single_echogram(
-                MVBS_ds, 
-                channel, 
-                self.colormap.value, 
-                self.Sv_range_slider.value
+                MVBS_ds, channel, self.colormap.value, self.Sv_range_slider.value
             )
 
             # get box stream from echogram
@@ -221,11 +217,10 @@ class Echoshader(param.Parameterized):
 
             echograms_list.append(echogram)
 
-
         # set inital value of box stream
         self._update_gram_box(tuple(echograms_list[0].lbrt))
 
-        reset_stream = holoviews.streams.PlotReset(source = echograms_list[0])
+        reset_stream = holoviews.streams.PlotReset(source=echograms_list[0])
 
         reset_stream.add_subscriber(self._update_gram_reset)
 
@@ -233,12 +228,12 @@ class Echoshader(param.Parameterized):
         echograms = holoviews.Layout(echograms_list).cols(1)
 
         bounds = self.gram_bounds
- 
-        return  echograms * bounds
+
+        return echograms * bounds
 
     def track(
-        self, 
-        tile: str = None, 
+        self,
+        tile: str = None,
         **kwargs,
     ):
         if tile is not None:
@@ -300,7 +295,7 @@ class Echoshader(param.Parameterized):
 
         tile_bounds = get_box_plot(self.tile_box_stream)
 
-        reset_stream = holoviews.streams.PlotReset(source = tile_bounds)
+        reset_stream = holoviews.streams.PlotReset(source=tile_bounds)
 
         reset_stream.add_subscriber(self._update_track_reset)
 
