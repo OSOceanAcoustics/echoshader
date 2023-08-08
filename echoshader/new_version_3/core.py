@@ -1,19 +1,19 @@
-import logging
-import warnings
 from typing import List, Union
 
 import holoviews
 import panel
 import param
 import xarray
-from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
 from curtain import curtain_plot
 from echogram import single_echogram, tricolor_echogram
 from hist import hist_plot, table_plot
 from map import convert_EPSG, get_track_corners, tile_plot, track_plot
-from utils import curtain_opts, gram_opts, tiles
+from utils import curtain_opts, tiles
 
+import logging
+import warnings
+from bokeh.util.warnings import BokehUserWarning
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
@@ -74,24 +74,18 @@ class Echoshader(param.Parameterized):
             },
         )
 
-        # self.reset_button = panel.widgets.Button(name="Reset 🔁", button_type="primary")
-
     def _init_param(self):
         self.gram_box_stream = holoviews.streams.BoundsXY()
 
-        self.gram_reset_stream = holoviews.streams.PlotReset()
-
         self.gram_bounds = get_box_plot(self.gram_box_stream)
 
-        self.track_reset_stream = holoviews.streams.PlotReset()
+        self.update_gram_flag = holoviews.streams.Counter()
+
+        self.update_track_flag = holoviews.streams.Counter()
 
         self.MVBS_ds_in_gram_box = self.MVBS_ds
 
         self.MVBS_ds_in_track_box = self.MVBS_ds
-
-        self.update_gram = holoviews.streams.Counter()
-
-        self.update_track = holoviews.streams.Counter()
 
     def echogram(
         self,
@@ -100,8 +94,7 @@ class Echoshader(param.Parameterized):
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        *args,
-        **kwargs
+        **kwargs,
     ):
         if cmap is not None:
             self.colormap.value = cmap
@@ -136,16 +129,15 @@ class Echoshader(param.Parameterized):
 
     def _update_gram_box(self, bounds):
         self.gram_box_stream.update(bounds=bounds)
-
+        
         self.MVBS_ds_in_gram_box = self._extract_data_from_gram_box(bounds)
 
         if self.control_mode_select.value is True:
-            self.update_gram.event()
+            self.update_track_flag.event()
 
     def _update_gram_reset(self, resetting):
-        self.update_gram.event()
 
-        # self.gram_reset_stream.update(resetting = resetting)
+        self.update_gram_flag.event()
 
     def _extract_data_from_gram_box(self, bounds):
         if bounds is None:
@@ -163,8 +155,7 @@ class Echoshader(param.Parameterized):
 
     @param.depends(
         "Sv_range_slider.value",
-        "update_gram.counter",
-        "gram_reset_stream.resetting",
+        "update_gram_flag.counter",
     )
     def _tricolor_echogram_plot(self):
         if self.control_mode_select.value is True:
@@ -193,22 +184,20 @@ class Echoshader(param.Parameterized):
         # set inital value of box stream
         self._update_gram_box(tuple(echogram.lbrt))
 
-        # combine echograms and bounds
-        echogram = echogram * self.gram_bounds
-
-        reset_stream = holoviews.streams.PlotReset(source=echogram)
+        reset_stream = holoviews.streams.PlotReset(source = bounds)
 
         reset_stream.add_subscriber(self._update_gram_reset)
 
-        return echogram
+        bounds  =  self.gram_bounds
+
+        return echogram * bounds
 
     @param.depends(
         "Sv_range_slider.value",
         "colormap.value",
-        "update_gram.counter",
-        "gram_reset_stream.resetting",
+        "update_gram_flag.counter",
     )
-    def _echogram_plot(self):
+    def _echogram_plot(self):        
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds
         else:
@@ -218,7 +207,10 @@ class Echoshader(param.Parameterized):
 
         for channel in self.channel:
             echogram = single_echogram(
-                MVBS_ds, channel, self.colormap.value, self.Sv_range_slider.value
+                MVBS_ds, 
+                channel, 
+                self.colormap.value, 
+                self.Sv_range_slider.value
             )
 
             # get box stream from echogram
@@ -229,26 +221,33 @@ class Echoshader(param.Parameterized):
 
             echograms_list.append(echogram)
 
+
         # set inital value of box stream
         self._update_gram_box(tuple(echograms_list[0].lbrt))
 
-        # combine echograms and bounds
-        echograms = holoviews.Layout(echograms_list).cols(1) * self.gram_bounds
-
-        reset_stream = holoviews.streams.PlotReset(source=echograms)
+        reset_stream = holoviews.streams.PlotReset(source = echograms_list[0])
 
         reset_stream.add_subscriber(self._update_gram_reset)
 
-        return echograms
+        # get echograms stack
+        echograms = holoviews.Layout(echograms_list).cols(1)
 
-    def track(self, tile: str = None, *args, **kwargs):
+        bounds = self.gram_bounds
+ 
+        return  echograms * bounds
+
+    def track(
+        self, 
+        tile: str = None, 
+        **kwargs,
+    ):
         if tile is not None:
             self.tile_select.value = tile
 
         return self._track_tile_plot
 
     def _extract_data_from_track_box(self, bounds):
-        if bounds is None or (bounds[0] == bounds[2] and bounds[1] == bounds[3]):
+        if bounds is None or (bounds[0] == bounds[2] or bounds[1] == bounds[3]):
             self.MVBS_ds_in_track_box = self.MVBS_ds
         else:
             self.MVBS_ds_in_track_box = self.MVBS_ds.where(
@@ -263,27 +262,20 @@ class Echoshader(param.Parameterized):
         return self.MVBS_ds_in_track_box
 
     def _update_track_reset(self, resetting):
-        resetting = not self.track_reset_stream.resetting
-
-        self.track_reset_stream.update(resetting=resetting)
+        self.update_track_flag.event()
 
     def _update_track_box(self, bounds):
         self.MVBS_ds_in_track_box = self._extract_data_from_track_box(bounds)
 
         if self.control_mode_select.value is False:
-            self.update_gram.event()
+            self.update_gram_flag.event()
 
     @param.depends(
         "tile_select.value",
-        "update_track.counter",
-        "track_reset_stream.resetting",
+        "update_track_flag.counter",
     )
     def _track_tile_plot(self):
         track = self._track_plot() * self._tile_plot()
-
-        self.reset_stream = holoviews.streams.PlotReset(source=track)
-
-        self.reset_stream.add_subscriber(self._update_track_reset)
 
         return track
 
@@ -308,6 +300,10 @@ class Echoshader(param.Parameterized):
 
         tile_bounds = get_box_plot(self.tile_box_stream)
 
+        reset_stream = holoviews.streams.PlotReset(source = tile_bounds)
+
+        reset_stream.add_subscriber(self._update_track_reset)
+
         return tile * tile_bounds
 
     def _track_plot(self):
@@ -323,6 +319,8 @@ class Echoshader(param.Parameterized):
         self.track_box_stream = get_box_stream(track, (left, bottom, right, top))
 
         self.track_box_stream.add_subscriber(self._update_track_box)
+
+        self._update_track_box((left, bottom, right, top))
 
         return track
 
@@ -344,8 +342,8 @@ class Echoshader(param.Parameterized):
         "Sv_range_slider.value",
         "channel_select.value",
         "curtain_ratio.value",
-        "update_gram.counter",
-        "update_track.counter",
+        "update_gram_flag.counter",
+        "update_track_flag.counter",
     )
     def _curtain_plot(self):
         if self.control_mode_select.value is True:
@@ -381,8 +379,8 @@ class Echoshader(param.Parameterized):
     @param.depends(
         "bin_size_input.value",
         "overlay_layout_toggle.value",
-        "update_gram.counter",
-        "update_track.counter",
+        "update_gram_flag.counter",
+        "update_track_flag.counter",
     )
     def _hist_plot(self):
         if self.control_mode_select.value is True:
@@ -402,8 +400,8 @@ class Echoshader(param.Parameterized):
         return self._table_plot
 
     @param.depends(
-        "update_gram.counter",
-        "update_track.counter",
+        "update_gram_flag.counter",
+        "update_track_flag.counter",
     )
     def _table_plot(self):
         if self.control_mode_select.value is True:
@@ -414,7 +412,3 @@ class Echoshader(param.Parameterized):
         table = table_plot(MVBS_ds=MVBS_ds)
 
         return table
-
-    # @param.depends("reset.value")
-    # def reset(self):
-    #     pass
