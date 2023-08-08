@@ -5,6 +5,7 @@ from typing import List, Union
 import holoviews
 import panel
 import param
+import numpy
 import xarray
 from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
@@ -15,7 +16,7 @@ from map import convert_EPSG, get_track_corners, tile_plot, track_plot
 from utils import curtain_opts, tiles
 
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
-warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.simplefilter("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
 
 panel.extension("pyvista")
@@ -94,7 +95,7 @@ class Echoshader(param.Parameterized):
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        **kwargs,
+        opts = [],
     ):
         if cmap is not None:
             self.colormap.value = cmap
@@ -106,6 +107,8 @@ class Echoshader(param.Parameterized):
             vmin if vmin is not None else data_vmin,
             vmax if vmax is not None else data_vmax,
         )
+
+        self.gram_opts = opts
 
         if rgb_composite is True:
             if channel is None or len(channel) != 3:
@@ -174,6 +177,14 @@ class Echoshader(param.Parameterized):
             rgb_map,
         )
 
+        if self.control_mode_select.value is False:
+            MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
+
+            one_hour = numpy.timedelta64(1, 'h')
+
+            echogram.opts(xlim=(MVBS_ds_with_time_range.ping_time.values[0] - one_hour, 
+                                MVBS_ds_with_time_range.ping_time.values[-1]+ one_hour))
+
         # get box stream from echogram
         box_stream = get_box_stream(echogram)
 
@@ -183,13 +194,13 @@ class Echoshader(param.Parameterized):
         # set inital value of box stream
         self._update_gram_box(tuple(echogram.lbrt))
 
-        reset_stream = holoviews.streams.PlotReset(source=bounds)
+        reset_stream = holoviews.streams.PlotReset(source=echogram)
 
         reset_stream.add_subscriber(self._update_gram_reset)
 
         bounds = self.gram_bounds
 
-        return echogram * bounds
+        return (echogram * bounds).opts(self.gram_opts)
 
     @param.depends(
         "Sv_range_slider.value",
@@ -208,6 +219,14 @@ class Echoshader(param.Parameterized):
             echogram = single_echogram(
                 MVBS_ds, channel, self.colormap.value, self.Sv_range_slider.value
             )
+
+            if self.control_mode_select.value is False:
+                MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
+
+                one_hour = numpy.timedelta64(1, 'h')
+
+                echogram.opts(xlim=(MVBS_ds_with_time_range.ping_time.values[0] - one_hour, 
+                                    MVBS_ds_with_time_range.ping_time.values[-1]+ one_hour))
 
             # get box stream from echogram
             box_stream = get_box_stream(echogram)
@@ -229,32 +248,32 @@ class Echoshader(param.Parameterized):
 
         bounds = self.gram_bounds
 
-        return echograms * bounds
+        return (echograms * bounds).opts(self.gram_opts)
 
     def track(
         self,
         tile: str = None,
-        **kwargs,
+        opts = [],
     ):
         if tile is not None:
             self.tile_select.value = tile
+
+        self.track_opts = opts
 
         return self._track_tile_plot
 
     def _extract_data_from_track_box(self, bounds):
         if bounds is None or (bounds[0] == bounds[2] or bounds[1] == bounds[3]):
-            self.MVBS_ds_in_track_box = self.MVBS_ds
+            MVBS_ds_in_track_box = self.MVBS_ds
         else:
-            self.MVBS_ds_in_track_box = self.MVBS_ds.where(
+            MVBS_ds_in_track_box = self.MVBS_ds.where(
                 (self.MVBS_ds.longitude > bounds[0])
                 & (self.MVBS_ds.latitude > bounds[1])
                 & (self.MVBS_ds.longitude < bounds[2])
                 & (self.MVBS_ds.latitude < bounds[3])
             )
 
-            # self.MVBS_ds_in_track_box = MVBS_ds_in_track_box.dropna(dim="ping_time", how="all")
-
-        return self.MVBS_ds_in_track_box
+        return MVBS_ds_in_track_box
 
     def _update_track_reset(self, resetting):
         self.update_track_flag.event()
@@ -272,7 +291,7 @@ class Echoshader(param.Parameterized):
     def _track_tile_plot(self):
         track = self._track_plot() * self._tile_plot()
 
-        return track
+        return track.opts(self.track_opts)
 
     def _tile_plot(self):
         if self.control_mode_select.value is True:
@@ -293,11 +312,11 @@ class Echoshader(param.Parameterized):
 
         self.tile_box_stream = get_box_stream(tile, center)
 
-        tile_bounds = get_box_plot(self.tile_box_stream)
-
-        reset_stream = holoviews.streams.PlotReset(source=tile_bounds)
+        reset_stream = holoviews.streams.PlotReset(source=tile)
 
         reset_stream.add_subscriber(self._update_track_reset)
+
+        tile_bounds = get_box_plot(self.tile_box_stream)
 
         return tile * tile_bounds
 
@@ -323,12 +342,15 @@ class Echoshader(param.Parameterized):
         self,
         channel: str = None,
         ratio: float = None,
+        **kwargs,
     ):
         if channel is not None:
             self.channel_select.value = channel
 
         if ratio is not None:
             self.curtain_ratio.value = ratio
+
+        self.curtain_opts = kwargs
 
         return self._curtain_plot
 
@@ -352,22 +374,36 @@ class Echoshader(param.Parameterized):
             clim=self.Sv_range_slider.value,
             ratio=self.curtain_ratio.value,
         )
+        
+        if "width" in self.curtain_opts:
+            self.curtain_opts["width"] = curtain_opts["width"]
+        
+        if "height" in self.curtain_opts:
+            self.curtain_opts["height"] = curtain_opts["height"]
+
+        if "orientation_widget" in self.curtain_opts:
+            self.curtain_opts["orientation_widget"] = True
 
         curtain_panel = panel.panel(
             curtain.ren_win,
-            height=curtain_opts["height"],
-            width=curtain_opts["width"],
-            orientation_widget=True,
+            **self.curtain_opts,
         )
 
         return curtain_panel
 
-    def hist(self, bins: int = None, overlay: bool = None):
+    def hist(
+        self, 
+        bins: int = None, 
+        overlay: bool = None,
+        opts = [],
+    ):
         if bins is not None:
             self.bin_size_input.value = bins
 
         if overlay is not None:
             self.overlay_layout_toggle.value = overlay
+
+        self.hist_opts = opts
 
         return self._hist_plot
 
@@ -389,9 +425,14 @@ class Echoshader(param.Parameterized):
             overlay=self.overlay_layout_toggle.value,
         )
 
-        return hist
+        return hist.opts(self.hist_opts)
 
-    def table(self):
+    def table(
+        self,
+        opts = [],
+    ):
+        self.table_opts = opts,
+
         return self._table_plot
 
     @param.depends(
@@ -406,4 +447,10 @@ class Echoshader(param.Parameterized):
 
         table = table_plot(MVBS_ds=MVBS_ds)
 
-        return table
+        return table.opts(self.table_opts)
+
+    def get_data_from_box(self):
+        if self.control_mode_select.value is True:
+            return self.MVBS_ds_in_gram_box
+        else:
+            return self.MVBS_ds_in_track_box
