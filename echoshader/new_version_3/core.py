@@ -3,9 +3,9 @@ import warnings
 from typing import List, Union
 
 import holoviews
+import numpy
 import panel
 import param
-import numpy
 import xarray
 from bokeh.util.warnings import BokehUserWarning
 from box import get_box_plot, get_box_stream
@@ -95,7 +95,7 @@ class Echoshader(param.Parameterized):
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        opts = [],
+        opts=[],
     ):
         if cmap is not None:
             self.colormap.value = cmap
@@ -180,10 +180,14 @@ class Echoshader(param.Parameterized):
         if self.control_mode_select.value is False:
             MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
 
-            one_hour = numpy.timedelta64(1, 'h')
+            one_hour = numpy.timedelta64(1, "h")
 
-            echogram.opts(xlim=(MVBS_ds_with_time_range.ping_time.values[0] - one_hour, 
-                                MVBS_ds_with_time_range.ping_time.values[-1]+ one_hour))
+            echogram.opts(
+                xlim=(
+                    MVBS_ds_with_time_range.ping_time.values[0] - one_hour,
+                    MVBS_ds_with_time_range.ping_time.values[-1] + one_hour,
+                )
+            )
 
         # get box stream from echogram
         box_stream = get_box_stream(echogram)
@@ -223,10 +227,14 @@ class Echoshader(param.Parameterized):
             if self.control_mode_select.value is False:
                 MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
 
-                one_hour = numpy.timedelta64(1, 'h')
+                one_hour = numpy.timedelta64(1, "h")
 
-                echogram.opts(xlim=(MVBS_ds_with_time_range.ping_time.values[0] - one_hour, 
-                                    MVBS_ds_with_time_range.ping_time.values[-1]+ one_hour))
+                echogram.opts(
+                    xlim=(
+                        MVBS_ds_with_time_range.ping_time.values[0] - one_hour,
+                        MVBS_ds_with_time_range.ping_time.values[-1] + one_hour,
+                    )
+                )
 
             # get box stream from echogram
             box_stream = get_box_stream(echogram)
@@ -253,7 +261,7 @@ class Echoshader(param.Parameterized):
     def track(
         self,
         tile: str = None,
-        opts = [],
+        opts=[],
     ):
         if tile is not None:
             self.tile_select.value = tile
@@ -374,10 +382,10 @@ class Echoshader(param.Parameterized):
             clim=self.Sv_range_slider.value,
             ratio=self.curtain_ratio.value,
         )
-        
+
         if "width" in self.curtain_opts:
             self.curtain_opts["width"] = curtain_opts["width"]
-        
+
         if "height" in self.curtain_opts:
             self.curtain_opts["height"] = curtain_opts["height"]
 
@@ -392,10 +400,10 @@ class Echoshader(param.Parameterized):
         return curtain_panel
 
     def hist(
-        self, 
-        bins: int = None, 
+        self,
+        bins: int = None,
         overlay: bool = None,
-        opts = [],
+        opts=[],
     ):
         if bins is not None:
             self.bin_size_input.value = bins
@@ -429,9 +437,9 @@ class Echoshader(param.Parameterized):
 
     def table(
         self,
-        opts = [],
+        opts=[],
     ):
-        self.table_opts = opts,
+        self.table_opts = (opts,)
 
         return self._table_plot
 
