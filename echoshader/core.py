@@ -25,6 +25,67 @@ holoviews.extension("bokeh", logo=False)
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader(param.Parameterized):
+    """
+    Echoshader - A visualization tool for acoustic data analysis.
+
+    This class provides a comprehensive visualization toolset for analyzing acoustic data using 
+    various visualizations such as echograms, tracks, curtains, histograms, and tables.
+
+    Attributes:
+        colormap (panel.widgets.LiteralInput): 
+            A widget to control the colormap for echograms.
+        
+        Sv_range_slider (panel.widgets.EditableRangeSlider): 
+            A slider widget to control the Sv range.
+        
+        tile_select (panel.widgets.Select): 
+            A dropdown widget to select the map tile.
+        
+        channel_select (panel.widgets.Select): 
+            A dropdown widget to select the frequency channel.
+
+        curtain_ratio (panel.widgets.FloatInput): 
+            A numeric input widget for controlling curtain ratio.
+
+        bin_size_input (panel.widgets.IntInput): 
+            An input widget for controlling histogram bin size.
+
+        overlay_layout_toggle (panel.widgets.Toggle): 
+            A toggle widget for overlay and layout options.
+
+        control_mode_select (panel.widgets.Select): 
+            A dropdown widget to switch between control modes.
+
+    Methods:
+        echogram(channel, cmap, vmin, vmax, rgb_composite, opts): 
+            Display echogram plots based on channel and options.
+
+        track(tile, control, opts): 
+            Display track plots with specified tile and options.
+        
+        curtain(channel, ratio, **opts): 
+            Display curtain plots based on channel and curtain ratio.
+        
+        hist(bins, overlay, opts): 
+            Display histogram plots with specified bin size and overlay option.
+        
+        table(opts): 
+            Display data summary table.
+        
+        get_data_from_box(): 
+            Get the data from the selected box (gram or track).
+
+    Note:
+        - The Echoshader class allows users to interactively explore acoustic data using 
+        different visualization techniques. 
+        
+        - Users can control various parameters such as colormap, Sv range, tile selection, 
+        channel selection, curtain ratio, bin size, and overlay options.
+
+        - The class provides plots for echograms, tracks, curtains, histograms, and tables.
+
+        - The control mode can be switched between "Echograms Control" and "Tracks Control".
+    """
     def __init__(self, MVBS_ds: xarray.Dataset):
         super().__init__()
 
@@ -261,10 +322,13 @@ class Echoshader(param.Parameterized):
     def track(
         self,
         tile: str = None,
+        control: bool = False,
         opts=[],
     ):
         if tile is not None:
             self.tile_select.value = tile
+
+        self.control_mode_select.value = control
 
         self.track_opts = opts
 
@@ -350,7 +414,7 @@ class Echoshader(param.Parameterized):
         self,
         channel: str = None,
         ratio: float = None,
-        **kwargs,
+        **opts,
     ):
         if channel is not None:
             self.channel_select.value = channel
@@ -358,7 +422,7 @@ class Echoshader(param.Parameterized):
         if ratio is not None:
             self.curtain_ratio.value = ratio
 
-        self.curtain_opts = kwargs
+        self.curtain_opts = opts
 
         return self._curtain_plot
 
@@ -439,7 +503,7 @@ class Echoshader(param.Parameterized):
         self,
         opts=[],
     ):
-        self.table_opts = (opts,)
+        self.table_opts = opts
 
         return self._table_plot
 
