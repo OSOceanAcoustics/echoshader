@@ -7,6 +7,8 @@ import numpy
 import panel
 import param
 import xarray
+from bokeh.util.warnings import BokehUserWarning
+
 from .box import get_box_plot, get_box_stream
 from .curtain import curtain_plot
 from .echogram import single_echogram, tricolor_echogram
@@ -14,7 +16,6 @@ from .hist import hist_plot, table_plot
 from .map import convert_EPSG, get_track_corners, tile_plot, track_plot
 from .utils import curtain_opts, tiles
 
-from bokeh.util.warnings import BokehUserWarning
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 warnings.simplefilter("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
@@ -196,7 +197,7 @@ class Echoshader(param.Parameterized):
         -------
         holoviews.Overlay
             Echogram plot.
-        
+
         Examples
         --------
         echogram = MVBS_ds.eshader.echogram(vmin = -80, vmax = -30)
@@ -609,7 +610,7 @@ class Echoshader(param.Parameterized):
         curtain_ratio : panel.widgets.FloatInput
             A numeric input widget for controlling curtain ratio.
 
-        
+
         Parameters
         ----------
         channel : str, optional
