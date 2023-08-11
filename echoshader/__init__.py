@@ -1,3 +1,3 @@
 from .core import Echoshader
 
-__all__ =["Echoshader"]
+__all__ = ["Echoshader"]
