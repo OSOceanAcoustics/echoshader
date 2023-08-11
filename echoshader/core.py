@@ -7,14 +7,14 @@ import numpy
 import panel
 import param
 import xarray
-from bokeh.util.warnings import BokehUserWarning
-from box import get_box_plot, get_box_stream
-from curtain import curtain_plot
-from echogram import single_echogram, tricolor_echogram
-from hist import hist_plot, table_plot
-from map import convert_EPSG, get_track_corners, tile_plot, track_plot
-from utils import curtain_opts, tiles
+from .box import get_box_plot, get_box_stream
+from .curtain import curtain_plot
+from .echogram import single_echogram, tricolor_echogram
+from .hist import hist_plot, table_plot
+from .map import convert_EPSG, get_track_corners, tile_plot, track_plot
+from .utils import curtain_opts, tiles
 
+from bokeh.util.warnings import BokehUserWarning
 warnings.simplefilter(action="ignore", category=BokehUserWarning)
 warnings.simplefilter("ignore", category=RuntimeWarning)
 logging.getLogger("param").setLevel(logging.CRITICAL)
@@ -31,32 +31,36 @@ class Echoshader(param.Parameterized):
     This class provides a comprehensive visualization toolset for analyzing acoustic data using
     various visualizations such as echograms, tracks, curtains, histograms, and tables.
 
-    Attributes:
-        colormap (panel.widgets.LiteralInput):
+    Attributes
+    ----------
+        colormap : panel.widgets.LiteralInput
             A widget to control the colormap for echograms.
+            https://holoviews.org/user_guide/Colormaps.html
 
-        Sv_range_slider (panel.widgets.EditableRangeSlider):
+        Sv_range_slider : panel.widgets.EditableRangeSlider
             A slider widget to control the Sv range.
 
-        tile_select (panel.widgets.Select):
+        tile_select : panel.widgets.Select
             A dropdown widget to select the map tile.
+            https://holoviews.org/reference/elements/bokeh/Tiles.html
 
-        channel_select (panel.widgets.Select):
+        channel_select : panel.widgets.Select
             A dropdown widget to select the frequency channel.
 
-        curtain_ratio (panel.widgets.FloatInput):
+        curtain_ratio : panel.widgets.FloatInput
             A numeric input widget for controlling curtain ratio.
 
-        bin_size_input (panel.widgets.IntInput):
+        bin_size_input : panel.widgets.IntInput
             An input widget for controlling histogram bin size.
 
-        overlay_layout_toggle (panel.widgets.Toggle):
+        overlay_layout_toggle : panel.widgets.Toggle
             A toggle widget for overlay and layout options.
 
-        control_mode_select (panel.widgets.Select):
+        control_mode_select : panel.widgets.Select
             A dropdown widget to switch between control modes.
 
-    Methods:
+    Methods
+    -------
         echogram(channel, cmap, vmin, vmax, rgb_composite, opts):
             Display echogram plots based on channel and options.
 
@@ -76,15 +80,15 @@ class Echoshader(param.Parameterized):
             Get the data from the selected box (gram or track).
 
     Note:
-        - The Echoshader class allows users to interactively explore acoustic data using
+        The Echoshader class allows users to interactively explore acoustic data using
         different visualization techniques.
 
-        - Users can control various parameters such as colormap, Sv range, tile selection,
+        Users can control various parameters such as colormap, Sv range, tile selection,
         channel selection, curtain ratio, bin size, and overlay options.
 
-        - The class provides plots for echograms, tracks, curtains, histograms, and tables.
+        The class provides plots for echograms, tracks, curtains, histograms, and tables.
 
-        - The control mode can be switched between "Echograms Control" and "Tracks Control".
+        The control mode can be switched between "Echograms Control" and "Tracks Control".
     """
 
     def __init__(self, MVBS_ds: xarray.Dataset):
@@ -159,6 +163,47 @@ class Echoshader(param.Parameterized):
         rgb_composite: bool = False,
         opts=[],
     ):
+        """
+        Display echogram plots based on specified parameters.
+
+        Attached Widgets
+        ----------------
+        colormap : panel.widgets.LiteralInput
+            A widget to control the colormap for echograms.
+            https://holoviews.org/user_guide/Colormaps.html
+
+        Sv_range_slider : panel.widgets.EditableRangeSlider
+            A slider widget to control the Sv range.
+
+        Parameters
+        ----------
+        channel : List[str], optional
+            List of frequency channels. Default is None.
+        cmap : Union[str, List[str]], optional
+            Colormap for the echogram plot. Default is None.
+            https://holoviews.org/user_guide/Colormaps.html
+        vmin : float, optional
+            Minimum value for Sv range. Default is None.
+        vmax : float, optional
+            Maximum value for Sv range. Default is None.
+        rgb_composite : bool, optional
+            Enable RGB tricolor echogram. Default is False.
+        opts : list[holoviews.opts], optional
+            Additional options for plotting. Default is an empty list.
+            https://holoviews.org/user_guide/Applying_Customizations.html#option-list-syntax
+
+        Returns
+        -------
+        holoviews.Overlay
+            Echogram plot.
+        
+        Examples
+        --------
+        echogram = MVBS_ds.eshader.echogram(vmin = -80, vmax = -30)
+
+        panel.Row(echogram)
+        """
+
         if cmap is not None:
             self.colormap.value = cmap
 
@@ -193,6 +238,14 @@ class Echoshader(param.Parameterized):
             return self._echogram_plot
 
     def _update_gram_box(self, bounds):
+        """
+        Update the gram box based on given bounds.
+
+        Parameters
+        ----------
+        bounds : tuple
+            Bounds of the gram box in the format (left, bottom, right, top).
+        """
         self.gram_box_stream.update(bounds=bounds)
 
         self.MVBS_ds_in_gram_box = self._extract_data_from_gram_box(bounds)
@@ -201,9 +254,30 @@ class Echoshader(param.Parameterized):
             self.update_track_flag.event()
 
     def _update_gram_reset(self, resetting):
+        """
+        Event handler for resetting the gram box.
+
+        Parameters
+        ----------
+        resetting : bool
+            The value indicating a reset event.
+        """
         self.update_gram_flag.event()
 
     def _extract_data_from_gram_box(self, bounds):
+        """
+        Extract data from the gram box based on given bounds.
+
+        Parameters
+        ----------
+        bounds : tuple
+            Bounds of the gram box in the format (left, bottom, right, top).
+
+        Returns
+        -------
+        xarray.Dataset
+            Extracted dataset within the specified bounds.
+        """
         if bounds is None:
             MVBS_ds_in_gram_box = self.MVBS_ds
 
@@ -222,6 +296,15 @@ class Echoshader(param.Parameterized):
         "update_gram_flag.counter",
     )
     def _tricolor_echogram_plot(self):
+        """
+        Generate a tricolor echogram plot based on current parameters.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Tricolor echogram plot.
+        """
+
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds
         else:
@@ -274,6 +357,15 @@ class Echoshader(param.Parameterized):
         "update_gram_flag.counter",
     )
     def _echogram_plot(self):
+        """
+        Generate an echogram plot based on current parameters.
+
+        Returns
+        -------
+        holoviews.Layout
+            Layout of echogram plots.
+        """
+
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds
         else:
@@ -326,6 +418,35 @@ class Echoshader(param.Parameterized):
         control: bool = False,
         opts=[],
     ):
+        """
+        Display track plots based on specified parameters.
+
+        Attached Widgets
+        ----------------
+        tile_select : panel.widgets.Select
+            A dropdown widget to select the map tile.
+            https://holoviews.org/reference/elements/bokeh/Tiles.html
+
+        Parameters
+        ----------
+        tile : str, optional
+            Map tile for the track plot. Default is None.
+        control : bool, optional
+            Control mode for unified selection. Default is False.
+        opts : list, optional
+            Additional options for plotting. Default is an empty list.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Track plot.
+
+        Examples
+        --------
+        track = MVBS_ds.eshader.track(tile = "OSM", control = True)
+
+        panel.Row(track)
+        """
         if tile is not None:
             self.tile_select.value = tile
 
@@ -336,6 +457,19 @@ class Echoshader(param.Parameterized):
         return self._track_tile_plot
 
     def _extract_data_from_track_box(self, bounds):
+        """
+        Extract data from the track box based on given bounds.
+
+        Parameters
+        ----------
+        bounds : tuple
+            Bounds of the track box in the format (left, bottom, right, top).
+
+        Returns
+        -------
+        xarray.Dataset
+            Extracted dataset within the specified bounds.
+        """
         if bounds is None or (bounds[0] == bounds[2] or bounds[1] == bounds[3]):
             MVBS_ds_in_track_box = self.MVBS_ds
         else:
@@ -349,9 +483,25 @@ class Echoshader(param.Parameterized):
         return MVBS_ds_in_track_box
 
     def _update_track_reset(self, resetting):
+        """
+        Event handler for resetting the track plot.
+
+        Parameters
+        ----------
+        resetting : boolean
+            The value indicating a reset event.
+        """
         self.update_track_flag.event()
 
     def _update_track_box(self, bounds):
+        """
+        Update the dataset within the track box based on given bounds.
+
+        Parameters
+        ----------
+        bounds : tuple
+            Bounds of the track box in the format (left, bottom, right, top).
+        """
         self.MVBS_ds_in_track_box = self._extract_data_from_track_box(bounds)
 
         if self.control_mode_select.value is False:
@@ -362,11 +512,27 @@ class Echoshader(param.Parameterized):
         "update_track_flag.counter",
     )
     def _track_tile_plot(self):
+        """
+        Generate a track plot with tile based on current parameters.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Track plot with tile.
+        """
         track = self._track_plot() * self._tile_plot()
 
         return track.opts(self.track_opts)
 
     def _tile_plot(self):
+        """
+        Generate a map tile plot based on current parameters.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Map tile plot.
+        """
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds_in_gram_box
         else:
@@ -394,6 +560,14 @@ class Echoshader(param.Parameterized):
         return tile * tile_bounds
 
     def _track_plot(self):
+        """
+        Generate a track plot based on current parameters.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Track plot.
+        """
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds_in_gram_box
         else:
@@ -417,6 +591,45 @@ class Echoshader(param.Parameterized):
         ratio: float = None,
         **opts,
     ):
+        """
+        Display curtain plots based on specified parameters.
+
+        Attached Widgets
+        ----------------
+        colormap : panel.widgets.LiteralInput
+            A widget to control the colormap for echograms.
+            https://holoviews.org/user_guide/Colormaps.html
+
+        Sv_range_slider : panel.widgets.EditableRangeSlider
+            A slider widget to control the Sv range.
+
+        channel_select : panel.widgets.Select
+            A dropdown widget to select the frequency channel.
+
+        curtain_ratio : panel.widgets.FloatInput
+            A numeric input widget for controlling curtain ratio.
+
+        
+        Parameters
+        ----------
+        channel : str, optional
+            Frequency channel for curtain plot. Default is None.
+        ratio : float, optional
+            Curtain ratio for spacing. Default is None.
+        opts : dict, optional
+            Additional options for plotting.
+
+        Returns
+        -------
+        panel.panel
+            Curtain plot panel.
+
+        Examples
+        --------
+        curtain = MVBS_ds.eshader.curtain(channel = "GPT 38 kHz 00907208dd13 5-1 OOI.38|200")
+
+        panel.Row(curtain)
+        """
         if channel is not None:
             self.channel_select.value = channel
 
@@ -436,6 +649,14 @@ class Echoshader(param.Parameterized):
         "update_track_flag.counter",
     )
     def _curtain_plot(self):
+        """
+        Generate a curtain plot based on current parameters.
+
+        Returns
+        -------
+        panel.panel
+            Curtain plot panel.
+        """
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds_in_gram_box
         else:
@@ -470,6 +691,37 @@ class Echoshader(param.Parameterized):
         overlay: bool = None,
         opts=[],
     ):
+        """
+        Display histogram plots based on specified parameters.
+
+        Attached Widgets
+        ----------------
+        bin_size_input : panel.widgets.IntInput
+            An input widget for controlling histogram bin size.
+
+        overlay_layout_toggle : panel.widgets.Toggle
+            A toggle widget for overlay and layout options.
+
+        Parameters
+        ----------
+        bins : int, optional
+            Number of bins for the histogram. Default is None.
+        overlay : bool, optional
+            Overlay multiple histograms. Default is None.
+        opts : list, optional
+            Additional options for plotting. Default is an empty list.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Histogram plot.
+
+        Examples
+        --------
+        histogram = MVBS_ds.eshader.hist(bins = 50)
+
+        panel.Row(histogram)
+        """
         if bins is not None:
             self.bin_size_input.value = bins
 
@@ -487,6 +739,14 @@ class Echoshader(param.Parameterized):
         "update_track_flag.counter",
     )
     def _hist_plot(self):
+        """
+        Generate a histogram plot based on current parameters.
+
+        Returns
+        -------
+        holoviews.Overlay
+            Histogram plot.
+        """
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds_in_gram_box
         else:
@@ -504,6 +764,25 @@ class Echoshader(param.Parameterized):
         self,
         opts=[],
     ):
+        """
+        Display data summary table.
+
+        Parameters
+        ----------
+        opts : list, optional
+            Additional options for plotting. Default is an empty list.
+
+        Returns
+        -------
+        holoviews.Table
+            Data summary table.
+
+        Examples
+        --------
+        table = MVBS_ds.eshader.table()
+
+        panel.Row(table)
+        """
         self.table_opts = opts
 
         return self._table_plot
@@ -513,6 +792,14 @@ class Echoshader(param.Parameterized):
         "update_track_flag.counter",
     )
     def _table_plot(self):
+        """
+        Generate a data summary table.
+
+        Returns
+        -------
+        holoviews.Table
+            Data summary table.
+        """
         if self.control_mode_select.value is True:
             MVBS_ds = self.MVBS_ds_in_gram_box
         else:
@@ -523,6 +810,14 @@ class Echoshader(param.Parameterized):
         return table.opts(self.table_opts)
 
     def get_data_from_box(self):
+        """
+        Get the data from the currently selected box (gram or track).
+
+        Returns
+        -------
+        xarray.Dataset
+            Selected dataset from echogram or track.
+        """
         if self.control_mode_select.value is True:
             return self.MVBS_ds_in_gram_box
         else:

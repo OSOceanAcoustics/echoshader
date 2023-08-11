@@ -1,8 +1,9 @@
 import holoviews
 import hvplot.xarray  # noqa
 import pandas
-import utils
 import xarray
+
+from .utils import gram_opts
 
 
 def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
@@ -59,7 +60,7 @@ def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
                 subplots=True,
                 legend="top",
             )
-            .opts(utils.gram_opts)
+            .opts(gram_opts)
             .cols(1)
         )
 
@@ -122,6 +123,6 @@ def table_plot(MVBS_ds: xarray.Dataset):
 
         obj_desc = pandas.merge(obj_desc, obj_df_channel, on="index")
 
-    table = holoviews.Table(obj_desc).opts(utils.gram_opts)
+    table = holoviews.Table(obj_desc).opts(gram_opts)
 
     return table

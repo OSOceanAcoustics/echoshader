@@ -5,7 +5,7 @@ import numpy
 import pandas
 import xarray
 from pyproj import Transformer
-from utils import EPSG_coordsys, EPSG_mercator, gram_opts
+from .utils import EPSG_coordsys, EPSG_mercator, gram_opts
 
 opt_tile = geoviews.opts(tools=["box_select"])
 
