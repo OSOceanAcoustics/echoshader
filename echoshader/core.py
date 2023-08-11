@@ -670,13 +670,13 @@ class Echoshader(param.Parameterized):
             ratio=self.curtain_ratio.value,
         )
 
-        if "width" in self.curtain_opts:
+        if "width" not in self.curtain_opts:
             self.curtain_opts["width"] = curtain_opts["width"]
 
-        if "height" in self.curtain_opts:
+        if "height" not in self.curtain_opts:
             self.curtain_opts["height"] = curtain_opts["height"]
 
-        if "orientation_widget" in self.curtain_opts:
+        if "orientation_widget" not in self.curtain_opts:
             self.curtain_opts["orientation_widget"] = True
 
         curtain_panel = panel.panel(

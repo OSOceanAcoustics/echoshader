@@ -50,7 +50,7 @@ def hist_plot(MVBS_ds: xarray.Dataset, bins: int = 24, overlay: bool = True):
             subplots=False,
             alpha=0.6,
             legend="top",
-        ).opts(utils.gram_opts)
+        ).opts(gram_opts)
     else:
         hist = (
             MVBS_ds.Sv.hvplot.hist(
