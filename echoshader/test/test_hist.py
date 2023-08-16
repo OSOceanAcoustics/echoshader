@@ -1,5 +1,6 @@
-from .. import core
 import panel
+
+from .. import core
 
 MVBS_ds = core.xarray.open_mfdataset(
     paths="./echoshader/test/concatenated_MVBS.nc",
