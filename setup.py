@@ -15,4 +15,5 @@ if __name__ == "__main__":
         description="Open Source Python package for building ocean sonar data visualizations.",
         url="https://github.com/OSOceanAcoustics/echoshader",
         packages=find_packages(),
-        install_requires=requirements)
+        install_requires=requirements,
+    )
