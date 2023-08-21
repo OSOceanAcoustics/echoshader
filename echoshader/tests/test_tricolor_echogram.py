@@ -4,7 +4,7 @@ import xarray
 import echoshader
 
 # When the bug is fixed, set this to True
-echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False  
+echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False
 
 MVBS_ds = xarray.open_mfdataset(
     paths="./echoshader/test/concatenated_MVBS.nc",
