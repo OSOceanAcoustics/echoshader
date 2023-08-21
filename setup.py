@@ -1,8 +1,18 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 # Dynamically read dependencies from requirements file
 with open("requirements.txt") as f:
     requirements = f.readlines()
 
 if __name__ == "__main__":
-    setup(install_requires=requirements)
+    setup(
+        name="echoshader",
+        version="0.1",
+        author="Dingrui Lei",
+        author_email="leidingrui426@gmail.com",
+        maintainer="Dingrui Lei",
+        maintainer_email="leidingrui426@gmail.com",
+        description="Open Source Python package for building ocean sonar data visualizations.",
+        url="https://github.com/OSOceanAcoustics/echoshader",
+        packages=find_packages(),
+        install_requires=requirements)
