@@ -10,6 +10,7 @@ panel.extension("pyvista")
 
 DATA_DIR = Path("./echoshader/test_data/concatenated_MVBS.nc")
 
+
 def test_panel():
     # When the bug is fixed, set this to True
     echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False
@@ -53,7 +54,7 @@ def test_panel():
 
     # Remember to set panel extension to "pyvista" when showing 2.5D curtain
     panel.extension("pyvista")
-    
+
     integration_panel = panel.Column(
         MVBS_ds.eshader.control_mode_select,
         track_panel,

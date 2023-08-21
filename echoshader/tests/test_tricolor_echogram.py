@@ -7,6 +7,7 @@ import echoshader
 
 DATA_DIR = Path("./echoshader/test_data/concatenated_MVBS.nc")
 
+
 def test_panel():
     # When the bug is fixed, set this to True
     echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False
