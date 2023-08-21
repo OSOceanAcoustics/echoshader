@@ -1,8 +1,12 @@
 import panel
+import xarray
 
-from .. import core
+import echoshader
 
-MVBS_ds = core.xarray.open_mfdataset(
+# When the bug is fixed, set this to True
+echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False  
+
+MVBS_ds = xarray.open_mfdataset(
     paths="./echoshader/test/concatenated_MVBS.nc",
     data_vars="minimal",
     coords="minimal",
