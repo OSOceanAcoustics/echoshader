@@ -1,13 +1,13 @@
 from pathlib import Path
 
 import panel
-import xarray as xr
-
 import pytest
+import xarray as xr
 
 import echoshader
 
 DATA_DIR = Path("./echoshader/test_data/concatenated_MVBS.nc")
+
 
 @pytest.fixture
 def get_data():
@@ -24,6 +24,7 @@ def get_data():
 
     return MVBS_ds
 
+
 def test_echogram():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -31,7 +32,7 @@ def test_echogram():
     # Create the echogram panel
     echogram_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.Sv_range_slider, 
+            MVBS_ds.eshader.Sv_range_slider,
             MVBS_ds.eshader.colormap,
         ),
         MVBS_ds.eshader.echogram(),
@@ -39,6 +40,7 @@ def test_echogram():
 
     # Check if the panel is created without raising an exception
     assert isinstance(echogram_panel, panel.Row)
+
 
 def test_tricolor_echogram():
     # Load sample data for testing
@@ -60,17 +62,19 @@ def test_tricolor_echogram():
     # Check if the panel is created without raising an exception
     assert isinstance(tricolor_echogram_panel, panel.Row)
 
+
 def test_track():
     # Load sample data for testing
     MVBS_ds = get_data()
 
     track_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.tile_select), 
+        panel.Column(MVBS_ds.eshader.tile_select),
         MVBS_ds.eshader.track(),
     )
 
     # Check if the panel is created without raising an exception
     assert isinstance(track_panel, panel.Row)
+
 
 def test_track_integration():
     # Load sample data for testing
@@ -80,15 +84,12 @@ def test_track_integration():
     MVBS_ds.eshader.control_mode_select.value = False
 
     track_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.tile_select), 
+        panel.Column(MVBS_ds.eshader.tile_select),
         MVBS_ds.eshader.track(),
     )
 
     echogram_panel = panel.Row(
-        panel.Column(
-            MVBS_ds.eshader.Sv_range_slider, 
-            MVBS_ds.eshader.colormap
-        ),
+        panel.Column(MVBS_ds.eshader.Sv_range_slider, MVBS_ds.eshader.colormap),
         MVBS_ds.eshader.echogram(),
     )
 
@@ -114,15 +115,13 @@ def test_track_integration():
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_curtain():
     # Load sample data for testing
     MVBS_ds = get_data()
 
     curtain_panel = panel.Row(
-        panel.Column(
-            MVBS_ds.eshader.channel_select, 
-            MVBS_ds.eshader.curtain_ratio
-        ),
+        panel.Column(MVBS_ds.eshader.channel_select, MVBS_ds.eshader.curtain_ratio),
         MVBS_ds.eshader.curtain(),
     )
 
@@ -132,6 +131,7 @@ def test_curtain():
     # Check if the panel is created without raising an exception
     assert isinstance(curtain_panel, panel.Row)
 
+
 def test_curtain_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -140,15 +140,12 @@ def test_curtain_integration():
     MVBS_ds.eshader.control_mode_select.value = False
 
     track_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.tile_select), 
+        panel.Column(MVBS_ds.eshader.tile_select),
         MVBS_ds.eshader.track(),
     )
 
     echogram_panel = panel.Row(
-        panel.Column(
-            MVBS_ds.eshader.Sv_range_slider,
-            MVBS_ds.eshader.colormap
-        ),
+        panel.Column(MVBS_ds.eshader.Sv_range_slider, MVBS_ds.eshader.colormap),
         MVBS_ds.eshader.echogram(),
     )
 
@@ -166,7 +163,7 @@ def test_curtain_integration():
 
     curtain_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.channel_select, 
+            MVBS_ds.eshader.channel_select,
             MVBS_ds.eshader.curtain_ratio,
         ),
         MVBS_ds.eshader.curtain(),
@@ -186,13 +183,14 @@ def test_curtain_integration():
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_hist():
     # Load sample data for testing
     MVBS_ds = get_data()
 
     stats_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.bin_size_input,
             MVBS_ds.eshader.overlay_layout_toggle,
         ),
         panel.Column(
@@ -202,8 +200,9 @@ def test_hist():
     )
 
     # Check if the panel is created without raising an exception
-    assert isinstance(stats_panel, panel.Row)    
-  
+    assert isinstance(stats_panel, panel.Row)
+
+
 def test_hist_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -212,7 +211,7 @@ def test_hist_integration():
     MVBS_ds.eshader.control_mode_select.value = False
 
     track_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.tile_select), 
+        panel.Column(MVBS_ds.eshader.tile_select),
         MVBS_ds.eshader.track(),
     )
 
@@ -238,7 +237,7 @@ def test_hist_integration():
 
     stats_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.bin_size_input,
             MVBS_ds.eshader.overlay_layout_toggle,
         ),
         panel.Column(
@@ -267,14 +266,15 @@ def test_integration():
     MVBS_ds.eshader.control_mode_select.value = False
 
     track_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.tile_select), 
+        panel.Column(MVBS_ds.eshader.tile_select),
         MVBS_ds.eshader.track(),
     )
 
     echogram_panel = panel.Row(
-        panel.Column(MVBS_ds.eshader.Sv_range_slider, 
-                     MVBS_ds.eshader.colormap,
-                    ),
+        panel.Column(
+            MVBS_ds.eshader.Sv_range_slider,
+            MVBS_ds.eshader.colormap,
+        ),
         MVBS_ds.eshader.echogram(),
     )
 
@@ -292,7 +292,7 @@ def test_integration():
 
     curtain_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.channel_select, 
+            MVBS_ds.eshader.channel_select,
             MVBS_ds.eshader.curtain_ratio,
         ),
         MVBS_ds.eshader.curtain(),
@@ -303,7 +303,7 @@ def test_integration():
 
     stats_panel = panel.Row(
         panel.Column(
-            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.bin_size_input,
             MVBS_ds.eshader.overlay_layout_toggle,
         ),
         panel.Column(
@@ -322,4 +322,4 @@ def test_integration():
     )
 
     # Check if the panel is created without raising an exception
-    assert isinstance(integration_panel, panel.Column)    
+    assert isinstance(integration_panel, panel.Column)
