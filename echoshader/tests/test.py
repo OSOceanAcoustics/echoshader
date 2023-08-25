@@ -1,0 +1,325 @@
+from pathlib import Path
+
+import panel
+import xarray as xr
+
+import pytest
+
+import echoshader
+
+DATA_DIR = Path("./echoshader/test_data/concatenated_MVBS.nc")
+
+@pytest.fixture
+def get_data():
+    # When the bug is fixed, set this to True
+    echoshader.utils.gram_opts["Image"]["invert_yaxis"] = False
+
+    # Load sample data for testing
+    MVBS_ds = xr.open_mfdataset(
+        paths=DATA_DIR,
+        data_vars="minimal",
+        coords="minimal",
+        combine="by_coords",
+    )
+
+    return MVBS_ds
+
+def test_echogram():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the echogram panel
+    echogram_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.Sv_range_slider, 
+            MVBS_ds.eshader.colormap,
+        ),
+        MVBS_ds.eshader.echogram(),
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(echogram_panel, panel.Row)
+
+def test_tricolor_echogram():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the tricolor echogram panel
+    tricolor_echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider),
+        MVBS_ds.eshader.echogram(
+            channel=[
+                "GPT 120 kHz 00907205a6d0 4-1 ES120-7C",
+                "GPT  38 kHz 009072058146 2-1 ES38B",
+                "GPT  18 kHz 009072058c8d 1-1 ES18-11",
+            ],
+            rgb_composite=True,
+        ),
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(tricolor_echogram_panel, panel.Row)
+
+def test_track():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    track_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.tile_select), 
+        MVBS_ds.eshader.track(),
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(track_panel, panel.Row)
+
+def test_track_integration():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the panels
+    MVBS_ds.eshader.control_mode_select.value = False
+
+    track_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.tile_select), 
+        MVBS_ds.eshader.track(),
+    )
+
+    echogram_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.Sv_range_slider, 
+            MVBS_ds.eshader.colormap
+        ),
+        MVBS_ds.eshader.echogram(),
+    )
+
+    tricolor_echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider),
+        MVBS_ds.eshader.echogram(
+            channel=[
+                "GPT 120 kHz 00907205a6d0 4-1 ES120-7C",
+                "GPT  38 kHz 009072058146 2-1 ES38B",
+                "GPT  18 kHz 009072058c8d 1-1 ES18-11",
+            ],
+            rgb_composite=True,
+        ),
+    )
+
+    integration_panel = panel.Column(
+        MVBS_ds.eshader.control_mode_select,
+        track_panel,
+        echogram_panel,
+        tricolor_echogram_panel,
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(integration_panel, panel.Column)
+
+def test_curtain():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    curtain_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.channel_select, 
+            MVBS_ds.eshader.curtain_ratio
+        ),
+        MVBS_ds.eshader.curtain(),
+    )
+
+    # Remember to set panel extension to "pyvista" when showing 2.5D curtain
+    panel.extension("pyvista")
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(curtain_panel, panel.Row)
+
+def test_curtain_integration():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the panels
+    MVBS_ds.eshader.control_mode_select.value = False
+
+    track_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.tile_select), 
+        MVBS_ds.eshader.track(),
+    )
+
+    echogram_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.Sv_range_slider,
+            MVBS_ds.eshader.colormap
+        ),
+        MVBS_ds.eshader.echogram(),
+    )
+
+    tricolor_echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider),
+        MVBS_ds.eshader.echogram(
+            channel=[
+                "GPT 120 kHz 00907205a6d0 4-1 ES120-7C",
+                "GPT  38 kHz 009072058146 2-1 ES38B",
+                "GPT  18 kHz 009072058c8d 1-1 ES18-11",
+            ],
+            rgb_composite=True,
+        ),
+    )
+
+    curtain_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.channel_select, 
+            MVBS_ds.eshader.curtain_ratio,
+        ),
+        MVBS_ds.eshader.curtain(),
+    )
+
+    # Remember to set panel extension to "pyvista" when showing 2.5D curtain
+    panel.extension("pyvista")
+
+    integration_panel = panel.Column(
+        MVBS_ds.eshader.control_mode_select,
+        track_panel,
+        echogram_panel,
+        tricolor_echogram_panel,
+        curtain_panel,
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(integration_panel, panel.Column)
+
+def test_hist():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    stats_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.overlay_layout_toggle,
+        ),
+        panel.Column(
+            MVBS_ds.eshader.hist(),
+            MVBS_ds.eshader.table(),
+        ),
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(stats_panel, panel.Row)    
+  
+def test_hist_integration():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the panels
+    MVBS_ds.eshader.control_mode_select.value = False
+
+    track_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.tile_select), 
+        MVBS_ds.eshader.track(),
+    )
+
+    echogram_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.Sv_range_slider,
+            MVBS_ds.eshader.colormap,
+        ),
+        MVBS_ds.eshader.echogram(),
+    )
+
+    tricolor_echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider),
+        MVBS_ds.eshader.echogram(
+            channel=[
+                "GPT 120 kHz 00907205a6d0 4-1 ES120-7C",
+                "GPT  38 kHz 009072058146 2-1 ES38B",
+                "GPT  18 kHz 009072058c8d 1-1 ES18-11",
+            ],
+            rgb_composite=True,
+        ),
+    )
+
+    stats_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.overlay_layout_toggle,
+        ),
+        panel.Column(
+            MVBS_ds.eshader.hist(),
+            MVBS_ds.eshader.table(),
+        ),
+    )
+
+    integration_panel = panel.Column(
+        MVBS_ds.eshader.control_mode_select,
+        track_panel,
+        echogram_panel,
+        tricolor_echogram_panel,
+        stats_panel,
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(integration_panel, panel.Column)
+
+
+def test_integration():
+    # Load sample data for testing
+    MVBS_ds = get_data()
+
+    # Create the panels
+    MVBS_ds.eshader.control_mode_select.value = False
+
+    track_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.tile_select), 
+        MVBS_ds.eshader.track(),
+    )
+
+    echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider, 
+                     MVBS_ds.eshader.colormap,
+                    ),
+        MVBS_ds.eshader.echogram(),
+    )
+
+    tricolor_echogram_panel = panel.Row(
+        panel.Column(MVBS_ds.eshader.Sv_range_slider),
+        MVBS_ds.eshader.echogram(
+            channel=[
+                "GPT 120 kHz 00907205a6d0 4-1 ES120-7C",
+                "GPT  38 kHz 009072058146 2-1 ES38B",
+                "GPT  18 kHz 009072058c8d 1-1 ES18-11",
+            ],
+            rgb_composite=True,
+        ),
+    )
+
+    curtain_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.channel_select, 
+            MVBS_ds.eshader.curtain_ratio,
+        ),
+        MVBS_ds.eshader.curtain(),
+    )
+
+    # Remember to set panel extension to "pyvista" when showing 2.5D curtain
+    panel.extension("pyvista")
+
+    stats_panel = panel.Row(
+        panel.Column(
+            MVBS_ds.eshader.bin_size_input, 
+            MVBS_ds.eshader.overlay_layout_toggle,
+        ),
+        panel.Column(
+            MVBS_ds.eshader.hist(),
+            MVBS_ds.eshader.table(),
+        ),
+    )
+
+    integration_panel = panel.Column(
+        MVBS_ds.eshader.control_mode_select,
+        track_panel,
+        echogram_panel,
+        tricolor_echogram_panel,
+        curtain_panel,
+        stats_panel,
+    )
+
+    # Check if the panel is created without raising an exception
+    assert isinstance(integration_panel, panel.Column)    
