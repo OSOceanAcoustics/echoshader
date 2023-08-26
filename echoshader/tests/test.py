@@ -75,6 +75,7 @@ def test_track():
     # Check if the panel is created without raising an exception
     assert isinstance(track_panel, panel.Row)
 
+
 def test_track_echogram_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -103,6 +104,7 @@ def test_track_echogram_integration():
     MVBS_ds.eshader.control_mode_select.value = True
 
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_track_tricolor_echogram_integration():
     # Load sample data for testing
@@ -139,6 +141,7 @@ def test_track_tricolor_echogram_integration():
     MVBS_ds.eshader.control_mode_select.value = True
 
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_track_integration():
     # Load sample data for testing
@@ -183,6 +186,7 @@ def test_track_integration():
 
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_curtain():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -198,13 +202,14 @@ def test_curtain():
     # Check if the panel is created without raising an exception
     assert isinstance(curtain_panel, panel.Row)
 
+
 def test_curtain_echogram_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = True
-    
+
     echogram_panel = panel.Row(
         panel.Column(MVBS_ds.eshader.Sv_range_slider, MVBS_ds.eshader.colormap),
         MVBS_ds.eshader.echogram(),
@@ -228,6 +233,7 @@ def test_curtain_echogram_integration():
 
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_curtain_tricolor_echogram_integration():
     # Load sample data for testing
@@ -267,6 +273,7 @@ def test_curtain_tricolor_echogram_integration():
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_curtain_track_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -297,6 +304,7 @@ def test_curtain_track_integration():
 
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_curtain_integration():
     # Load sample data for testing
@@ -353,6 +361,7 @@ def test_curtain_integration():
 
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_hist():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -370,6 +379,7 @@ def test_hist():
 
     # Check if the panel is created without raising an exception
     assert isinstance(stats_panel, panel.Row)
+
 
 def test_echogram_integration():
     # Load sample data for testing
@@ -404,6 +414,7 @@ def test_echogram_integration():
 
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_hist_tricolor_echogram_integration():
     # Load sample data for testing
@@ -443,6 +454,7 @@ def test_hist_tricolor_echogram_integration():
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
 
+
 def test_hist_track_integration():
     # Load sample data for testing
     MVBS_ds = get_data()
@@ -473,6 +485,7 @@ def test_hist_track_integration():
 
     # Check if the panel is created without raising an exception
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_hist_integration():
     # Load sample data for testing
@@ -531,6 +544,7 @@ def test_hist_integration():
     MVBS_ds.eshader.control_mode_select.value = True
 
     assert isinstance(integration_panel, panel.Column)
+
 
 def test_integration():
     # Load sample data for testing
