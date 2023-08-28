@@ -1,6 +1,15 @@
 # .github/workflows/pytest.yml
 name: PyTest
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+    - main, dev, dev-test-CI
+  pull_request:
+    branches:
+    - main, dev, dev-test-CI
+  workflow_dispatch:
+    branches:
+    - main, dev, dev-test-CI
 
 jobs:
   test:
