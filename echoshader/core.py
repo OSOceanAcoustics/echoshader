@@ -230,7 +230,7 @@ class Echoshader(param.Parameterized):
 
         else:
             if channel is None:
-                self.channel = self.MVBS_ds.channel.values
+                self.channel = self.MVBS_ds.channel.values.tolist()
             else:
                 self.channel = channel
 
