@@ -4,14 +4,16 @@ name: PyTest
 on:
   push:
     branches:
-    - main, dev, dev-test-CI
+    - main
+    - dev
+    - dev-test-CI
   pull_request:
     branches:
-    - main, dev, dev-test-CI
+    - main
+    - dev 
+    - dev-test-CI
   workflow_dispatch:
-    branches:
-    - main, dev, dev-test-CI
-
+    
 jobs:
   test:
     runs-on: ubuntu-latest
