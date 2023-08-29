@@ -25,9 +25,9 @@ def get_data():
     return MVBS_ds
 
 
-def test_echogram():
+def test_echogram(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the echogram panel
     echogram_panel = panel.Row(
@@ -42,9 +42,9 @@ def test_echogram():
     assert isinstance(echogram_panel, panel.Row)
 
 
-def test_tricolor_echogram():
+def test_tricolor_echogram(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the tricolor echogram panel
     tricolor_echogram_panel = panel.Row(
@@ -63,9 +63,9 @@ def test_tricolor_echogram():
     assert isinstance(tricolor_echogram_panel, panel.Row)
 
 
-def test_track():
+def test_track(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     track_panel = panel.Row(
         panel.Column(MVBS_ds.eshader.tile_select),
@@ -76,9 +76,9 @@ def test_track():
     assert isinstance(track_panel, panel.Row)
 
 
-def test_track_echogram_integration():
+def test_track_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -106,9 +106,9 @@ def test_track_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_track_tricolor_echogram_integration():
+def test_track_tricolor_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -143,9 +143,9 @@ def test_track_tricolor_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_track_integration():
+def test_track_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -187,9 +187,9 @@ def test_track_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_curtain():
+def test_curtain(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     curtain_panel = panel.Row(
         panel.Column(MVBS_ds.eshader.channel_select, MVBS_ds.eshader.curtain_ratio),
@@ -203,9 +203,9 @@ def test_curtain():
     assert isinstance(curtain_panel, panel.Row)
 
 
-def test_curtain_echogram_integration():
+def test_curtain_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = True
@@ -235,9 +235,9 @@ def test_curtain_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_curtain_tricolor_echogram_integration():
+def test_curtain_tricolor_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = True
@@ -274,9 +274,9 @@ def test_curtain_tricolor_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_curtain_track_integration():
+def test_curtain_track_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -306,9 +306,9 @@ def test_curtain_track_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_curtain_integration():
+def test_curtain_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -362,9 +362,9 @@ def test_curtain_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_hist():
+def test_hist(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     stats_panel = panel.Row(
         panel.Column(
@@ -381,9 +381,9 @@ def test_hist():
     assert isinstance(stats_panel, panel.Row)
 
 
-def test_echogram_integration():
+def test_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = True
@@ -416,9 +416,9 @@ def test_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_hist_tricolor_echogram_integration():
+def test_hist_tricolor_echogram_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = True
@@ -455,9 +455,9 @@ def test_hist_tricolor_echogram_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_hist_track_integration():
+def test_hist_track_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -487,9 +487,9 @@ def test_hist_track_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_hist_integration():
+def test_hist_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
@@ -546,9 +546,9 @@ def test_hist_integration():
     assert isinstance(integration_panel, panel.Column)
 
 
-def test_integration():
+def test_integration(get_data):
     # Load sample data for testing
-    MVBS_ds = get_data()
+    MVBS_ds = get_data
 
     # Create the panels
     MVBS_ds.eshader.control_mode_select.value = False
