@@ -3,3 +3,4 @@ hvplot
 geoviews
 pyvista
 ipykernel
+pandas == 1.5.3
