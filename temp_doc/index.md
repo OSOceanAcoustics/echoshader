@@ -19,13 +19,13 @@ To be updated
 
 The latest branch can be installed via the following:
 
-```
+```shell script
 pip install git+https://github.com/OSOceanAcoustics/echoshader.git
 ```
 
 To run in development mode, fork and clone the repository at [Echoshader](https://github.com/OSOceanAcoustics/echoshader):
 
-```
+```shell script
 mamba create -c conda-forge -n echoshader-dev --yes python=3.10 --file requirements.txt --file requirements-dev.txt
 pip install -e
 ```
