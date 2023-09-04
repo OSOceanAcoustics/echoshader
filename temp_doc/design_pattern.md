@@ -1,6 +1,8 @@
 # Design Structure Overview
 
-There are 3 levels in the structure. The Echoshader class acts as the controller that handles user interactions through widgets, triggers the necessary data updates, and updates the view accordingly. It achieves this through the use of callbacks and stream methods provided by libraries like Holoviews and Panel.
+The Echoshader class acts as the controller that handles user interactions through widgets, triggers the necessary data updates, and updates the view accordingly. It achieves this through the use of callbacks and stream methods provided by libraries like Holoviews and Panel.
+
+There are 3 levels designed in the structure demonstrated below. 
 ![image](./structure.png)
 
 ## **1st Level - High-order wrapper (`Echoshader` class)**
@@ -43,3 +45,19 @@ The **`Echoshader`** class serves as a comprehensive visualization toolset for a
 - These functions are called within **`Echoshader`** class methods to create actual visualizations.
 - Libraries like Holoviews and Panel are used to generate and display plots.
 - Customization options and parameters are available for the generated plots.
+
+## Xarray Extensions Using Accessors
+[Extending xarray using accessors](https://docs.xarray.dev/en/stable/internals/extending-xarray.html) refers to the process of adding custom functionality and methods to xarray objects by creating and registering custom accessors. 
+
+This approach is particularly useful when we have domain-specific operations or manipulations that apply to xarray objects without cluttering your code with custom functions. It keeps code modular, maintainable, and helps leverage the power of xarray for your specific use case.
+
+We write a custom “eshader” accessor. You could use accessor to get echograms
+```python
+MVBS_ds.eshader.echogram()
+```
+
+Or you could just create a new echoshader object
+```python
+eg = Echogram(MVBS_ds) 
+eg.echogram()
+```
