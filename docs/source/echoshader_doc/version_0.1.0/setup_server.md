@@ -1,9 +1,11 @@
 # Panel Server Setup Examples
+
 This notebook guides users how to setup panel servers on EC2.
 
 ## Setting Up the Panel Server
 
 ### Prerequisite Environment
+
 To begin, you'll need to configure your EC2 environment. If you haven't done so already, please follow the steps outlined in this [guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html).
 
 Next, you should install either `Anaconda` or, as the recommended choice, `Mamba`, and create Jupyter files. Here are some resources to help you with the installation:
@@ -15,7 +17,8 @@ Next, you should install either `Anaconda` or, as the recommended choice, `Mamba
 - If you need guidance on using `Jupyter`, you can watch this [video tutorial](https://www.youtube.com/watch?v=tn1gH0JvFwk).
 
 ## Creating the 'echoshader-dev' Environment
-This section is intended for those who are actively developing this package. 
+
+This section is intended for those who are actively developing this package.
 
 ```bash
 mamba create -n echoshader-dev -c pyviz -c conda-forge echopype hvplot geoviews pyvista ipykernel
@@ -31,6 +34,7 @@ python -m ipykernel install --user --name echoshader-dev --display-name "echosha
 ```
 
 ### Creating the Panel
+
 Before proceeding, ensure that you've configured the accessible ports in the EC2 console.
 
 To set up the server in the terminal:
@@ -58,7 +62,6 @@ For further information on configuring a Panel server, please refer to this [lin
 
 The **`/admin`** panel offers a comprehensive view of the current application, equipped with essential tools for debugging and profiling purposes. You can activate it by including the **`--admin`** argument when executing the **`panel serve`** command.
 
-
 To initiate the server, please enter the following command in either the Command Prompt or Anaconda Prompt:
 
 ```bash
@@ -70,7 +73,6 @@ Ensure that you include both the --admin and --profiler command-line options. It
 Ensure that you include both the **`--admin`** and **`--profiler`** command-line options. It's crucial not to overlook specifying the profiler.
 
 After enabling the server, you can access the procedure page and the admin page by entering the following URLs in your web browser:
-
 
 ```
 http://localhost:your_port_number/your_file_name
