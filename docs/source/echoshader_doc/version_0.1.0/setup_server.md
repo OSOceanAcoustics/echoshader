@@ -74,11 +74,11 @@ Ensure that you include both the **`--admin`** and **`--profiler`** command-line
 
 After enabling the server, you can access the procedure page and the admin page by entering the following URLs in your web browser:
 
-```
+```bash
 http://localhost:your_port_number/your_file_name
 ```
 
-```
+```bash
 http://localhost:your_port_number/admin
 ```
 

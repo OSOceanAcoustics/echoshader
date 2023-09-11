@@ -83,7 +83,7 @@ Don't forget to use `.servable()` to specify which component you want to display
 
 Then we input below command in `cmd Prompt`  or `Anaconda Prompt` to start up the server:
 
-```c
+```bash
 panel serve --admin --profiler=snakeviz your_file_name.py
 ```
 
@@ -91,11 +91,11 @@ Users should use the commandline `--admin` and `--profiler` options. Don't forge
 
 Once enabled the server, input below urls to open procedure page and admin page:
 
-```
+```bash
 http://localhost:your_port_number/your_file_name
 ```
 
-```
+```bash
 http://localhost:your_port_number/admin
 ```
 
