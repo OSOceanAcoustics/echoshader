@@ -16,23 +16,6 @@ Next, you should install either `Anaconda` or, as the recommended choice, `Mamba
 
 - If you need guidance on using `Jupyter`, you can watch this [video tutorial](https://www.youtube.com/watch?v=tn1gH0JvFwk).
 
-## Creating the 'echoshader-dev' Environment
-
-This section is intended for those who are actively developing this package.
-
-```bash
-mamba create -n echoshader-dev -c pyviz -c conda-forge echopype hvplot geoviews pyvista ipykernel
-```
-
-Note: Users may already have `echopype` installed, but it should be at a version greater than or equal to `0.7.1`.
-
-To link this environment with a Jupyter kernel:
-
-```bash
-conda activate echoshader-dev
-python -m ipykernel install --user --name echoshader-dev --display-name "echoshader-dev"
-```
-
 ### Creating the Panel
 
 Before proceeding, ensure that you've configured the accessible ports in the EC2 console.

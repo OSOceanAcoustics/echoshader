@@ -1,6 +1,6 @@
 # Welcome to echoshader
 
-Open Source Python package for building ocean sonar data visualizations based on HoloViz-maintained libraries.
+Open source Python package for building interactive ocean sonar data visualizations on the HoloViz suite of libraries.
 
 ## What are ocean sonar systems?
 
@@ -31,3 +31,20 @@ pip install -e
 ```
 
 We recommend use [mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html) to manage conda's environments, which is a re-implementation of conda offering additional benefits.
+
+## Creating 'dev' Environment
+
+This section is intended for those who are actively developing this package.
+
+```bash
+mamba create -n echoshader-dev -c pyviz -c conda-forge echopype hvplot geoviews pyvista ipykernel
+```
+
+Note: Users may already have `echopype` installed, but it should be at a version greater than or equal to `0.7.1`.
+
+To link this environment with a Jupyter kernel:
+
+```bash
+conda activate echoshader-dev
+python -m ipykernel install --user --name echoshader-dev --display-name "echoshader-dev"
+```
