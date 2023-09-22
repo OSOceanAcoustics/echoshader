@@ -37,8 +37,6 @@ The latest branch can be installed via the following:
 pip install git+https://github.com/OSOceanAcoustics/echoshader.git
 ```
 
-
-
 ## Creating 'dev' Environment
 
 This section is intended for those who are actively developing this package.
