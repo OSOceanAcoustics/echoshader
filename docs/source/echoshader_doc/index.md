@@ -27,7 +27,7 @@ Note: Users may already have `echopype` installed, but it should be at a version
 To link this environment with a Jupyter kernel:
 
 ```bash
-conda activate echoshader-dev
+conda activate echoshader
 python -m ipykernel install --user --name echoshader --display-name "echoshader"
 ```
 
