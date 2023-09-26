@@ -11,6 +11,7 @@ Ocean sonar systems, such as echosounders, are the [workhorse to study life in t
 Echoshader aims to enhance the capability to interactively visualize large volumes of ocean sonar data to accelerate the data exploration and discovery process. The project will go hand-in-hand with ongoing development of the [echopype](https://echopype.readthedocs.io/en/stable/) package that handles the standardization, pre-processing, and organization of these data.
 
 By providing an accessible and customizable platform for echo data visualization, the project can accelerate advancements in oceanographic research for the benefit of conservation and sustainable resource management like fishery.
+
 ## Installation
 
 To install from PyPi:

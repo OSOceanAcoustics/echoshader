@@ -51,8 +51,6 @@ To initiate the server, please enter the following command in either the Command
 panel serve --admin --profiler=snakeviz <your_file_name.py>
 ```
 
-Ensure that you include both the --admin and --profiler command-line options. It's crucial not to overlook specifying the profiler.
-
 Ensure that you include both the **`--admin`** and **`--profiler`** command-line options. It's crucial not to overlook specifying the profiler.
 
 After enabling the server, you can access the procedure page and the admin page by entering the following URLs in your web browser:

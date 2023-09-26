@@ -14,8 +14,22 @@ By providing an accessible and customizable platform for echo data visualization
 
 ## Installation
 
-To install from PyPi:
-To be updated
+Echoshader relies on several crucial packages which will need to be installed first (best in a separate environment)
+
+```bash
+mamba create -n echoshader -c pyviz -c conda-forge echopype hvplot geoviews pyvista ipykernel
+```
+
+We recommend use [mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html) to manage conda's environments, which is a re-implementation of conda offering additional benefits.
+
+Note: Users may already have `echopype` installed, but it should be at a version greater than or equal to `0.7.1`.
+
+To link this environment with a Jupyter kernel:
+
+```bash
+conda activate echoshader
+python -m ipykernel install --user --name echoshader --display-name "echoshader"
+```
 
 The latest branch can be installed via the following:
 
@@ -23,28 +37,13 @@ The latest branch can be installed via the following:
 pip install git+https://github.com/OSOceanAcoustics/echoshader.git
 ```
 
+## Creating 'dev' Environment
+
+This section is intended for those who are actively developing this package.
+
 To run in development mode, fork and clone the repository at [Echoshader](https://github.com/OSOceanAcoustics/echoshader):
 
 ```bash
 mamba create -c conda-forge -n echoshader-dev --yes python=3.10 --file requirements.txt --file requirements-dev.txt
 pip install -e
-```
-
-We recommend use [mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html) to manage conda's environments, which is a re-implementation of conda offering additional benefits.
-
-## Creating 'dev' Environment
-
-This section is intended for those who are actively developing this package.
-
-```bash
-mamba create -n echoshader-dev -c pyviz -c conda-forge echopype hvplot geoviews pyvista ipykernel
-```
-
-Note: Users may already have `echopype` installed, but it should be at a version greater than or equal to `0.7.1`.
-
-To link this environment with a Jupyter kernel:
-
-```bash
-conda activate echoshader-dev
-python -m ipykernel install --user --name echoshader-dev --display-name "echoshader-dev"
 ```
