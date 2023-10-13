@@ -1,49 +1,56 @@
+from typing import List, Union
+
 import numpy
-import panel
 import pyvista
+import xarray
 
-panel.extension("vtk")
 
-
-def plot_curtain(MVBS_ds, cmp="jet", clim=None, ratio=0.001):
-    """Drape a 2.5D Sv curatin using Pyvista
+def curtain_plot(
+    MVBS_ds: xarray.Dataset,
+    cmap: Union[str, List[str]] = "jet",
+    clim: tuple = None,
+    ratio: float = 0.001,
+):
+    """
+    Create and display a 2D curtain plot from a given xarray dataset.
 
     Parameters
     ----------
     MVBS_ds : xarray.Dataset
-        MVBS Dataset with coordinates 'ping_time', 'channel', 'echo_range'
-        MVBS Dataset with a specific frequency
-        MVBS Dataset has been combined with longitude & latitude coordinates using echopype
+        A dataset containing the data for the curtain plot.
 
-    cmp : str, default: 'jet'
-        Colormap
+    cmap : str or List[str], optional
+        Colormap(s) to use for the curtain plot. Default is 'jet'.
 
-    clim : tuple, default: None
-        Lower and upper bound of the color scale
+    clim : tuple, optional
+        Color limits (min, max) for the colormap. Default is None, which automatically
+        determines the limits based on data.
 
-    ratio : float, default: 0.001
-        Z spaceing
-        When the value is larger, the height of map stretches more
+    ratio : float, optional
+        The Z spacing (interval) between adjacent slices of the curtain plot. Default is 0.001.
 
     Returns
     -------
-    curtain : pyvista.Plotter
-        Create a pyVista structure made up of 'grid' and 'curtain'
-        Use plotter.show() to display the curtain in Jupyter cell
-        Use panel.Row(plotter) to display the curtain in panel
-        See more in:
-        https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html?highlight=plotter#pyvista.Plotter
+    pyvista.Plotter
+        The 2D curtain plot as a PyVista Plotter object.
 
-    Examples
-    --------
-        MVBS_ds_ = MVBS_ds.sel(channel='GPT  18 kHz 009072058c8d 1-1 ES18-11')
+    Notes
+    -----
+    This function creates a 2D curtain plot from the given dataset `MVBS_ds`, and the depth
+    (echo_range) information is draped along the given latitude and longitude coordinates.
 
-        plotter = plot_curtain(MVBS_ds_, 'jet', (-80, -30), 0.001)
+    The `MVBS_ds` dataset should contain a variable named 'Sv' representing the sonar data.
+    The latitude and longitude coordinates must be present for each trace in the dataset.
 
-        plotter.show() // Simply show in jupyter
-
-        widget_panel = panel.Row(plotter) // Get panel where the curtain is chiseled in
-
+    Example
+    -------
+        curtain = curtain_plot(MVBS_ds, cmap='jet', clim=(-70, -30), ratio=0.01)
+        curtain_panel = panel.panel(
+            curtain.ren_win,
+            height=600,
+            width=400,
+            orientation_widget=True,
+        )
     """
 
     data = MVBS_ds.Sv.values[1:].T
@@ -74,11 +81,10 @@ def plot_curtain(MVBS_ds, cmp="jet", clim=None, ratio=0.001):
     # Add the data array - note the ordering!
     grid["values"] = data.ravel(order="F")
 
-    pyvista.global_theme.jupyter_backend = "panel"
     pyvista.global_theme.background = "gray"
 
     curtain = pyvista.Plotter()
-    curtain.add_mesh(grid, cmap=cmp, clim=clim)
+    curtain.add_mesh(grid, cmap=cmap, clim=clim)
     curtain.add_mesh(pyvista.PolyData(path), color="white")
 
     curtain.show_grid()
