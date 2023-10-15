@@ -178,7 +178,7 @@ def tricolor_echogram(
 
     if ~gram_opts["RGB"]["invert_yaxis"]:
         gram_opts["RGB"]["invert_yaxis"] = True
-    
+
     if rgb_map == {}:
         rgb_map[MVBS_ds.channel.values[0]] = "R"
         rgb_map[MVBS_ds.channel.values[1]] = "G"
