@@ -62,6 +62,9 @@ def single_echogram(
 
     gram_opts["Image"]["title"] = channel
 
+    if ~gram_opts["Image"]["invert_yaxis"]:
+        gram_opts["Image"]["invert_yaxis"] = True
+
     echogram = (
         holoviews.Dataset(MVBS_ds.sel(channel=channel))
         .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
@@ -172,6 +175,10 @@ def tricolor_echogram(
     # Display the tricolor echogram using Panel
     Panel.Row(tricolor_plot)
     """
+
+    if ~gram_opts["RGB"]["invert_yaxis"]:
+        gram_opts["RGB"]["invert_yaxis"] = True
+
     if rgb_map == {}:
         rgb_map[MVBS_ds.channel.values[0]] = "R"
         rgb_map[MVBS_ds.channel.values[1]] = "G"
