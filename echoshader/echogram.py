@@ -119,7 +119,9 @@ def convert_to_color(
     da_color = da_color.where(
         da_color <= th_top, other=th_top
     )  # set to ceiling at the top
-    da_color = da_color.where(da_color >= th_bottom, other=th_bottom)  # threshold at the bottom
+    da_color = da_color.where(
+        da_color >= th_bottom, other=th_bottom
+    )  # threshold at the bottom
     da_color = da_color.expand_dims("channel")
     da_color = (da_color - th_bottom) / (th_top - th_bottom)
     da_color = numpy.squeeze(da_color.Sv.data).transpose().compute()
