@@ -1,6 +1,6 @@
 import logging
 import warnings
-from typing import List, Union
+from typing import List, Union, Optional
 
 import holoviews
 import numpy
@@ -62,7 +62,7 @@ class Echoshader(param.Parameterized):
 
     Methods
     -------
-        echogram(channel, cmap, vmin, vmax, rgb_composite, opts):
+        echogram(channel, cmap, vmin, vmax, rgb_composite, vert_dim, opts):
             Display echogram plots based on channel and options.
 
         track(tile, control, opts):
@@ -162,6 +162,7 @@ class Echoshader(param.Parameterized):
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
+        vert_dim: Optional[str] = "echo_range",
         opts=[],
     ):
         """
@@ -189,6 +190,8 @@ class Echoshader(param.Parameterized):
             Maximum value for Sv range. Default is None.
         rgb_composite : bool, optional
             Enable RGB tricolor echogram. Default is False.
+        vert_dim : str, optional
+            Name of the vertical dimension. Default is echo_range.
         opts : list[holoviews.opts], optional
             Additional options for plotting. Default is an empty list.
             https://holoviews.org/user_guide/Applying_Customizations.html#option-list-syntax
@@ -217,6 +220,8 @@ class Echoshader(param.Parameterized):
         )
 
         self.gram_opts = opts
+
+        self.vert_dim = vert_dim
 
         if rgb_composite is True:
             if channel is None or len(channel) != 3:
@@ -283,11 +288,11 @@ class Echoshader(param.Parameterized):
             MVBS_ds_in_gram_box = self.MVBS_ds
 
         else:
-            MVBS_ds_in_gram_box = self.MVBS_ds.sel(
-                ping_time=slice(bounds[0], bounds[2]),
-                echo_range=slice(bounds[1], bounds[3])
+            MVBS_ds_in_gram_box = self.MVBS_ds.sel({
+                "ping_time": slice(bounds[0], bounds[2]),
+                self.vert_dim: slice(bounds[1], bounds[3])
                 if bounds[3] > bounds[1]
-                else slice(bounds[3], bounds[1]),
+                else slice(bounds[3], bounds[1])},
             )
 
         return MVBS_ds_in_gram_box
@@ -321,6 +326,7 @@ class Echoshader(param.Parameterized):
             self.Sv_range_slider.value[0],
             self.Sv_range_slider.value[1],
             rgb_map,
+            self.vert_dim,
         )
 
         if self.control_mode_select.value is False:
@@ -376,7 +382,11 @@ class Echoshader(param.Parameterized):
 
         for channel in self.channel:
             echogram = single_echogram(
-                MVBS_ds, channel, self.colormap.value, self.Sv_range_slider.value
+                MVBS_ds, 
+                channel, 
+                self.colormap.value, 
+                self.Sv_range_slider.value,
+                self.vert_dim,
             )
 
             if self.control_mode_select.value is False:
