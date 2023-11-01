@@ -1,6 +1,6 @@
 import logging
 import warnings
-from typing import List, Union, Optional
+from typing import List, Optional, Union
 
 import holoviews
 import numpy
@@ -288,11 +288,13 @@ class Echoshader(param.Parameterized):
             MVBS_ds_in_gram_box = self.MVBS_ds
 
         else:
-            MVBS_ds_in_gram_box = self.MVBS_ds.sel({
-                "ping_time": slice(bounds[0], bounds[2]),
-                self.vert_dim: slice(bounds[1], bounds[3])
-                if bounds[3] > bounds[1]
-                else slice(bounds[3], bounds[1])},
+            MVBS_ds_in_gram_box = self.MVBS_ds.sel(
+                {
+                    "ping_time": slice(bounds[0], bounds[2]),
+                    self.vert_dim: slice(bounds[1], bounds[3])
+                    if bounds[3] > bounds[1]
+                    else slice(bounds[3], bounds[1]),
+                },
             )
 
         return MVBS_ds_in_gram_box
@@ -382,9 +384,9 @@ class Echoshader(param.Parameterized):
 
         for channel in self.channel:
             echogram = single_echogram(
-                MVBS_ds, 
-                channel, 
-                self.colormap.value, 
+                MVBS_ds,
+                channel,
+                self.colormap.value,
                 self.Sv_range_slider.value,
                 self.vert_dim,
             )

@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Optional, Union
 
 import holoviews
 import numpy
@@ -12,7 +12,7 @@ def single_echogram(
     channel: str,
     cmap: Union[str, List[str]],
     value_range: tuple[float, float],
-    vert_dim: Optional[str] = "echo_range", 
+    vert_dim: Optional[str] = "echo_range",
 ):
     """
     Generate an echogram for a single frequency channel.
@@ -132,11 +132,11 @@ def convert_to_color(
 
 
 def tricolor_echogram(
-    MVBS_ds: xarray, 
-    vmin: float, 
-    vmax: float, 
-    rgb_map: Dict[str, str] = {}, 
-    vert_dim: Optional[str] = "echo_range", 
+    MVBS_ds: xarray,
+    vmin: float,
+    vmax: float,
+    rgb_map: Dict[str, str] = {},
+    vert_dim: Optional[str] = "echo_range",
 ):
     """
     Create a tricolor echogram for multiple frequency channels.
