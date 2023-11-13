@@ -1,5 +1,7 @@
 # Welcome to echoshader
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/OSOceanAcoustics/echoshader/HEAD)
+
 Open Source Python package for building ocean sonar data visualizations based on the HoloViz suite of Python tools.
 
 ## What are ocean sonar systems?
