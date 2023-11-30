@@ -36,7 +36,7 @@ def single_echogram(
     value_range : tuple[float, float]
         The minimum and maximum value for the color scale of the echogram.
     vert_dim : str, optional
-        The name of the vertical dimension.
+        The name of the vertical dimension, must be 1D.
 
     Returns
     -------
