@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import holoviews
 import numpy
@@ -12,6 +12,7 @@ def single_echogram(
     channel: str,
     cmap: Union[str, List[str]],
     value_range: tuple[float, float],
+    vert_dim: Optional[str] = "echo_range",
 ):
     """
     Generate an echogram for a single frequency channel.
@@ -34,6 +35,8 @@ def single_echogram(
         Input list like ['#0000ff', '#00ffff'] to customize colormap.
     value_range : tuple[float, float]
         The minimum and maximum value for the color scale of the echogram.
+    vert_dim : str, optional
+        The name of the vertical dimension, must be 1D.
 
     Returns
     -------
@@ -67,7 +70,7 @@ def single_echogram(
 
     echogram = (
         holoviews.Dataset(MVBS_ds.sel(channel=channel))
-        .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", "echo_range"])
+        .to(holoviews.Image, vdims=["Sv"], kdims=["ping_time", vert_dim])
         .opts(gram_opts)
     )
 
@@ -119,7 +122,9 @@ def convert_to_color(
     da_color = da_color.where(
         da_color <= th_top, other=th_top
     )  # set to ceiling at the top
-    da_color = da_color.where(da_color >= th_bottom)  # threshold at the bottom
+    da_color = da_color.where(
+        da_color >= th_bottom, other=th_bottom
+    )  # threshold at the bottom
     da_color = da_color.expand_dims("channel")
     da_color = (da_color - th_bottom) / (th_top - th_bottom)
     da_color = numpy.squeeze(da_color.Sv.data).transpose().compute()
@@ -127,7 +132,11 @@ def convert_to_color(
 
 
 def tricolor_echogram(
-    MVBS_ds: xarray, vmin: float, vmax: float, rgb_map: Dict[str, str] = {}
+    MVBS_ds: xarray,
+    vmin: float,
+    vmax: float,
+    rgb_map: Dict[str, str] = {},
+    vert_dim: Optional[str] = "echo_range",
 ):
     """
     Create a tricolor echogram for multiple frequency channels.
@@ -150,6 +159,8 @@ def tricolor_echogram(
         The keys are the frequency channel names, and the values are the corresponding
         RGB channel names. If not provided, the function will assign the first three frequency
         channels to the "R", "G", and "B" channels, respectively.
+    vert_dim : str, optional
+        Name of vertical dimension. Default is echo_range.
 
     Returns
     -------
@@ -194,7 +205,7 @@ def tricolor_echogram(
     rgb = holoviews.RGB(
         (
             MVBS_ds.ping_time.data,
-            MVBS_ds.echo_range.data,
+            MVBS_ds[vert_dim].data,
             rgb_ch["R"],
             rgb_ch["G"],
             rgb_ch["B"],
