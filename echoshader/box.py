@@ -47,13 +47,15 @@ def get_box_stream(source_pic, bounds: tuple = None):
         source=source_pic,
         # define left, bottom, right, top corner of source plot as default bounds
         bounds=(
-            source_pic.lbrt[0],
-            source_pic.lbrt[1],
-            source_pic.lbrt[2],
-            source_pic.lbrt[3],
-        )
-        if bounds is None
-        else bounds,
+            (
+                source_pic.lbrt[0],
+                source_pic.lbrt[1],
+                source_pic.lbrt[2],
+                source_pic.lbrt[3],
+            )
+            if bounds is None
+            else bounds
+        ),
     )
 
     return box_stream
@@ -100,24 +102,26 @@ def get_lasso_stream(source_pic: holoviews.element, geometry: numpy.array = None
     """
     lasso_stream = holoviews.streams.Lasso(
         source=source_pic,
-        geometry=numpy.array(
-            [
+        geometry=(
+            numpy.array(
                 [
-                    source_pic.lbrt[0],
-                    source_pic.lbrt[0],
-                    source_pic.lbrt[2],
-                    source_pic.lbrt[2],
-                ],
-                [
-                    source_pic.lbrt[1],
-                    source_pic.lbrt[3],
-                    source_pic.lbrt[1],
-                    source_pic.lbrt[3],
-                ],
-            ]
-        )
-        if geometry is None
-        else geometry,
+                    [
+                        source_pic.lbrt[0],
+                        source_pic.lbrt[0],
+                        source_pic.lbrt[2],
+                        source_pic.lbrt[2],
+                    ],
+                    [
+                        source_pic.lbrt[1],
+                        source_pic.lbrt[3],
+                        source_pic.lbrt[1],
+                        source_pic.lbrt[3],
+                    ],
+                ]
+            )
+            if geometry is None
+            else geometry
+        ),
     )
 
     return lasso_stream

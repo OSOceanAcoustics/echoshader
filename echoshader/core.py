@@ -291,9 +291,11 @@ class Echoshader(param.Parameterized):
             MVBS_ds_in_gram_box = self.MVBS_ds.sel(
                 {
                     "ping_time": slice(bounds[0], bounds[2]),
-                    self.vert_dim: slice(bounds[1], bounds[3])
-                    if bounds[3] > bounds[1]
-                    else slice(bounds[3], bounds[1]),
+                    self.vert_dim: (
+                        slice(bounds[1], bounds[3])
+                        if bounds[3] > bounds[1]
+                        else slice(bounds[3], bounds[1])
+                    ),
                 },
             )
 
