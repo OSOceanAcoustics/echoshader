@@ -10,4 +10,5 @@ build-backend = 'setuptools.build_meta'
 [tool.setuptools_scm]
 fallback_version = "unknown"
 local_scheme = "node-and-date"
-write_to = "echoshader/version.py"
+write_to = "echoshader/_echoshader_version.py"
+write_to_template = 'version = "version" # noqa'
