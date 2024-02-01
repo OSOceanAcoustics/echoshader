@@ -7,6 +7,9 @@ requires = [
 ]
 build-backend = 'setuptools.build_meta'
 
+[project]
+dynamic = ["version"]
+
 [tool.setuptools_scm]
 fallback_version = "unknown"
 local_scheme = "node-and-date"
