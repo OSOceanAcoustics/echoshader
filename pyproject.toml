@@ -7,12 +7,6 @@ requires = [
 ]
 build-backend = 'setuptools.build_meta'
 
-[project]
-name = "echoshader"
-dynamic = ["version"]
-description = "Package for visualization of ocean echosounder data"
-
-
 [tool.setuptools_scm]
 fallback_version = "unknown"
 local_scheme = "node-and-date"
