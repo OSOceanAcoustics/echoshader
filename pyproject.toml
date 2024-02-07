@@ -8,6 +8,7 @@ requires = [
 build-backend = 'setuptools.build_meta'
 
 [project]
+name = "echoshader"
 dynamic = ["version"]
 
 [tool.setuptools_scm]
