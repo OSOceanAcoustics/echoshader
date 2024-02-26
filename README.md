@@ -16,8 +16,18 @@ By providing an accessible and customizable platform for echo data visualization
 
 ## Installation
 
+First it is best to create a new environment:
+
+```bash
+mamba create -c conda-forge -n echoshader --yes python=3.10
+
+mamba activate echoshader
+```
+
 To install from PyPi:
-To be updated
+```bash
+pip install echoshader
+```
 
 The latest branch can be installed via the following:
 
