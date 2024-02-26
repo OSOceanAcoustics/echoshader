@@ -25,6 +25,7 @@ mamba activate echoshader
 ```
 
 To install from PyPi:
+
 ```bash
 pip install echoshader
 ```
