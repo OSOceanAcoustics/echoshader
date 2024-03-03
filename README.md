@@ -45,7 +45,7 @@ pip install -e
 
 We recommend use [mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html) to manage conda's environments, which is a re-implementation of conda offering additional benefits.
 
-## Creating 'dev' Environment
+## Creating a development environment
 
 This section is intended for those who are actively developing this package.
 
