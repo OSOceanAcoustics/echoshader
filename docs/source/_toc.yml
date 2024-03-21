@@ -22,5 +22,7 @@ parts:
     - file: GSoC/Echogram_EchoStats
     - file: GSoC/EchoMap
     - file: GSoC/Benchmarking
-  - file: contributors_guide
+    - file: GSoC/contributors_guide
+      title: GSoC Contributor's Guide
+  - file: contributors_guide.md
     title: Contributor's Guide
