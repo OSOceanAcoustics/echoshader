@@ -2,25 +2,27 @@
 # Learn more at https://jupyterbook.org/customize/toc.html
 
 format: jb-book
-root: echoshader_doc/index
+root: index
 parts:
 - caption: Echoshader
   chapters:
-  - file: echoshader_doc/version_0.1.0/index
+  - file: version_0.1.0/index
     title: Version 0.1.0
     sections:
-    - file: echoshader_doc/version_0.1.0/design_pattern
-    - file: echoshader_doc/version_0.1.0/get_moored_data
-    - file: echoshader_doc/version_0.1.0/get_ship_data
-    - file: echoshader_doc/version_0.1.0/echogram_examples
-    - file: echoshader_doc/version_0.1.0/track_examples
-    - file: echoshader_doc/version_0.1.0/hist_examples
-    - file: echoshader_doc/version_0.1.0/setup_server
-  - file: echoshader_doc/GSoC/index
+    - file: version_0.1.0/design_pattern
+    - file: version_0.1.0/get_moored_data
+    - file: version_0.1.0/get_ship_data
+    - file: version_0.1.0/echogram_examples
+    - file: version_0.1.0/track_examples
+    - file: version_0.1.0/hist_examples
+    - file: version_0.1.0/setup_server
+  - file: GSoC/index
     title: Prototype in GSoC
     sections:
-    - file: echoshader_doc/GSoC/Echogram_EchoStats
-    - file: echoshader_doc/GSoC/EchoMap
-    - file: echoshader_doc/GSoC/Benchmarking
-  - file: echoshader_doc/contributors_guide
+    - file: GSoC/Echogram_EchoStats
+    - file: GSoC/EchoMap
+    - file: GSoC/Benchmarking
+    - file: GSoC/contributors_guide
+      title: GSoC Contributor's Guide
+  - file: contributors_guide.md
     title: Contributor's Guide

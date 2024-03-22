@@ -7,7 +7,6 @@ with open("requirements.txt") as f:
 if __name__ == "__main__":
     setup(
         name="echoshader",
-        version="0.1",
         author="Dingrui Lei",
         author_email="leidingrui426@gmail.com",
         maintainer="Dingrui Lei",
