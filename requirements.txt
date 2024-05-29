@@ -1,3 +1,4 @@
+# TODO: Remove both echopype and pandas pins once dependency issue(s) has been dealt with
 echopype==0.8.3
 hvplot
 geoviews
