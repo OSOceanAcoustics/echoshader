@@ -1,13 +1,15 @@
 import logging
 import warnings
+from typing import List, Optional, Union
 
+import numpy
 import holoviews
 import panel
 import param
 import xarray
 from bokeh.util.warnings import BokehUserWarning
 
-from .elements.echogram import Echogram
+from .elements.echogram import echogram
 from .box import get_box_plot, get_box_stream
 from .curtain import curtain_plot_plotly, curtain_plot_pyvista
 from .hist import hist_plot, table_plot
@@ -23,7 +25,7 @@ holoviews.extension("bokeh", logo=False)
 
 
 @xarray.register_dataset_accessor("eshader")
-class Echoshader(param.Parameterized, Echogram):
+class Echoshader(param.Parameterized):
     """
     Echoshader - A visualization tool for acoustic data analysis.
 
@@ -172,36 +174,96 @@ class Echoshader(param.Parameterized, Echogram):
 
         self.MVBS_ds_in_track_box = self.MVBS_ds
 
-    def _extract_data_from_gram_box(self, bounds):
+    def echogram(
+        self,
+        channel: List[str] = None,
+        cmap: Union[str, List[str]] = None,
+        vmin: float = None,
+        vmax: float = None,
+        rgb_composite: bool = False,
+        vert_dim: Optional[str] = "echo_range",
+        opts=[],
+    ):
         """
-        Extract data from the gram box based on given bounds.
+        Display echogram plots based on specified parameters.
+
+        Attached Widgets
+        ----------------
+        colormap : panel.widgets.LiteralInput
+            A widget to control the colormap for echograms.
+            https://holoviews.org/user_guide/Colormaps.html
+
+        Sv_range_slider : panel.widgets.EditableRangeSlider
+            A slider widget to control the Sv range.
 
         Parameters
         ----------
-        bounds : tuple
-            Bounds of the gram box in the format (left, bottom, right, top).
+        channel : List[str], optional
+            List of frequency channels. Default is None.
+        cmap : Union[str, List[str]], optional
+            Colormap for the echogram plot. Default is None.
+            https://holoviews.org/user_guide/Colormaps.html
+        vmin : float, optional
+            Minimum value for Sv range. Default is None.
+        vmax : float, optional
+            Maximum value for Sv range. Default is None.
+        rgb_composite : bool, optional
+            Enable RGB tricolor echogram. Default is False.
+        vert_dim : str, optional
+            Name of the vertical dimension. Default is echo_range.
+        opts : list[holoviews.opts], optional
+            Additional options for plotting. Default is an empty list.
+            https://holoviews.org/user_guide/Applying_Customizations.html#option-list-syntax
 
         Returns
         -------
-        xarray.Dataset
-            Extracted dataset within the specified bounds.
-        """
-        if bounds is None:
-            MVBS_ds_in_gram_box = self.MVBS_ds
+        holoviews.Overlay
+            Echogram plot.
 
+        Examples
+        --------
+        echogram = MVBS_ds.eshader.echogram(vmin = -80, vmax = -30)
+
+        panel.Row(echogram)
+        """
+
+        data_vmin = self.Sv_range_slider.value[0]
+        data_vmax = self.Sv_range_slider.value[1]
+
+        self.Sv_range_slider.value = (
+            vmin if vmin is not None else data_vmin,
+            vmax if vmax is not None else data_vmax,
+        )
+
+        time_range_opts = []
+        if self.control_mode_select.value is True:
+            MVBS_ds = self.MVBS_ds_in_gram_box
         else:
-            MVBS_ds_in_gram_box = self.MVBS_ds.sel(
-                {
-                    "ping_time": slice(bounds[0], bounds[2]),
-                    self.vert_dim: (
-                        slice(bounds[1], bounds[3])
-                        if bounds[3] > bounds[1]
-                        else slice(bounds[3], bounds[1])
-                    ),
-                },
+            MVBS_ds = self.MVBS_ds_in_track_box
+
+            MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
+
+            one_hour = numpy.timedelta64(1, "h")
+
+            time_range_opts.append(
+                xlim=(
+                    MVBS_ds_with_time_range.ping_time.values[0] - one_hour,
+                    MVBS_ds_with_time_range.ping_time.values[-1] + one_hour,
+                )
             )
 
-        return MVBS_ds_in_gram_box
+        return echogram(
+            channel=channel,
+            MVBS_ds=MVBS_ds,
+            cmap=cmap,
+            sv_range_slider=self.Sv_range_slider,
+            colormap=self.colormap,
+            update_gram_flag=self.update_gram_flag,
+            rgb_composite=rgb_composite,
+            vert_dim=vert_dim,
+            bounds=self.gram_bounds,
+            time_range_opts=time_range_opts,
+        )
 
     def track(
         self,
