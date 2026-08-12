@@ -1,26 +1,24 @@
-from typing import Dict, List, Optional, Union
-
 import holoviews
 import numpy
+import panel
 import param
 import xarray
-import panel
 
-from echoshader.utils import gram_opts
 from echoshader.box import get_box_stream
+from echoshader.utils import gram_opts
 
 
 def echogram(
-    channel: List[str],
+    channel: list[str],
     MVBS_ds: xarray.Dataset = None,
-    cmap: Union[str, List[str]] = None,
+    cmap: str | list[str] = None,
     sv_range_slider: panel.widgets.EditableRangeSlider = None,
     colormap: panel.widgets.LiteralInput = None,
     update_gram_flag: param.Event = None,
     rgb_composite: bool = False,
-    vert_dim: Optional[str] = "echo_range",
+    vert_dim: str | None = "echo_range",
     bounds: holoviews.DynamicMap = None,
-    time_range_opts: List[holoviews.opts] = [],
+    time_range_opts: list[holoviews.opts] = [],
 ):
     """
     Display echogram plots based on specified parameters.
@@ -100,9 +98,9 @@ def _tricolor_echogram_plot(
     MVBS_ds: xarray.Dataset,
     bounds: holoviews.DynamicMap,
     sv_range_slider: panel.widgets.EditableRangeSlider,
-    channel: List[str],
-    vert_dim: Optional[str] = "echo_range",
-    time_range_opts: List[holoviews.opts] = [],
+    channel: list[str],
+    vert_dim: str | None = "echo_range",
+    time_range_opts: list[holoviews.opts] = [],
 ):
     """
     Generate a tricolor echogram plot based on current parameters.
@@ -145,11 +143,11 @@ def _tricolor_echogram_plot(
 def _echogram_plot(
     MVBS_ds: xarray.Dataset,
     bounds: holoviews.DynamicMap,
-    channel: List[str],
-    cmap: Union[str, List[str]],
+    channel: list[str],
+    cmap: str | list[str],
     sv_range_slider: panel.widgets.EditableRangeSlider,
-    vert_dim: Optional[str] = "echo_range",
-    time_range_opts: List[holoviews.opts] = [],
+    vert_dim: str | None = "echo_range",
+    time_range_opts: list[holoviews.opts] = [],
 ):
     """
     Generate an echogram plot based on current parameters.
@@ -195,9 +193,9 @@ def _echogram_plot(
 def single_echogram(
     MVBS_ds: xarray,
     channel: str,
-    cmap: Union[str, List[str]],
+    cmap: str | list[str],
     value_range: tuple[float, float],
-    vert_dim: Optional[str] = "echo_range",
+    vert_dim: str | None = "echo_range",
 ):
     """
     Generate an echogram for a single frequency channel.
@@ -315,8 +313,8 @@ def tricolor_echogram(
     MVBS_ds: xarray,
     vmin: float,
     vmax: float,
-    rgb_map: Dict[str, str] = {},
-    vert_dim: Optional[str] = "echo_range",
+    rgb_map: dict[str, str] = {},
+    vert_dim: str | None = "echo_range",
 ):
     """
     Create a tricolor echogram for multiple frequency channels.

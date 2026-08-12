@@ -1,17 +1,16 @@
 import logging
 import warnings
-from typing import List, Optional, Union
 
-import numpy
 import holoviews
+import numpy
 import panel
 import param
 import xarray
 from bokeh.util.warnings import BokehUserWarning
 
-from .elements.echogram import echogram
 from .box import get_box_plot, get_box_stream
 from .curtain import curtain_plot_plotly, curtain_plot_pyvista
+from .elements.echogram import echogram
 from .hist import hist_plot, table_plot
 from .map import convert_EPSG, get_track_corners, tile_plot, track_plot
 from .utils import curtain_opts, tiles
@@ -176,12 +175,12 @@ class Echoshader(param.Parameterized):
 
     def echogram(
         self,
-        channel: List[str] = None,
-        cmap: Union[str, List[str]] = None,
+        channel: list[str] = None,
+        cmap: str | list[str] = None,
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        vert_dim: Optional[str] = "echo_range",
+        vert_dim: str | None = "echo_range",
         opts=[],
     ):
         """

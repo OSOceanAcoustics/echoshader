@@ -1,5 +1,3 @@
-from typing import Union
-
 import geoviews
 import numpy
 import pandas
@@ -50,7 +48,7 @@ def get_track_corners(MVBS_ds: xarray.Dataset):
     return left, bottom, right, top
 
 
-def convert_EPSG(lat: Union[int, float], lon: Union[int, float], mercator_to_coord: bool = True):
+def convert_EPSG(lat: float, lon: float, mercator_to_coord: bool = True):
     """
     Converts coordinates between EPSG coordinate reference systems (CRS).
 
