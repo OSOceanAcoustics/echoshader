@@ -1,6 +1,5 @@
 import logging
 import warnings
-from typing import List, Optional, Union
 
 import holoviews
 import numpy
@@ -176,12 +175,12 @@ class Echoshader(param.Parameterized):
 
     def echogram(
         self,
-        channel: List[str] = None,
-        cmap: Union[str, List[str]] = None,
+        channel: list[str] = None,
+        cmap: str | list[str] = None,
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        vert_dim: Optional[str] = "echo_range",
+        vert_dim: str | None = "echo_range",
         opts=[],
     ):
         """

@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional, Union
-
 import holoviews
 import numpy
 import xarray
@@ -10,9 +8,9 @@ from .utils import gram_opts
 def single_echogram(
     MVBS_ds: xarray,
     channel: str,
-    cmap: Union[str, List[str]],
+    cmap: str | list[str],
     value_range: tuple[float, float],
-    vert_dim: Optional[str] = "echo_range",
+    vert_dim: str | None = "echo_range",
 ):
     """
     Generate an echogram for a single frequency channel.
@@ -129,8 +127,8 @@ def tricolor_echogram(
     MVBS_ds: xarray,
     vmin: float,
     vmax: float,
-    rgb_map: Dict[str, str] = {},
-    vert_dim: Optional[str] = "echo_range",
+    rgb_map: dict[str, str] = {},
+    vert_dim: str | None = "echo_range",
 ):
     """
     Create a tricolor echogram for multiple frequency channels.
