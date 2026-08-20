@@ -1,5 +1,3 @@
-from typing import List, Union
-
 import numpy
 import plotly.graph_objects as go
 import pyvista
@@ -8,7 +6,7 @@ import xarray
 
 def curtain_plot_plotly(
     MVBS_ds: xarray.Dataset,
-    cmap: Union[str, List[str]] = "jet",
+    cmap: str | list[str] = "jet",
     clim: tuple = None,
     ratio: float = 0.001,
     width: int = 800,
@@ -102,7 +100,7 @@ def curtain_plot_plotly(
 
 def curtain_plot_pyvista(
     MVBS_ds: xarray.Dataset,
-    cmap: Union[str, List[str]] = "jet",
+    cmap: str | list[str] = "jet",
     clim: tuple = None,
     ratio: float = 0.001,
 ):

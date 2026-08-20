@@ -1,6 +1,5 @@
 import logging
 import warnings
-from typing import List, Optional, Union
 
 import holoviews
 import numpy
@@ -11,7 +10,7 @@ from bokeh.util.warnings import BokehUserWarning
 
 from .box import get_box_plot, get_box_stream
 from .curtain import curtain_plot_plotly, curtain_plot_pyvista
-from .echogram import single_echogram, tricolor_echogram
+from .elements.echogram import echogram
 from .hist import hist_plot, table_plot
 from .map import convert_EPSG, get_track_corners, tile_plot, track_plot
 from .utils import curtain_opts, tiles
@@ -176,12 +175,12 @@ class Echoshader(param.Parameterized):
 
     def echogram(
         self,
-        channel: List[str] = None,
-        cmap: Union[str, List[str]] = None,
+        channel: list[str] = None,
+        cmap: str | list[str] = None,
         vmin: float = None,
         vmax: float = None,
         rgb_composite: bool = False,
-        vert_dim: Optional[str] = "echo_range",
+        vert_dim: str | None = "echo_range",
         opts=[],
     ):
         """
@@ -227,9 +226,6 @@ class Echoshader(param.Parameterized):
         panel.Row(echogram)
         """
 
-        if cmap is not None:
-            self.colormap.value = cmap
-
         data_vmin = self.Sv_range_slider.value[0]
         data_vmax = self.Sv_range_slider.value[1]
 
@@ -238,211 +234,35 @@ class Echoshader(param.Parameterized):
             vmax if vmax is not None else data_vmax,
         )
 
-        self.gram_opts = opts
-
-        self.vert_dim = vert_dim
-
-        if rgb_composite is True:
-            if channel is None or len(channel) != 3:
-                raise ValueError("Must have exactly 3 frequency channels for tricolor echogram.")
-
-            self.tri_channel = channel
-
-            return self._tricolor_echogram_plot
-
-        else:
-            if channel is None:
-                self.channel = self.MVBS_ds.channel.values.tolist()
-            else:
-                self.channel = channel
-
-            self.channel_select.options = self.channel
-
-            return self._echogram_plot
-
-    def _update_gram_box(self, bounds):
-        """
-        Update the gram box based on given bounds.
-
-        Parameters
-        ----------
-        bounds : tuple
-            Bounds of the gram box in the format (left, bottom, right, top).
-        """
-        self.gram_box_stream.update(bounds=bounds)
-
-        self.MVBS_ds_in_gram_box = self._extract_data_from_gram_box(bounds)
-
+        time_range_opts = []
         if self.control_mode_select.value is True:
-            self.update_track_flag.event()
-
-    def _update_gram_reset(self, resetting):
-        """
-        Event handler for resetting the gram box.
-
-        Parameters
-        ----------
-        resetting : bool
-            The value indicating a reset event.
-        """
-        self.update_gram_flag.event()
-
-    def _extract_data_from_gram_box(self, bounds):
-        """
-        Extract data from the gram box based on given bounds.
-
-        Parameters
-        ----------
-        bounds : tuple
-            Bounds of the gram box in the format (left, bottom, right, top).
-
-        Returns
-        -------
-        xarray.Dataset
-            Extracted dataset within the specified bounds.
-        """
-        if bounds is None:
-            MVBS_ds_in_gram_box = self.MVBS_ds
-
-        else:
-            MVBS_ds_in_gram_box = self.MVBS_ds.sel(
-                {
-                    "ping_time": slice(bounds[0], bounds[2]),
-                    self.vert_dim: (
-                        slice(bounds[1], bounds[3])
-                        if bounds[3] > bounds[1]
-                        else slice(bounds[3], bounds[1])
-                    ),
-                },
-            )
-
-        return MVBS_ds_in_gram_box
-
-    @param.depends(
-        "Sv_range_slider.value",
-        "update_gram_flag.counter",
-    )
-    def _tricolor_echogram_plot(self):
-        """
-        Generate a tricolor echogram plot based on current parameters.
-
-        Returns
-        -------
-        holoviews.Overlay
-            Tricolor echogram plot.
-        """
-
-        if self.control_mode_select.value is True:
-            MVBS_ds = self.MVBS_ds
+            MVBS_ds = self.MVBS_ds_in_gram_box
         else:
             MVBS_ds = self.MVBS_ds_in_track_box
 
-        rgb_map = {}
-        rgb_map[self.tri_channel[0]] = "R"
-        rgb_map[self.tri_channel[1]] = "G"
-        rgb_map[self.tri_channel[2]] = "B"
-
-        echogram = tricolor_echogram(
-            MVBS_ds,
-            self.Sv_range_slider.value[0],
-            self.Sv_range_slider.value[1],
-            rgb_map,
-            self.vert_dim,
-        )
-
-        if self.control_mode_select.value is False:
             MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
 
             one_hour = numpy.timedelta64(1, "h")
 
-            echogram.opts(
+            time_range_opts.append(
                 xlim=(
                     MVBS_ds_with_time_range.ping_time.values[0] - one_hour,
                     MVBS_ds_with_time_range.ping_time.values[-1] + one_hour,
                 )
             )
 
-        # get box stream from echogram
-        box_stream = get_box_stream(echogram)
-
-        # add subscriber to update unified box select
-        box_stream.add_subscriber(self._update_gram_box)
-
-        # set inital value of box stream
-        self._update_gram_box(tuple(echogram.lbrt))
-
-        reset_stream = holoviews.streams.PlotReset(source=echogram)
-
-        reset_stream.add_subscriber(self._update_gram_reset)
-
-        bounds = self.gram_bounds
-
-        return (echogram * bounds).opts(self.gram_opts)
-
-    @param.depends(
-        "Sv_range_slider.value",
-        "colormap.value",
-        "update_gram_flag.counter",
-    )
-    def _echogram_plot(self):
-        """
-        Generate an echogram plot based on current parameters.
-
-        Returns
-        -------
-        holoviews.Layout
-            Layout of echogram plots.
-        """
-
-        if self.control_mode_select.value is True:
-            MVBS_ds = self.MVBS_ds
-        else:
-            MVBS_ds = self.MVBS_ds_in_track_box
-
-        echograms_list = []
-
-        for channel in self.channel:
-            echogram = single_echogram(
-                MVBS_ds,
-                channel,
-                self.colormap.value,
-                self.Sv_range_slider.value,
-                self.vert_dim,
-            )
-
-            if self.control_mode_select.value is False:
-                MVBS_ds_with_time_range = MVBS_ds.dropna(dim="ping_time", how="all")
-
-                one_hour = numpy.timedelta64(1, "h")
-
-                echogram.opts(
-                    xlim=(
-                        MVBS_ds_with_time_range.ping_time.values[0] - one_hour,
-                        MVBS_ds_with_time_range.ping_time.values[-1] + one_hour,
-                    )
-                )
-
-            # get box stream from echogram
-            box_stream = get_box_stream(echogram)
-
-            # add subscriber to update unified box select
-            box_stream.add_subscriber(self._update_gram_box)
-
-            echograms_list.append(echogram)
-
-        # set inital value of box stream
-        self._update_gram_box(tuple(echograms_list[0].lbrt))
-
-        reset_stream = holoviews.streams.PlotReset(source=echograms_list[0])
-
-        reset_stream.add_subscriber(self._update_gram_reset)
-
-        # get echograms stack
-        echograms = holoviews.Layout(echograms_list).cols(1)
-
-        bounds = self.gram_bounds
-
-        return (echograms * bounds).opts(self.gram_opts)
+        return echogram(
+            channel=channel,
+            MVBS_ds=MVBS_ds,
+            cmap=cmap,
+            sv_range_slider=self.Sv_range_slider,
+            colormap=self.colormap,
+            update_gram_flag=self.update_gram_flag,
+            rgb_composite=rgb_composite,
+            vert_dim=vert_dim,
+            bounds=self.gram_bounds,
+            time_range_opts=time_range_opts,
+        )
 
     def track(
         self,
