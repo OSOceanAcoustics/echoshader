@@ -21,9 +21,7 @@ def _build_sources(
     )
 
     data_sources = {}
-    pending = dict(
-        source_configs
-    )
+    pending = dict(source_configs)
 
     # --------------------------------------------------------------
     # Initial source construction
@@ -36,23 +34,14 @@ def _build_sources(
     while pending:
         progress = False
 
-        for name in list(
-            pending
-        ):
-            source_config = pending[
-                name
-            ]
+        for name in list(pending):
+            source_config = pending[name]
 
-            dependency = (
-                source_config.get(
-                    "depends_on",
-                )
+            dependency = source_config.get(
+                "depends_on",
             )
 
-            if (
-                dependency is not None
-                and dependency not in data_sources
-            ):
+            if dependency is not None and dependency not in data_sources:
                 continue
 
             source = build_source(
@@ -63,21 +52,14 @@ def _build_sources(
             # Initial load.
             source.reload()
 
-            data_sources[
-                name
-            ] = source
+            data_sources[name] = source
 
-            del pending[
-                name
-            ]
+            del pending[name]
 
             progress = True
 
         if not progress:
-            raise ValueError(
-                "Could not resolve data-source dependencies: "
-                f"{list(pending)}"
-            )
+            raise ValueError(f"Could not resolve data-source dependencies: {list(pending)}")
 
     # --------------------------------------------------------------
     # Dependency updates
@@ -89,27 +71,19 @@ def _build_sources(
         name,
         source_config,
     ) in source_configs.items():
-
-        dependency = (
-            source_config.get(
-                "depends_on",
-            )
+        dependency = source_config.get(
+            "depends_on",
         )
 
         if dependency is None:
             continue
 
-        parent = data_sources[
-            dependency
-        ]
+        parent = data_sources[dependency]
 
-        child = data_sources[
-            name
-        ]
+        child = data_sources[name]
 
         parent.param.watch(
-            lambda event, child=child:
-                child.reload(),
+            lambda event, child=child: child.reload(),
             "data",
         )
 
@@ -139,10 +113,7 @@ def _build_controls(
         "controls",
         {},
     ).items():
-
-        controls[
-            name
-        ] = build_control(
+        controls[name] = build_control(
             control_config,
         )
 
@@ -184,23 +155,12 @@ def _build_element(
 ):
     """Build one visualization element."""
 
-    element_type = (
-        element_config[
-            "type"
-        ]
-    )
+    element_type = element_config["type"]
 
     if element_type not in ELEMENTS:
-        raise ValueError(
-            f"Unknown element type: "
-            f"{element_type!r}."
-        )
+        raise ValueError(f"Unknown element type: {element_type!r}.")
 
-    element_func = (
-        ELEMENTS[
-            element_type
-        ]
-    )
+    element_func = ELEMENTS[element_type]
 
     args = dict(
         element_config.get(
@@ -255,18 +215,10 @@ def _get_option_bindings(
         "bindings",
         [],
     ):
-
-        source_name = (
-            binding[
-                "source"
-            ]
-        )
+        source_name = binding["source"]
 
         if source_name not in controls:
-            raise ValueError(
-                f"Unknown control: "
-                f"{source_name!r}."
-            )
+            raise ValueError(f"Unknown control: {source_name!r}.")
 
         targets = binding.get(
             "target",
@@ -282,17 +234,11 @@ def _get_option_bindings(
             ]
 
         for target in targets:
-
-            parts = target.split(
-                "."
-            )
+            parts = target.split(".")
 
             if len(parts) != 3:
                 raise ValueError(
-                    f"Invalid binding target: "
-                    f"{target!r}. "
-                    "Expected "
-                    "'element.opts.option'."
+                    f"Invalid binding target: {target!r}. Expected 'element.opts.option'."
                 )
 
             (
@@ -301,26 +247,13 @@ def _get_option_bindings(
                 option_name,
             ) = parts
 
-            if (
-                target_element
-                != element_name
-            ):
+            if target_element != element_name:
                 continue
 
             if target_kind != "opts":
-                raise ValueError(
-                    "Only '.opts.<option>' "
-                    "bindings are currently "
-                    "supported."
-                )
+                raise ValueError("Only '.opts.<option>' bindings are currently supported.")
 
-            option_bindings[
-                option_name
-            ] = (
-                controls[
-                    source_name
-                ].param.value
-            )
+            option_bindings[option_name] = controls[source_name].param.value
 
     return option_bindings
 
@@ -338,21 +271,18 @@ def _build_reactive_element(
         data_source,
     )
 
-    option_bindings = (
-        _get_option_bindings(
-            config=config,
-            element_name=name,
-            controls=controls,
-        )
+    option_bindings = _get_option_bindings(
+        config=config,
+        element_name=name,
+        controls=controls,
     )
 
     return pn.bind(
-        lambda data, cfg=element_config, **runtime_options:
-            _build_element(
-                cfg,
-                data,
-                runtime_options=runtime_options,
-            ),
+        lambda data, cfg=element_config, **runtime_options: _build_element(
+            cfg,
+            data,
+            runtime_options=runtime_options,
+        ),
         data=data,
         **option_bindings,
     )
@@ -373,14 +303,9 @@ def _resolve_layout_child(
         str,
     ):
         if child not in objects:
-            raise ValueError(
-                f"Unknown layout object: "
-                f"{child!r}."
-            )
+            raise ValueError(f"Unknown layout object: {child!r}.")
 
-        return objects[
-            child
-        ]
+        return objects[child]
 
     # --------------------------------------------------------------
     # Nested layout
@@ -396,9 +321,7 @@ def _resolve_layout_child(
         )
 
     raise TypeError(
-        "Layout children must be "
-        "object names or nested layout "
-        "configuration dictionaries."
+        "Layout children must be object names or nested layout configuration dictionaries."
     )
 
 
@@ -408,25 +331,19 @@ def _build_layout(
 ):
     """Build a recursive Panel layout from configuration."""
 
-    layout_type = (
-        layout_config.get(
-            "type",
-            "column",
-        )
+    layout_type = layout_config.get(
+        "type",
+        "column",
     )
 
-    children_config = (
-        layout_config.get(
-            "children",
-            [],
-        )
+    children_config = layout_config.get(
+        "children",
+        [],
     )
 
-    sizing_mode = (
-        layout_config.get(
-            "sizing_mode",
-            None,
-        )
+    sizing_mode = layout_config.get(
+        "sizing_mode",
+        None,
     )
 
     # --------------------------------------------------------------
@@ -434,14 +351,12 @@ def _build_layout(
     # --------------------------------------------------------------
 
     if layout_type == "column":
-
         children = [
             _resolve_layout_child(
                 child,
                 objects,
             )
-            for child
-            in children_config
+            for child in children_config
         ]
 
         return pn.Column(
@@ -454,14 +369,12 @@ def _build_layout(
     # --------------------------------------------------------------
 
     if layout_type == "row":
-
         children = [
             _resolve_layout_child(
                 child,
                 objects,
             )
-            for child
-            in children_config
+            for child in children_config
         ]
 
         return pn.Row(
@@ -474,29 +387,21 @@ def _build_layout(
     # --------------------------------------------------------------
 
     if layout_type == "tabs":
-
         tabs = []
 
         for child in children_config:
-
             if not isinstance(
                 child,
                 dict,
             ):
-                raise TypeError(
-                    "Tab children must be "
-                    "layout configuration "
-                    "dictionaries."
-                )
+                raise TypeError("Tab children must be layout configuration dictionaries.")
 
             title = child.get(
                 "title",
                 "Untitled",
             )
 
-            tab_config = dict(
-                child
-            )
+            tab_config = dict(child)
 
             tab_config.pop(
                 "title",
@@ -508,11 +413,9 @@ def _build_layout(
                 "column",
             )
 
-            tab_content = (
-                _build_layout(
-                    tab_config,
-                    objects,
-                )
+            tab_content = _build_layout(
+                tab_config,
+                objects,
             )
 
             tabs.append(
@@ -531,10 +434,7 @@ def _build_layout(
             sizing_mode=sizing_mode,
         )
 
-    raise ValueError(
-        f"Unknown layout type: "
-        f"{layout_type!r}."
-    )
+    raise ValueError(f"Unknown layout type: {layout_type!r}.")
 
 
 def build_app(
@@ -595,11 +495,9 @@ def build_app(
     # Data sources
     # --------------------------------------------------------------
 
-    data_sources = (
-        _build_sources(
-            config=config,
-            context=app_context,
-        )
+    data_sources = _build_sources(
+        config=config,
+        context=app_context,
     )
 
     # Directly supplied datasets are still supported.
@@ -612,21 +510,17 @@ def build_app(
     # Controls
     # --------------------------------------------------------------
 
-    controls = (
-        _build_controls(
-            config,
-        )
+    controls = _build_controls(
+        config,
     )
 
     # --------------------------------------------------------------
     # Element definitions
     # --------------------------------------------------------------
 
-    element_configs = (
-        config.get(
-            "elements",
-            {},
-        )
+    element_configs = config.get(
+        "elements",
+        {},
     )
 
     # --------------------------------------------------------------
@@ -639,28 +533,16 @@ def build_app(
         name,
         element_config,
     ) in element_configs.items():
+        data_name = element_config["data"]
 
-        data_name = (
-            element_config[
-                "data"
-            ]
-        )
-
-        if (
-            data_name
-            not in data_sources
-        ):
+        if data_name not in data_sources:
             continue
 
-        objects[
-            name
-        ] = _build_reactive_element(
+        objects[name] = _build_reactive_element(
             config=config,
             name=name,
             element_config=element_config,
-            data_source=data_sources[
-                data_name
-            ],
+            data_source=data_sources[data_name],
             controls=controls,
         )
 
@@ -672,106 +554,49 @@ def build_app(
         "interactions",
         [],
     ):
+        interaction_type = interaction["type"]
 
-        interaction_type = (
-            interaction[
-                "type"
-            ]
-        )
+        source_name = interaction["source"]
 
-        source_name = (
-            interaction[
-                "source"
-            ]
-        )
+        output_name = interaction["output"]
 
-        output_name = (
-            interaction[
-                "output"
-            ]
-        )
-
-        if (
-            interaction_type
-            != "box_select"
-        ):
-            raise ValueError(
-                f"Unknown interaction "
-                f"type: "
-                f"{interaction_type!r}."
-            )
+        if interaction_type != "box_select":
+            raise ValueError(f"Unknown interaction type: {interaction_type!r}.")
 
         if source_name not in objects:
-            raise ValueError(
-                f"Interaction source "
-                f"{source_name!r} "
-                "does not exist."
-            )
+            raise ValueError(f"Interaction source {source_name!r} does not exist.")
 
-        source = (
-            objects[
-                source_name
-            ]
+        source = objects[source_name]
+
+        box_stream = get_box_stream(
+            source,
         )
 
-        box_stream = (
-            get_box_stream(
-                source,
-            )
+        box_overlay = get_box_plot(
+            box_stream,
         )
 
-        box_overlay = (
-            get_box_plot(
-                box_stream,
-            )
+        objects[source_name] = source * box_overlay
+
+        source_data_name = element_configs[source_name]["data"]
+
+        source_data = _get_data(data_sources[source_data_name])
+
+        selection_args = interaction.get(
+            "args",
+            {},
         )
 
-        objects[
-            source_name
-        ] = (
-            source
-            * box_overlay
-        )
-
-        source_data_name = (
-            element_configs[
-                source_name
-            ]["data"]
-        )
-
-        source_data = (
-            _get_data(
-                data_sources[
-                    source_data_name
-                ]
-            )
-        )
-
-        selection_args = (
-            interaction.get(
-                "args",
-                {},
-            )
-        )
-
-        selected_data = (
-            pn.bind(
-                select_box,
-                ds=source_data,
-                bounds=(
-                    box_stream
-                    .param
-                    .bounds
-                ),
-                **selection_args,
-            )
+        selected_data = pn.bind(
+            select_box,
+            ds=source_data,
+            bounds=(box_stream.param.bounds),
+            **selection_args,
         )
 
         # Interaction creates a new
         # reactive data source.
-        data_sources[
-            output_name
-        ] = selected_data
+        data_sources[output_name] = selected_data
 
     # --------------------------------------------------------------
     # Second pass
@@ -783,34 +608,17 @@ def build_app(
         name,
         element_config,
     ) in element_configs.items():
-
         if name in objects:
             continue
 
-        data_name = (
-            element_config[
-                "data"
-            ]
-        )
+        data_name = element_config["data"]
 
-        if (
-            data_name
-            not in data_sources
-        ):
-            raise ValueError(
-                f"Unknown data source: "
-                f"{data_name!r}."
-            )
+        if data_name not in data_sources:
+            raise ValueError(f"Unknown data source: {data_name!r}.")
 
-        data_source = (
-            data_sources[
-                data_name
-            ]
-        )
+        data_source = data_sources[data_name]
 
-        objects[
-            name
-        ] = _build_reactive_element(
+        objects[name] = _build_reactive_element(
             config=config,
             name=name,
             element_config=element_config,
@@ -831,16 +639,14 @@ def build_app(
     # Layout
     # --------------------------------------------------------------
 
-    layout_config = (
-        config.get(
-            "layout",
-            {
-                "type": "column",
-                "children": list(
-                    layout_objects,
-                ),
-            },
-        )
+    layout_config = config.get(
+        "layout",
+        {
+            "type": "column",
+            "children": list(
+                layout_objects,
+            ),
+        },
     )
 
     return _build_layout(

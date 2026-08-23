@@ -146,9 +146,7 @@ def tricolor_echogram(
     ordinary display limits.
     """
     if len(channel) != 3:
-        raise ValueError(
-            "Exactly 3 channels are required for a tricolor echogram."
-        )
+        raise ValueError("Exactly 3 channels are required for a tricolor echogram.")
 
     rgb = [
         _convert_to_color(
@@ -187,9 +185,7 @@ def _convert_to_color(
 ):
     """Normalize one channel of a variable to [0, 1] for RGB display."""
     if vmax <= vmin:
-        raise ValueError(
-            "vmax must be greater than vmin."
-        )
+        raise ValueError("vmax must be greater than vmin.")
 
     data = ds[var_name].sel(
         channel=channel,
@@ -200,11 +196,7 @@ def _convert_to_color(
         max=vmax,
     )
 
-    normalized = (
-        data - vmin
-    ) / (
-        vmax - vmin
-    )
+    normalized = (data - vmin) / (vmax - vmin)
 
     return numpy.asarray(
         normalized.transpose(

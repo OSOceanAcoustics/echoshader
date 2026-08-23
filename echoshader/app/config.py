@@ -12,8 +12,6 @@ def load_config(path: str | Path) -> dict:
         config = yaml.safe_load(stream)
 
     if not isinstance(config, dict):
-        raise ValueError(
-            "Application configuration must be a YAML mapping."
-        )
+        raise ValueError("Application configuration must be a YAML mapping.")
 
     return config

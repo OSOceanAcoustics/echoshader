@@ -24,12 +24,7 @@ def table(
     skew_sum = obj_df_sum["Sv"].skew()
     kurt_sum = obj_df_sum["Sv"].kurt()
 
-    obj_desc = (
-        obj_df_sum
-        .describe()
-        .reset_index()[["index", "Sv"]]
-        .rename(columns={"Sv": "Sum"})
-    )
+    obj_desc = obj_df_sum.describe().reset_index()[["index", "Sv"]].rename(columns={"Sv": "Sum"})
 
     obj_desc.loc[len(obj_desc)] = [
         "skew",
@@ -42,21 +37,13 @@ def table(
     ]
 
     for channel in MVBS_ds.channel.values:
-        obj_df_channel = (
-            MVBS_ds
-            .sel(channel=channel)
-            .Sv
-            .to_dataframe()
-        )
+        obj_df_channel = MVBS_ds.sel(channel=channel).Sv.to_dataframe()
 
         skew_channel = obj_df_channel["Sv"].skew()
         kurt_channel = obj_df_channel["Sv"].kurt()
 
         obj_df_channel = (
-            obj_df_channel
-            .describe()
-            .reset_index()[["index", "Sv"]]
-            .rename(columns={"Sv": channel})
+            obj_df_channel.describe().reset_index()[["index", "Sv"]].rename(columns={"Sv": channel})
         )
 
         obj_df_channel.loc[len(obj_df_channel)] = [

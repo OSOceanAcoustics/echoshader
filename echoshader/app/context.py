@@ -20,6 +20,4 @@ class AppContext(param.Parameterized):
         if not isinstance(value, str):
             return value
 
-        return Template(value).safe_substitute(
-            self.values
-        )
+        return Template(value).safe_substitute(self.values)
