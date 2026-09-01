@@ -67,9 +67,7 @@ from pathlib import Path
 from echoshader import echogram
 
 MVBS_ds = xr.open_mfdataset(
-    str('test_admin.nc'),
-    data_vars='minimal', coords='minimal',
-    combine='by_coords'
+    str("test_admin.nc"), data_vars="minimal", coords="minimal", combine="by_coords"
 )
 
 pn = echogram.panel
