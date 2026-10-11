@@ -1,6 +1,7 @@
 # Welcome to echoshader
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/echostack-org/echoshader/HEAD)
+[![SPEC 0](https://img.shields.io/badge/SPEC-0-green?labelColor=%23004811&color=%235CA038)](https://scientific-python.org/specs/spec-0000/)
 
 Open Source Python package for building ocean sonar data visualizations based on the HoloViz suite of Python tools.
 
