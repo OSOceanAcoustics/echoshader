@@ -16,9 +16,7 @@ def build_control(
     control_type = control_config["type"]
 
     if control_type not in CONTROLS:
-        raise ValueError(
-            f"Unknown control type: {control_type!r}."
-        )
+        raise ValueError(f"Unknown control type: {control_type!r}.")
 
     control_class = CONTROLS[control_type]
 

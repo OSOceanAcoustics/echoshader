@@ -21,9 +21,7 @@ class Echoshader:
     def _check_input(self):
         """Validate the minimum dataset structure required by Echoshader."""
         if "Sv" not in self._obj.variables:
-            raise ValueError(
-                "Dataset must contain a variable named 'Sv'."
-            )
+            raise ValueError("Dataset must contain a variable named 'Sv'.")
 
         expected_dims = (
             "channel",
@@ -33,13 +31,9 @@ class Echoshader:
         actual_dims = self._obj["Sv"].dims
 
         if len(actual_dims) != 3:
-            raise ValueError(
-                "'Sv' must have exactly 3 dimensions."
-            )
+            raise ValueError("'Sv' must have exactly 3 dimensions.")
 
-        for i, (actual, expected) in enumerate(
-            zip(actual_dims, expected_dims)
-        ):
+        for i, (actual, expected) in enumerate(zip(actual_dims, expected_dims)):
             if isinstance(expected, tuple):
                 if actual not in expected:
                     raise ValueError(
@@ -49,9 +43,7 @@ class Echoshader:
                     )
             elif actual != expected:
                 raise ValueError(
-                    f"'Sv' dimension at index {i} "
-                    f"must be '{expected}', "
-                    f"but got '{actual}'."
+                    f"'Sv' dimension at index {i} must be '{expected}', but got '{actual}'."
                 )
 
     def echogram(

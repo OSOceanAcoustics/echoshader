@@ -31,6 +31,7 @@ def test_hist():
         holoviews.core.overlay.NdOverlay,
     )
 
+
 def test_hist_separate():
     ds = xarray.Dataset(
         {

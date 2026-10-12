@@ -40,6 +40,7 @@ def test_curtain_plotly():
         plotly.graph_objects.Figure,
     )
 
+
 def test_curtain_pyvista():
     ds = xarray.Dataset(
         {

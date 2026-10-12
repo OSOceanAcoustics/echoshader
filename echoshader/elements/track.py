@@ -29,14 +29,9 @@ def track(
     data = _to_dataframe(MVBS_ds)
 
     if data.empty:
-        raise ValueError(
-            "No valid longitude/latitude positions are available."
-        )
+        raise ValueError("No valid longitude/latitude positions are available.")
 
-    if (
-        data["Longitude"].nunique() == 1
-        and data["Latitude"].nunique() == 1
-    ):
+    if data["Longitude"].nunique() == 1 and data["Latitude"].nunique() == 1:
         plot = _point(data)
     else:
         plot = _path(data)
@@ -51,16 +46,13 @@ def _to_dataframe(
     MVBS_ds: xarray.Dataset,
 ):
     """Convert track coordinates to a DataFrame."""
-    return (
-        pandas.DataFrame(
-            {
-                "Longitude": MVBS_ds.longitude.values,
-                "Latitude": MVBS_ds.latitude.values,
-                "Ping Time": MVBS_ds.ping_time.values,
-            }
-        )
-        .dropna()
-    )
+    return pandas.DataFrame(
+        {
+            "Longitude": MVBS_ds.longitude.values,
+            "Latitude": MVBS_ds.latitude.values,
+            "Ping Time": MVBS_ds.ping_time.values,
+        }
+    ).dropna()
 
 
 def _path(data: pandas.DataFrame):
@@ -130,9 +122,7 @@ def _tile(
             map_tiles,
         )
     except AttributeError as exc:
-        raise ValueError(
-            f"Unknown map tile source: {map_tiles!r}."
-        ) from exc
+        raise ValueError(f"Unknown map tile source: {map_tiles!r}.") from exc
 
 
 def get_track_corners(

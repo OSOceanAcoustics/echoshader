@@ -73,6 +73,7 @@ def test_irregular_ping_time(ds):
 
     assert isinstance(plot, holoviews.QuadMesh)
 
+
 def test_invalid_dataset():
     ds = xarray.Dataset(
         {

@@ -85,9 +85,7 @@ class DataSource(param.Parameterized):
         if self.path_template is None:
             return None
 
-        return self.context.resolve(
-            self.path_template
-        )
+        return self.context.resolve(self.path_template)
 
     def _export_context(self):
         """Export configured values from loaded data to app context."""
@@ -98,15 +96,12 @@ class DataSource(param.Parameterized):
         values = {}
 
         for name, export_config in self.exports.items():
-
             # ------------------------------------------------------
             # Dataset attribute
             # ------------------------------------------------------
 
             if "attr" in export_config:
-                attr_name = export_config[
-                    "attr"
-                ]
+                attr_name = export_config["attr"]
 
                 if not hasattr(
                     self.data,
@@ -126,9 +121,7 @@ class DataSource(param.Parameterized):
             # ------------------------------------------------------
 
             elif "coord" in export_config:
-                coord_name = export_config[
-                    "coord"
-                ]
+                coord_name = export_config["coord"]
 
                 if not isinstance(
                     self.data,
@@ -139,12 +132,7 @@ class DataSource(param.Parameterized):
                 if coord_name not in self.data.coords:
                     continue
 
-                value = (
-                    self.data[
-                        coord_name
-                    ]
-                    .values
-                )
+                value = self.data[coord_name].values
 
                 if value.size == 1:
                     value = value.item()
@@ -183,18 +171,11 @@ class DataSource(param.Parameterized):
             return
 
         if self.refresh_interval <= 0:
-            raise ValueError(
-                "Source refresh interval must be greater than zero."
-            )
+            raise ValueError("Source refresh interval must be greater than zero.")
 
-        self._callback = (
-            pn.state.add_periodic_callback(
-                self.reload,
-                period=int(
-                    self.refresh_interval
-                    * 1000
-                ),
-            )
+        self._callback = pn.state.add_periodic_callback(
+            self.reload,
+            period=int(self.refresh_interval * 1000),
         )
 
 
@@ -204,19 +185,13 @@ def build_source(
 ):
     """Build one configured data source."""
 
-    source_type = source_config[
-        "type"
-    ]
+    source_type = source_config["type"]
 
     if source_type not in SOURCES:
-        raise ValueError(
-            f"Unknown data source type: {source_type!r}."
-        )
+        raise ValueError(f"Unknown data source type: {source_type!r}.")
 
     return DataSource(
-        loader=SOURCES[
-            source_type
-        ],
+        loader=SOURCES[source_type],
         context=context,
         path=source_config.get(
             "path",

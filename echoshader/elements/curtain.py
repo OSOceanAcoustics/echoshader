@@ -53,10 +53,7 @@ def curtain(
             ratio=ratio,
         )
 
-    raise ValueError(
-        f"Unsupported backend: {engine!r}. "
-        "Expected 'plotly' or 'pyvista'."
-    )
+    raise ValueError(f"Unsupported backend: {engine!r}. Expected 'plotly' or 'pyvista'.")
 
 
 def _curtain_plotly(
@@ -86,10 +83,7 @@ def _curtain_plotly(
     )
 
     if isinstance(cmap, list):
-        colorscale = [
-            [i / (len(cmap) - 1), color]
-            for i, color in enumerate(cmap)
-        ]
+        colorscale = [[i / (len(cmap) - 1), color] for i, color in enumerate(cmap)]
     else:
         colorscale = cmap
 
@@ -184,9 +178,7 @@ def _curtain_pyvista(
     ).T
 
     if len(path) not in data.shape:
-        raise ValueError(
-            "Coordinates must be present for every trace."
-        )
+        raise ValueError("Coordinates must be present for every trace.")
 
     nsamples, ntraces = data.shape
 
@@ -202,10 +194,7 @@ def _curtain_pyvista(
         ratio,
     )
 
-    z_positions = (
-        path[:, 2][:, None]
-        - z_positions
-    )
+    z_positions = path[:, 2][:, None] - z_positions
 
     points[:, -1] = z_positions.ravel()
 
@@ -218,9 +207,7 @@ def _curtain_pyvista(
         1,
     )
 
-    grid["values"] = data.ravel(
-        order="F"
-    )
+    grid["values"] = data.ravel(order="F")
 
     plotter = pyvista.Plotter()
 

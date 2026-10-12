@@ -1,3 +1,6 @@
+import holoviews
+
+
 def curve(
     data,
     x: str,

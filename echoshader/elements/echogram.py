@@ -89,10 +89,7 @@ def single_echogram(
     if "channel" in vertical.dims:
         vertical = vertical.sel(channel=channel)
 
-    sample_dim = next(
-        dim for dim in data.dims
-        if dim != x_dim
-    )
+    sample_dim = next(dim for dim in data.dims if dim != x_dim)
 
     if vertical.ndim == 1:
         valid = numpy.isfinite(vertical.values)
@@ -119,11 +116,7 @@ def single_echogram(
                 vdims=[var_name],
             )
 
-        return (
-            plot
-            .relabel(str(channel))
-            .opts(invert_yaxis=True)
-        )
+        return plot.relabel(str(channel)).opts(invert_yaxis=True)
 
     vertical = vertical.transpose(
         sample_dim,
@@ -134,9 +127,7 @@ def single_echogram(
         x_dim,
     )
 
-    reference = vertical.isel(
-        {x_dim: 0}
-    ).values
+    reference = vertical.isel({x_dim: 0}).values
 
     vertical_regular = numpy.allclose(
         vertical.values,
@@ -183,11 +174,7 @@ def single_echogram(
             vdims=[var_name],
         )
 
-    return (
-        plot
-        .relabel(str(channel))
-        .opts(invert_yaxis=True)
-    )
+    return plot.relabel(str(channel)).opts(invert_yaxis=True)
 
 
 def tricolor_echogram(
@@ -230,9 +217,7 @@ def tricolor_echogram(
     ordinary display limits.
     """
     if len(channel) != 3:
-        raise ValueError(
-            "Exactly 3 channels are required for a tricolor echogram."
-        )
+        raise ValueError("Exactly 3 channels are required for a tricolor echogram.")
 
     rgb = [
         _convert_to_color(
@@ -271,9 +256,7 @@ def _convert_to_color(
 ):
     """Normalize one channel of a variable to [0, 1] for RGB display."""
     if vmax <= vmin:
-        raise ValueError(
-            "vmax must be greater than vmin."
-        )
+        raise ValueError("vmax must be greater than vmin.")
 
     data = ds[var_name].sel(
         channel=channel,
@@ -284,11 +267,7 @@ def _convert_to_color(
         max=vmax,
     )
 
-    normalized = (
-        data - vmin
-    ) / (
-        vmax - vmin
-    )
+    normalized = (data - vmin) / (vmax - vmin)
 
     return numpy.asarray(
         normalized.transpose(

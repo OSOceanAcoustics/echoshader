@@ -34,13 +34,10 @@ def hist(
             legend="top",
         )
 
-    return (
-        MVBS_ds.Sv.hvplot.hist(
-            "Sv",
-            by="channel",
-            bins=bins,
-            subplots=True,
-            legend="top",
-        )
-        .cols(1)
-    )
+    return MVBS_ds.Sv.hvplot.hist(
+        "Sv",
+        by="channel",
+        bins=bins,
+        subplots=True,
+        legend="top",
+    ).cols(1)
