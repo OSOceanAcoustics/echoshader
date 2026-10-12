@@ -28,9 +28,14 @@ class Echoshader:
         expected_dims = (
             "channel",
             "ping_time",
-            ("depth", "echo_range"),
+            ("range_sample", "depth", "echo_range"),
         )
         actual_dims = self._obj["Sv"].dims
+
+        if len(actual_dims) != 3:
+            raise ValueError(
+                "'Sv' must have exactly 3 dimensions."
+            )
 
         for i, (actual, expected) in enumerate(
             zip(actual_dims, expected_dims)

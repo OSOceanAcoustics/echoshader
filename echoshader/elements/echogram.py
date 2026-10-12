@@ -3,6 +3,25 @@ import numpy
 import xarray
 
 
+def _is_regular(values):
+    values = numpy.asarray(values)
+
+    if values.size < 3:
+        return True
+
+    if numpy.issubdtype(values.dtype, numpy.datetime64):
+        values = values.astype("datetime64[ns]").astype("int64")
+
+    diffs = numpy.diff(values)
+
+    return numpy.allclose(
+        diffs,
+        diffs[0],
+        rtol=1e-3,
+        atol=0,
+    )
+
+
 def echogram(
     ds: xarray.Dataset,
     channel: str | list[str],
@@ -24,11 +43,11 @@ def echogram(
     x_dim : str, optional
         Name of the horizontal dimension. Default is ``"ping_time"``.
     vert_dim : str, optional
-        Name of the vertical dimension. Default is ``"echo_range"``.
+        Name of the vertical coordinate. Default is ``"echo_range"``.
 
     Returns
     -------
-    holoviews.Image or holoviews.Layout
+    holoviews.Image, holoviews.QuadMesh or holoviews.Layout
         A single echogram or a vertical layout of echograms.
     """
     if isinstance(channel, str):
@@ -61,48 +80,113 @@ def single_echogram(
     x_dim: str = "ping_time",
     vert_dim: str = "echo_range",
 ):
-    """
-    Create an echogram for one acoustic channel.
+    """Create an echogram for one acoustic channel."""
+    data = ds[var_name].sel(channel=channel)
+    vertical = ds[vert_dim]
+    x_values = ds[x_dim].values
+    x_regular = _is_regular(x_values)
 
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset containing the variable to visualize.
-    channel : str
-        Channel to plot.
-    var_name : str, optional
-        Name of the variable to visualize. Default is ``"Sv"``.
-    x_dim : str, optional
-        Name of the horizontal dimension. Default is ``"ping_time"``.
-    vert_dim : str, optional
-        Name of the vertical dimension. Default is ``"echo_range"``.
+    if "channel" in vertical.dims:
+        vertical = vertical.sel(channel=channel)
 
-    Returns
-    -------
-    holoviews.Image
-        Echogram for the selected channel.
-    """
-    dataset = holoviews.Dataset(
-        ds[[var_name]].sel(
-            channel=channel,
-        )
+    sample_dim = next(
+        dim for dim in data.dims
+        if dim != x_dim
     )
 
+    if vertical.ndim == 1:
+        valid = numpy.isfinite(vertical.values)
+        data = data.transpose(sample_dim, x_dim)
+
+        if x_regular:
+            plot = holoviews.Image(
+                (
+                    x_values,
+                    vertical.values[valid],
+                    data.values[valid, :],
+                ),
+                kdims=[x_dim, vert_dim],
+                vdims=[var_name],
+            )
+        else:
+            plot = holoviews.QuadMesh(
+                (
+                    x_values,
+                    vertical.values[valid],
+                    data.values[valid, :],
+                ),
+                kdims=[x_dim, vert_dim],
+                vdims=[var_name],
+            )
+
+        return (
+            plot
+            .relabel(str(channel))
+            .opts(invert_yaxis=True)
+        )
+
+    vertical = vertical.transpose(
+        sample_dim,
+        x_dim,
+    )
+    data = data.transpose(
+        sample_dim,
+        x_dim,
+    )
+
+    reference = vertical.isel(
+        {x_dim: 0}
+    ).values
+
+    vertical_regular = numpy.allclose(
+        vertical.values,
+        reference[:, None],
+        equal_nan=True,
+    )
+
+    if vertical_regular:
+        valid = numpy.isfinite(reference)
+
+        if x_regular:
+            plot = holoviews.Image(
+                (
+                    x_values,
+                    reference[valid],
+                    data.values[valid, :],
+                ),
+                kdims=[x_dim, vert_dim],
+                vdims=[var_name],
+            )
+        else:
+            plot = holoviews.QuadMesh(
+                (
+                    x_values,
+                    reference[valid],
+                    data.values[valid, :],
+                ),
+                kdims=[x_dim, vert_dim],
+                vdims=[var_name],
+            )
+    else:
+        x_grid = numpy.broadcast_to(
+            x_values[numpy.newaxis, :],
+            vertical.shape,
+        )
+
+        plot = holoviews.QuadMesh(
+            (
+                x_grid,
+                vertical.values,
+                data.values,
+            ),
+            kdims=[x_dim, vert_dim],
+            vdims=[var_name],
+        )
+
     return (
-        dataset.to(
-            holoviews.Image,
-            kdims=[
-                x_dim,
-                vert_dim,
-            ],
-            vdims=[
-                var_name,
-            ],
-        )
+        plot
         .relabel(str(channel))
-        .opts(
-            invert_yaxis=True,
-        )
+        .opts(invert_yaxis=True)
     )
 
 
