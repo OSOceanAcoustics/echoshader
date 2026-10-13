@@ -1,41 +1,95 @@
 import holoviews
-import numpy
 
 
-def get_box_stream(source_pic, bounds: tuple | None = None):
-    if bounds is None:
-        bounds = tuple(source_pic.lbrt)
+def get_point_selection_stream(
+    source,
+    index=None,
+):
+    """Create a point/index selection stream."""
+
+    kwargs = {
+        "source": source,
+    }
+
+    if index is not None:
+        kwargs[
+            "index"
+        ] = index
+
+    return holoviews.streams.Selection1D(
+        **kwargs,
+    )
+
+
+def get_box_stream(
+    source,
+    bounds=None,
+):
+    """Create a rectangular selection stream."""
+
+    kwargs = {
+        "source": source,
+    }
+
+    if bounds is not None:
+        kwargs[
+            "bounds"
+        ] = bounds
 
     return holoviews.streams.BoundsXY(
-        source=source_pic,
-        bounds=bounds,
+        **kwargs,
     )
 
 
 def get_lasso_stream(
-    source_pic: holoviews.element,
-    geometry: numpy.ndarray | None = None,
+    source,
+    geometry=None,
 ):
-    if geometry is None:
-        left, bottom, right, top = source_pic.lbrt
+    """Create a lasso selection stream."""
 
-        geometry = numpy.array(
-            [
-                [left, bottom],
-                [left, top],
-                [right, top],
-                [right, bottom],
-            ]
-        )
+    kwargs = {
+        "source": source,
+    }
+
+    if geometry is not None:
+        kwargs[
+            "geometry"
+        ] = geometry
 
     return holoviews.streams.Lasso(
-        source=source_pic,
-        geometry=geometry,
+        **kwargs,
     )
 
 
-def get_box_plot(box_stream):
-    return holoviews.DynamicMap(
-        lambda bounds: holoviews.Bounds(bounds),
-        streams=[box_stream],
-    )
+INTERACTIONS = {
+    "point_select": {
+        "stream": get_point_selection_stream,
+        "parameter": "index",
+        "tools": [
+            "box_select",
+        ],
+        "active_tools": [
+            "box_select",
+        ],
+    },
+    "box_select": {
+        "stream": get_box_stream,
+        "parameter": "bounds",
+        "tools": [
+            "box_select",
+        ],
+        "active_tools": [
+            "box_select",
+        ],
+    },
+    "lasso_select": {
+        "stream": get_lasso_stream,
+        "parameter": "geometry",
+        "tools": [
+            "lasso_select",
+        ],
+        "active_tools": [
+            "lasso_select",
+        ],
+    },
+}

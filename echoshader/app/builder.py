@@ -1,19 +1,28 @@
+import holoviews
+import numpy
 import panel as pn
 import xarray
 
 from .context import AppContext
 from .controls import build_control
-from .interactions import get_box_plot, get_box_stream
+from .interactions import INTERACTIONS
 from .registry import ELEMENTS
-from .selection import select_box
-from .sources import DataSource, build_source
+from .selection import (
+    SELECTIONS,
+    apply_selection,
+)
+from .sources import (
+    DataSource,
+    build_source,
+)
+from .state import AppState
 
 
 def _build_sources(
     config: dict,
     context: AppContext,
 ):
-    """Build configured data sources and resolve dependencies."""
+    """Build configured data sources."""
 
     source_configs = config.get(
         "data",
@@ -21,27 +30,28 @@ def _build_sources(
     )
 
     data_sources = {}
-    pending = dict(source_configs)
-
-    # --------------------------------------------------------------
-    # Initial source construction
-    #
-    # Sources with dependencies are only built once their parent
-    # source exists. This allows a parent source to export context
-    # values used by the dependent source path.
-    # --------------------------------------------------------------
+    pending = dict(
+        source_configs
+    )
 
     while pending:
         progress = False
 
-        for name in list(pending):
-            source_config = pending[name]
+        for name in list(
+            pending
+        ):
+            source_config = pending[
+                name
+            ]
 
             dependency = source_config.get(
-                "depends_on",
+                "depends_on"
             )
 
-            if dependency is not None and dependency not in data_sources:
+            if (
+                dependency is not None
+                and dependency not in data_sources
+            ):
                 continue
 
             source = build_source(
@@ -49,49 +59,47 @@ def _build_sources(
                 context=context,
             )
 
-            # Initial load.
             source.reload()
 
-            data_sources[name] = source
+            data_sources[
+                name
+            ] = source
 
-            del pending[name]
+            del pending[
+                name
+            ]
 
             progress = True
 
         if not progress:
-            raise ValueError(f"Could not resolve data-source dependencies: {list(pending)}")
-
-    # --------------------------------------------------------------
-    # Dependency updates
-    #
-    # If a parent source changes, reload dependent sources.
-    # --------------------------------------------------------------
+            raise ValueError(
+                "Could not resolve data-source dependencies: "
+                f"{list(pending)}"
+            )
 
     for (
         name,
         source_config,
     ) in source_configs.items():
         dependency = source_config.get(
-            "depends_on",
+            "depends_on"
         )
 
         if dependency is None:
             continue
 
-        parent = data_sources[dependency]
+        parent = data_sources[
+            dependency
+        ]
 
-        child = data_sources[name]
+        child = data_sources[
+            name
+        ]
 
         parent.param.watch(
             lambda event, child=child: child.reload(),
             "data",
         )
-
-    # --------------------------------------------------------------
-    # Periodic refresh
-    #
-    # Start callbacks only after all sources and dependencies exist.
-    # --------------------------------------------------------------
 
     for source in data_sources.values():
         source.start_refresh()
@@ -101,8 +109,9 @@ def _build_sources(
 
 def _build_controls(
     config: dict,
+    state: AppState,
 ):
-    """Build all configured controls."""
+    """Build controls and connect them to shared values."""
 
     controls = {}
 
@@ -113,9 +122,67 @@ def _build_controls(
         "controls",
         {},
     ).items():
-        controls[name] = build_control(
-            control_config,
+        config_copy = dict(
+            control_config
         )
+
+        args = dict(
+            config_copy.get(
+                "args",
+                {},
+            )
+        )
+
+        write_name = config_copy.get(
+            "write"
+        )
+
+        if write_name is not None:
+            shared_value = state.get_value(
+                write_name
+            )
+
+            if (
+                shared_value.value is not None
+                and "value" not in args
+            ):
+                args[
+                    "value"
+                ] = shared_value.value
+
+        config_copy[
+            "args"
+        ] = args
+
+        control = build_control(
+            config_copy
+        )
+
+        controls[
+            name
+        ] = control
+
+        if write_name is not None:
+            shared_value = state.get_value(
+                write_name
+            )
+
+            if shared_value.value is None:
+                shared_value.value = control.value
+
+            else:
+                control.value = shared_value.value
+
+            def update_value(
+                event,
+                value_state=shared_value,
+            ):
+                value_state.value = event.new
+
+            control.param.watch(
+                update_value,
+                "value",
+            )
 
     return controls
 
@@ -134,33 +201,172 @@ def _get_data(
     return source
 
 
+def _get_current_data(
+    source,
+):
+    """Return the current concrete data value."""
+
+    if isinstance(
+        source,
+        DataSource,
+    ):
+        return source.data
+
+    if callable(
+        source
+    ):
+        return source()
+
+    return source
+
+
 def _apply_element_options(
     element,
     options: dict,
 ):
-    """Apply HoloViews options to a visualization element."""
+    """
+    Apply HoloViews options to a simple element or composite layout.
+
+    For Layout/NdLayout objects, options such as cmap, width and height
+    must be applied to the leaf visualization elements rather than the
+    layout container itself.
+    """
 
     if not options:
         return element
 
+    if not isinstance(
+        element,
+        (
+            holoviews.Layout,
+            holoviews.NdLayout,
+        ),
+    ):
+        return element.opts(
+            **options
+        )
+
+    option_specs = []
+    handled_types = set()
+
+    container_types = {
+        "Layout",
+        "NdLayout",
+        "Overlay",
+        "NdOverlay",
+    }
+
+    for child in element.traverse(
+        lambda child: child
+    ):
+        child_type = type(
+            child
+        ).__name__
+
+        if child_type in container_types:
+            continue
+
+        if child_type in handled_types:
+            continue
+
+        try:
+            option_type = getattr(
+                holoviews.opts,
+                child_type,
+            )
+
+        except AttributeError:
+            continue
+
+        option_specs.append(
+            option_type(
+                **options
+            )
+        )
+
+        handled_types.add(
+            child_type
+        )
+
+    if not option_specs:
+        return element
+
     return element.opts(
-        **options,
+        *option_specs
+    )
+
+
+def _apply_view(
+    data,
+    view_config: dict | None,
+):
+    """Apply lightweight display-only data reduction."""
+
+    if not view_config:
+        return data
+
+    max_pings = view_config.get(
+        "max_pings"
+    )
+
+    if max_pings is None:
+        return data
+
+    ping_dim = view_config.get(
+        "ping_dim",
+        "ping_time",
+    )
+
+    if ping_dim not in data.dims:
+        return data
+
+    n_pings = data.sizes[
+        ping_dim
+    ]
+
+    if n_pings <= max_pings:
+        return data
+
+    indices = numpy.linspace(
+        0,
+        n_pings - 1,
+        max_pings,
+        dtype=int,
+    )
+
+    return data.isel(
+        {
+            ping_dim: indices,
+        }
     )
 
 
 def _build_element(
     element_config: dict,
     data,
-    runtime_options: dict | None = None,
+    runtime_values: dict | None = None,
 ):
     """Build one visualization element."""
 
-    element_type = element_config["type"]
+    element_type = element_config[
+        "type"
+    ]
 
     if element_type not in ELEMENTS:
-        raise ValueError(f"Unknown element type: {element_type!r}.")
+        raise ValueError(
+            f"Unknown element type: {element_type!r}."
+        )
 
-    element_func = ELEMENTS[element_type]
+    element_func = ELEMENTS[
+        element_type
+    ]
+
+    data = _apply_view(
+        data,
+        element_config.get(
+            "view"
+        ),
+    )
 
     args = dict(
         element_config.get(
@@ -169,17 +375,17 @@ def _build_element(
         )
     )
 
+    if runtime_values:
+        args.update(
+            runtime_values
+        )
+
     options = dict(
         element_config.get(
             "opts",
             {},
         )
     )
-
-    if runtime_options:
-        options.update(
-            runtime_options,
-        )
 
     plot = element_func(
         data,
@@ -192,124 +398,625 @@ def _build_element(
     )
 
 
-def _get_option_bindings(
-    config: dict,
-    element_name: str,
-    controls: dict,
+def _parse_observe(
+    element_config: dict,
 ):
-    """
-    Return reactive HoloViews option bindings for one element.
+    """Normalize state observed by one element."""
 
-    Binding targets currently use the form::
+    observe = element_config.get(
+        "observe",
+        {},
+    )
 
-        element_name.opts.option_name
+    if observe is None:
+        observe = {}
 
-    Example::
-
-        original.opts.clim
-    """
-
-    option_bindings = {}
-
-    for binding in config.get(
-        "bindings",
-        [],
+    if isinstance(
+        observe,
+        str,
     ):
-        source_name = binding["source"]
+        observe = {
+            "selection": observe,
+        }
 
-        if source_name not in controls:
-            raise ValueError(f"Unknown control: {source_name!r}.")
-
-        targets = binding.get(
-            "target",
-            [],
+    if not isinstance(
+        observe,
+        dict,
+    ):
+        raise TypeError(
+            "'observe' must be a mapping."
         )
 
+    return {
+        "selection": observe.get(
+            "selection"
+        ),
+        "projection": observe.get(
+            "projection"
+        ),
+        "drop": observe.get(
+            "drop",
+            True,
+        ),
+        "values": observe.get(
+            "values",
+            {},
+        ),
+    }
+
+
+def _resolve_value_dependencies(
+    state: AppState,
+    values_config: dict,
+):
+    """
+    Convert YAML value observations into reactive dependencies.
+
+    Example:
+
+    values:
+      channel:
+        - rgb_red
+        - rgb_green
+        - rgb_blue
+    """
+
+    dependencies = {}
+    specifications = {}
+
+    for (
+        argument_name,
+        value_names,
+    ) in values_config.items():
         if isinstance(
-            targets,
+            value_names,
             str,
         ):
-            targets = [
-                targets,
+            value_names = [
+                value_names,
             ]
 
-        for target in targets:
-            parts = target.split(".")
+        if not isinstance(
+            value_names,
+            list,
+        ):
+            raise TypeError(
+                "Observed values must be a value name "
+                "or a list of value names."
+            )
 
-            if len(parts) != 3:
-                raise ValueError(
-                    f"Invalid binding target: {target!r}. Expected 'element.opts.option'."
-                )
+        dependency_names = []
 
-            (
-                target_element,
-                target_kind,
-                option_name,
-            ) = parts
+        for (
+            index,
+            value_name,
+        ) in enumerate(
+            value_names
+        ):
+            dependency_name = (
+                f"value__{argument_name}__{index}"
+            )
 
-            if target_element != element_name:
-                continue
+            dependencies[
+                dependency_name
+            ] = state.get_value(
+                value_name
+            ).param.value
 
-            if target_kind != "opts":
-                raise ValueError("Only '.opts.<option>' bindings are currently supported.")
+            dependency_names.append(
+                dependency_name
+            )
 
-            option_bindings[option_name] = controls[source_name].param.value
+        specifications[
+            argument_name
+        ] = dependency_names
 
-    return option_bindings
+    return (
+        dependencies,
+        specifications,
+    )
+
+
+def _build_runtime_values(
+    bindings: dict,
+    specifications: dict,
+):
+    """Convert shared values into function argument values."""
+
+    runtime_values = {}
+
+    for (
+        argument_name,
+        dependency_names,
+    ) in specifications.items():
+        values = [
+            bindings[
+                dependency_name
+            ]
+            for dependency_name in dependency_names
+        ]
+
+        if len(
+            values
+        ) == 1:
+            runtime_values[
+                argument_name
+            ] = values[
+                0
+            ]
+
+        else:
+            runtime_values[
+                argument_name
+            ] = values
+
+    return runtime_values
 
 
 def _build_reactive_element(
-    config: dict,
-    name: str,
+    state: AppState,
     element_config: dict,
     data_source,
-    controls: dict,
 ):
-    """Build a visualization responsive to data and controls."""
+    """Build an element observing shared application state."""
 
     data = _get_data(
-        data_source,
+        data_source
     )
 
-    option_bindings = _get_option_bindings(
-        config=config,
-        element_name=name,
-        controls=controls,
+    observe = _parse_observe(
+        element_config
     )
+
+    dependencies = {
+        "data": data,
+    }
+
+    selection_name = observe[
+        "selection"
+    ]
+
+    if selection_name is not None:
+        selection = state.get_selection(
+            selection_name
+        )
+
+        dependencies[
+            "selection_value"
+        ] = selection.param.value
+
+    (
+        value_dependencies,
+        value_specifications,
+    ) = _resolve_value_dependencies(
+        state,
+        observe[
+            "values"
+        ],
+    )
+
+    dependencies.update(
+        value_dependencies
+    )
+
+    def build(
+        data,
+        selection_value=None,
+        **bindings,
+    ):
+        if selection_name is not None:
+            data = apply_selection(
+                data,
+                selection_value,
+                projection=observe[
+                    "projection"
+                ],
+                drop=observe[
+                    "drop"
+                ],
+            )
+
+        runtime_values = _build_runtime_values(
+            bindings,
+            value_specifications,
+        )
+
+        return _build_element(
+            element_config,
+            data,
+            runtime_values=runtime_values,
+        )
 
     return pn.bind(
-        lambda data, cfg=element_config, **runtime_options: _build_element(
-            cfg,
-            data,
-            runtime_options=runtime_options,
-        ),
-        data=data,
-        **option_bindings,
+        build,
+        **dependencies,
     )
+
+
+def _get_interaction_sources(
+    plot,
+    element_name: str | None = None,
+):
+    """
+    Return visualization elements that can own an interaction stream.
+
+    A simple plot returns one source. A composite Layout returns its
+    visualization leaves, allowing the same interaction to work on
+    each echogram in a multi-channel layout.
+    """
+
+    elements = plot.traverse(
+        lambda element: element
+    )
+
+    if element_name is not None:
+        matches = [
+            element
+            for element in elements
+            if type(
+                element
+            ).__name__ == element_name
+        ]
+
+        if not matches:
+            available = sorted(
+                {
+                    type(
+                        element
+                    ).__name__
+                    for element in elements
+                }
+            )
+
+            raise ValueError(
+                f"Could not find interaction element "
+                f"{element_name!r}. "
+                f"Available elements: {available}."
+            )
+
+        return matches
+
+    if not isinstance(
+        plot,
+        (
+            holoviews.Layout,
+            holoviews.NdLayout,
+        ),
+    ):
+        return [
+            plot,
+        ]
+
+    container_types = {
+        "Layout",
+        "NdLayout",
+        "Overlay",
+        "NdOverlay",
+    }
+
+    return [
+        element
+        for element in elements
+        if type(
+            element
+        ).__name__ not in container_types
+    ]
+
+
+def _add_interaction_tools(
+    plot,
+    tools: list,
+    active_tools: list,
+    element_name: str | None = None,
+):
+    """
+    Add interaction tools to simple or composite plots.
+
+    Explicit child targets such as Points are handled directly.
+    Layouts receive the tools on their leaf visualization elements.
+    """
+
+    if not tools:
+        return plot
+
+    if element_name is not None:
+        try:
+            option_type = getattr(
+                holoviews.opts,
+                element_name,
+            )
+
+        except AttributeError as exc:
+            raise ValueError(
+                f"No HoloViews option type exists for "
+                f"{element_name!r}."
+            ) from exc
+
+        return plot.opts(
+            option_type(
+                tools=tools,
+                active_tools=active_tools,
+            )
+        )
+
+    if not isinstance(
+        plot,
+        (
+            holoviews.Layout,
+            holoviews.NdLayout,
+        ),
+    ):
+        return plot.opts(
+            tools=tools,
+            active_tools=active_tools,
+        )
+
+    option_specs = []
+    handled_types = set()
+
+    for element in _get_interaction_sources(
+        plot
+    ):
+        element_type = type(
+            element
+        ).__name__
+
+        if element_type in handled_types:
+            continue
+
+        try:
+            option_type = getattr(
+                holoviews.opts,
+                element_type,
+            )
+
+        except AttributeError:
+            continue
+
+        option_specs.append(
+            option_type(
+                tools=tools,
+                active_tools=active_tools,
+            )
+        )
+
+        handled_types.add(
+            element_type
+        )
+
+    if not option_specs:
+        return plot
+
+    return plot.opts(
+        *option_specs
+    )
+
+
+def _selection_is_empty(
+    value,
+):
+    """Return True when a generated selection is empty."""
+
+    if value is None:
+        return True
+
+    if isinstance(
+        value,
+        xarray.DataArray,
+    ):
+        return not bool(
+            value.any().item()
+        )
+
+    return False
+
+
+def _make_selection_callback(
+    state: AppState,
+    selection_name: str,
+    source_name: str,
+    interaction_type: str,
+    data_source,
+    selector,
+    parameter_name: str,
+    selection_args: dict,
+):
+    """Create a callback that writes shared selection state."""
+
+    selection = state.get_selection(
+        selection_name
+    )
+
+    def update_selection(
+        event,
+    ):
+        data = _get_current_data(
+            data_source
+        )
+
+        value = selector(
+            data,
+            **{
+                parameter_name: event.new,
+            },
+            **selection_args,
+        )
+
+        if _selection_is_empty(
+            value
+        ):
+            selection.clear()
+            return
+
+        selection.set(
+            value,
+            source=source_name,
+            kind=interaction_type,
+        )
+
+    return update_selection
+
+
+def _build_interactions(
+    config: dict,
+    state: AppState,
+    data_sources: dict,
+    objects: dict,
+    element_configs: dict,
+):
+    """Attach interactions that write named shared selections."""
+
+    for interaction in config.get(
+        "interactions",
+        [],
+    ):
+        interaction_type = interaction[
+            "type"
+        ]
+
+        source_name = interaction[
+            "source"
+        ]
+
+        selection_name = interaction[
+            "write"
+        ]
+
+        if interaction_type not in INTERACTIONS:
+            raise ValueError(
+                f"Unknown interaction type: "
+                f"{interaction_type!r}."
+            )
+
+        if interaction_type not in SELECTIONS:
+            raise ValueError(
+                f"No selector registered for "
+                f"{interaction_type!r}."
+            )
+
+        if source_name not in objects:
+            raise ValueError(
+                f"Unknown interaction source: "
+                f"{source_name!r}."
+            )
+
+        source_object = objects[
+            source_name
+        ]
+
+        if callable(
+            source_object
+        ):
+            source_plot = source_object()
+
+        else:
+            source_plot = source_object
+
+        interaction_definition = INTERACTIONS[
+            interaction_type
+        ]
+
+        source_element = interaction.get(
+            "source_element"
+        )
+
+        source_plot = _add_interaction_tools(
+            source_plot,
+            tools=interaction_definition.get(
+                "tools",
+                [],
+            ),
+            active_tools=interaction_definition.get(
+                "active_tools",
+                [],
+            ),
+            element_name=source_element,
+        )
+
+        objects[
+            source_name
+        ] = source_plot
+
+        stream_sources = _get_interaction_sources(
+            source_plot,
+            element_name=source_element,
+        )
+
+        source_data_name = element_configs[
+            source_name
+        ][
+            "data"
+        ]
+
+        if source_data_name not in data_sources:
+            raise ValueError(
+                f"Unknown data source: "
+                f"{source_data_name!r}."
+            )
+
+        source_data = data_sources[
+            source_data_name
+        ]
+
+        selector = SELECTIONS[
+            interaction_type
+        ]
+
+        parameter_name = interaction_definition[
+            "parameter"
+        ]
+
+        callback = _make_selection_callback(
+            state=state,
+            selection_name=selection_name,
+            source_name=source_name,
+            interaction_type=interaction_type,
+            data_source=source_data,
+            selector=selector,
+            parameter_name=parameter_name,
+            selection_args=interaction.get(
+                "args",
+                {},
+            ),
+        )
+
+        for stream_source in stream_sources:
+            stream = interaction_definition[
+                "stream"
+            ](
+                stream_source
+            )
+
+            stream.param.watch(
+                callback,
+                parameter_name,
+            )
+
+            state.get_selection(
+                selection_name
+            ).add_stream(
+                stream
+            )
 
 
 def _resolve_layout_child(
     child,
     objects: dict,
 ):
-    """Resolve one layout child."""
-
-    # --------------------------------------------------------------
-    # Named element / control
-    # --------------------------------------------------------------
+    """Resolve one configured layout child."""
 
     if isinstance(
         child,
         str,
     ):
         if child not in objects:
-            raise ValueError(f"Unknown layout object: {child!r}.")
+            raise ValueError(
+                f"Unknown layout object: {child!r}."
+            )
 
-        return objects[child]
-
-    # --------------------------------------------------------------
-    # Nested layout
-    # --------------------------------------------------------------
+        return objects[
+            child
+        ]
 
     if isinstance(
         child,
@@ -321,7 +1028,8 @@ def _resolve_layout_child(
         )
 
     raise TypeError(
-        "Layout children must be object names or nested layout configuration dictionaries."
+        "Layout children must be names "
+        "or nested layout dictionaries."
     )
 
 
@@ -329,7 +1037,7 @@ def _build_layout(
     layout_config: dict,
     objects: dict,
 ):
-    """Build a recursive Panel layout from configuration."""
+    """Build a recursive Panel layout."""
 
     layout_type = layout_config.get(
         "type",
@@ -342,49 +1050,39 @@ def _build_layout(
     )
 
     sizing_mode = layout_config.get(
-        "sizing_mode",
-        None,
+        "sizing_mode"
     )
 
-    # --------------------------------------------------------------
-    # Column
-    # --------------------------------------------------------------
+    layout_kwargs = {}
+
+    if sizing_mode is not None:
+        layout_kwargs[
+            "sizing_mode"
+        ] = sizing_mode
 
     if layout_type == "column":
-        children = [
-            _resolve_layout_child(
-                child,
-                objects,
-            )
-            for child in children_config
-        ]
-
         return pn.Column(
-            *children,
-            sizing_mode=sizing_mode,
+            *[
+                _resolve_layout_child(
+                    child,
+                    objects,
+                )
+                for child in children_config
+            ],
+            **layout_kwargs,
         )
-
-    # --------------------------------------------------------------
-    # Row
-    # --------------------------------------------------------------
 
     if layout_type == "row":
-        children = [
-            _resolve_layout_child(
-                child,
-                objects,
-            )
-            for child in children_config
-        ]
-
         return pn.Row(
-            *children,
-            sizing_mode=sizing_mode,
+            *[
+                _resolve_layout_child(
+                    child,
+                    objects,
+                )
+                for child in children_config
+            ],
+            **layout_kwargs,
         )
-
-    # --------------------------------------------------------------
-    # Tabs
-    # --------------------------------------------------------------
 
     if layout_type == "tabs":
         tabs = []
@@ -394,14 +1092,18 @@ def _build_layout(
                 child,
                 dict,
             ):
-                raise TypeError("Tab children must be layout configuration dictionaries.")
+                raise TypeError(
+                    "Tab children must be layout dictionaries."
+                )
 
             title = child.get(
                 "title",
                 "Untitled",
             )
 
-            tab_config = dict(child)
+            tab_config = dict(
+                child
+            )
 
             tab_config.pop(
                 "title",
@@ -413,15 +1115,13 @@ def _build_layout(
                 "column",
             )
 
-            tab_content = _build_layout(
-                tab_config,
-                objects,
-            )
-
             tabs.append(
                 (
                     title,
-                    tab_content,
+                    _build_layout(
+                        tab_config,
+                        objects,
+                    ),
                 )
             )
 
@@ -431,10 +1131,12 @@ def _build_layout(
                 "dynamic",
                 False,
             ),
-            sizing_mode=sizing_mode,
+            **layout_kwargs,
         )
 
-    raise ValueError(f"Unknown layout type: {layout_type!r}.")
+    raise ValueError(
+        f"Unknown layout type: {layout_type!r}."
+    )
 
 
 def build_app(
@@ -442,38 +1144,13 @@ def build_app(
     datasets: dict[str, xarray.Dataset] | None = None,
     context: dict | None = None,
 ):
-    """
-    Build an Echoshader application from declarative configuration.
+    """Build an Echoshader application."""
 
-    Parameters
-    ----------
-    config : dict
-        Visualization application configuration.
+    state = AppState()
 
-    datasets : dict[str, xarray.Dataset], optional
-        Named datasets supplied directly to the application.
-
-        Explicitly supplied datasets override configured
-        sources with the same names.
-
-    context : dict, optional
-        Runtime values available when resolving configured
-        source paths.
-
-        Values supplied here override values defined in the
-        configuration's ``context`` section.
-
-    Returns
-    -------
-    panel.viewable.Viewable
-        Renderable Panel application.
-    """
-
-    objects = {}
-
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
     # Runtime context
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
 
     context_values = dict(
         config.get(
@@ -484,172 +1161,145 @@ def build_app(
 
     if context is not None:
         context_values.update(
-            context,
+            context
         )
 
     app_context = AppContext(
-        values=context_values,
+        values=context_values
     )
 
-    # --------------------------------------------------------------
-    # Data sources
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Shared values
+    # ----------------------------------------------------------
+
+    for (
+        name,
+        value,
+    ) in config.get(
+        "values",
+        {},
+    ).items():
+        state.get_value(
+            name,
+            default=value,
+        )
+
+    # ----------------------------------------------------------
+    # Shared selections
+    # ----------------------------------------------------------
+
+    for name in config.get(
+        "selections",
+        {},
+    ):
+        state.get_selection(
+            name
+        )
+
+    # ----------------------------------------------------------
+    # Data
+    # ----------------------------------------------------------
 
     data_sources = _build_sources(
         config=config,
         context=app_context,
     )
 
-    # Directly supplied datasets are still supported.
     if datasets is not None:
         data_sources.update(
-            datasets,
+            datasets
         )
 
-    # --------------------------------------------------------------
+    for (
+        name,
+        source,
+    ) in data_sources.items():
+        state.set_dataset(
+            name,
+            source,
+        )
+
+    # ----------------------------------------------------------
     # Controls
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
 
     controls = _build_controls(
-        config,
+        config=config,
+        state=state,
     )
 
-    # --------------------------------------------------------------
-    # Element definitions
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Elements
+    # ----------------------------------------------------------
 
     element_configs = config.get(
         "elements",
         {},
     )
 
-    # --------------------------------------------------------------
-    # First pass
-    #
-    # Build elements whose sources already exist.
-    # --------------------------------------------------------------
+    objects = {}
 
     for (
         name,
         element_config,
     ) in element_configs.items():
-        data_name = element_config["data"]
+        data_name = element_config[
+            "data"
+        ]
 
         if data_name not in data_sources:
-            continue
+            raise ValueError(
+                f"Unknown data source: "
+                f"{data_name!r}."
+            )
 
-        objects[name] = _build_reactive_element(
-            config=config,
-            name=name,
+        objects[
+            name
+        ] = _build_reactive_element(
+            state=state,
             element_config=element_config,
-            data_source=data_sources[data_name],
-            controls=controls,
+            data_source=data_sources[
+                data_name
+            ],
         )
 
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
     # Interactions
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
 
-    for interaction in config.get(
-        "interactions",
-        [],
-    ):
-        interaction_type = interaction["type"]
+    _build_interactions(
+        config=config,
+        state=state,
+        data_sources=data_sources,
+        objects=objects,
+        element_configs=element_configs,
+    )
 
-        source_name = interaction["source"]
-
-        output_name = interaction["output"]
-
-        if interaction_type != "box_select":
-            raise ValueError(f"Unknown interaction type: {interaction_type!r}.")
-
-        if source_name not in objects:
-            raise ValueError(f"Interaction source {source_name!r} does not exist.")
-
-        source = objects[source_name]
-
-        box_stream = get_box_stream(
-            source,
-        )
-
-        box_overlay = get_box_plot(
-            box_stream,
-        )
-
-        objects[source_name] = source * box_overlay
-
-        source_data_name = element_configs[source_name]["data"]
-
-        source_data = _get_data(data_sources[source_data_name])
-
-        selection_args = interaction.get(
-            "args",
-            {},
-        )
-
-        selected_data = pn.bind(
-            select_box,
-            ds=source_data,
-            bounds=(box_stream.param.bounds),
-            **selection_args,
-        )
-
-        # Interaction creates a new
-        # reactive data source.
-        data_sources[output_name] = selected_data
-
-    # --------------------------------------------------------------
-    # Second pass
-    #
-    # Build elements depending on sources created by interactions.
-    # --------------------------------------------------------------
-
-    for (
-        name,
-        element_config,
-    ) in element_configs.items():
-        if name in objects:
-            continue
-
-        data_name = element_config["data"]
-
-        if data_name not in data_sources:
-            raise ValueError(f"Unknown data source: {data_name!r}.")
-
-        data_source = data_sources[data_name]
-
-        objects[name] = _build_reactive_element(
-            config=config,
-            name=name,
-            element_config=element_config,
-            data_source=data_source,
-            controls=controls,
-        )
-
-    # --------------------------------------------------------------
-    # Objects exposed to layout
-    # --------------------------------------------------------------
+    # ----------------------------------------------------------
+    # Layout
+    # ----------------------------------------------------------
 
     layout_objects = {
         **objects,
         **controls,
     }
 
-    # --------------------------------------------------------------
-    # Layout
-    # --------------------------------------------------------------
-
     layout_config = config.get(
         "layout",
         {
             "type": "column",
             "children": list(
-                layout_objects,
+                layout_objects
             ),
         },
     )
 
-    return _build_layout(
+    app = _build_layout(
         layout_config,
         layout_objects,
     )
+
+    # Useful during development/debugging.
+    app._echoshader_state = state
+
+    return app

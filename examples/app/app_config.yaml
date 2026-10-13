@@ -1,0 +1,276 @@
+data:
+  survey:
+    type: netcdf
+    path: examples/data/concatenated_MVBS.nc
+
+
+# ============================================================
+# SHARED REACTIVE STATE
+# ============================================================
+
+selections:
+  focus: {}
+  region: {}
+
+
+values:
+  rgb_red: "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
+  rgb_green: "GPT  38 kHz 009072058146 2-1 ES38B"
+  rgb_blue: "GPT  18 kHz 009072058c8d 1-1 ES18-11"
+
+
+# ============================================================
+# CONTROLS
+#
+# Controls write shared state values.
+# They do NOT bind directly to element args.
+# ============================================================
+
+controls:
+
+  rgb_red:
+    type: select
+    write: rgb_red
+
+    args:
+      name: Red channel
+
+      options:
+        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
+        - "GPT  38 kHz 009072058146 2-1 ES38B"
+        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
+
+
+  rgb_green:
+    type: select
+    write: rgb_green
+
+    args:
+      name: Green channel
+
+      options:
+        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
+        - "GPT  38 kHz 009072058146 2-1 ES38B"
+        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
+
+
+  rgb_blue:
+    type: select
+    write: rgb_blue
+
+    args:
+      name: Blue channel
+
+      options:
+        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
+        - "GPT  38 kHz 009072058146 2-1 ES38B"
+        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
+
+
+# ============================================================
+# ELEMENTS
+# ============================================================
+
+elements:
+
+  # ----------------------------------------------------------
+  # MAP
+  # ----------------------------------------------------------
+
+  track:
+    type: track
+    data: survey
+
+    args:
+      tile: OpenTopoMap
+
+    opts:
+      width: 450
+      height: 450
+
+
+  # ----------------------------------------------------------
+  # MULTI-CHANNEL ECHOGRAM
+  # ----------------------------------------------------------
+
+  echogram:
+    type: echogram
+    data: survey
+
+    observe:
+      selection: focus
+
+    view:
+      max_pings: 5000
+      ping_dim: ping_time
+
+    args:
+      channel:
+        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
+        - "GPT  38 kHz 009072058146 2-1 ES38B"
+        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
+
+      vert_dim: echo_range
+
+    opts:
+      cmap: jet
+      width: 1000
+      height: 750
+
+
+  # ----------------------------------------------------------
+  # HISTOGRAM
+  #
+  # Observes exact acoustic cells selected on echogram.
+  # ----------------------------------------------------------
+
+  histogram:
+    type: hist
+    data: survey
+
+    observe:
+      selection: region
+      drop: false
+
+    args:
+      bins: 24
+      overlay: true
+
+    opts:
+      width: 450
+      height: 300
+
+
+  # ----------------------------------------------------------
+  # RGB
+  #
+  # channel is NOT hard-wired to controls.
+  #
+  # It observes three shared values. The builder converts:
+  #
+  # rgb_red + rgb_green + rgb_blue
+  #
+  # into:
+  #
+  # channel: [red, green, blue]
+  # ----------------------------------------------------------
+
+  rgb_echogram:
+    type: tricolor_echogram
+    data: survey
+
+    observe:
+      values:
+
+        channel:
+          - rgb_red
+          - rgb_green
+          - rgb_blue
+
+    view:
+      max_pings: 5000
+      ping_dim: ping_time
+
+    args:
+      vmin: -70
+      vmax: -36
+      vert_dim: echo_range
+
+    opts:
+      width: 1200
+      height: 700
+
+
+# ============================================================
+# INTERACTIONS
+# ============================================================
+
+interactions:
+
+  # ----------------------------------------------------------
+  # MAP
+  #
+  # Bokeh selects displayed geographic points.
+  # Their point indices are converted into ping_time selection.
+  # ----------------------------------------------------------
+
+  - type: point_select
+    source: track
+    source_element: Points
+    write: focus
+
+    args:
+      dim: ping_time
+      x: longitude
+      y: latitude
+
+
+  # ----------------------------------------------------------
+  # ECHOGRAM
+  #
+  # Lasso selects acoustic cells.
+  # Histogram observes this shared region.
+  # ----------------------------------------------------------
+
+  - type: lasso_select
+    source: echogram
+    write: region
+
+    args:
+      x: ping_time
+      y: echo_range
+
+
+# ============================================================
+# LAYOUT
+# ============================================================
+
+layout:
+  type: tabs
+  dynamic: false
+  sizing_mode: stretch_width
+
+  children:
+
+    # --------------------------------------------------------
+    # TAB 1
+    #
+    # LEFT              RIGHT
+    #
+    # Map               Multi-channel echograms
+    # Histogram
+    # --------------------------------------------------------
+
+    - title: Echograms
+      type: row
+      sizing_mode: stretch_width
+
+      children:
+
+        - type: column
+          children:
+            - track
+            - histogram
+
+        - type: column
+          children:
+            - echogram
+
+
+    # --------------------------------------------------------
+    # TAB 2
+    # --------------------------------------------------------
+
+    - title: RGB
+      type: column
+      sizing_mode: stretch_width
+
+      children:
+
+        - type: row
+          children:
+            - rgb_red
+            - rgb_green
+            - rgb_blue
+
+        - rgb_echogram
