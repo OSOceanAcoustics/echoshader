@@ -1,6 +1,6 @@
+import numpy
 import plotly.graph_objects
 import pyvista
-import numpy
 import xarray
 
 from echoshader.elements.curtain import curtain

@@ -1,6 +1,5 @@
 import panel as pn
 
-
 CONTROLS = {
     "range_slider": pn.widgets.RangeSlider,
     "select": pn.widgets.Select,

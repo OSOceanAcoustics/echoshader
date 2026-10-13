@@ -3,6 +3,8 @@ import xarray
 from .elements.curtain import curtain as curtain_element
 from .elements.echogram import (
     echogram as echogram_element,
+)
+from .elements.echogram import (
     tricolor_echogram as tricolor_echogram_element,
 )
 from .elements.hist import hist as hist_element
