@@ -3,6 +3,7 @@ from .interactions import (
     get_lasso_stream,
     get_point_selection_stream,
 )
+from .launcher import launch
 from .selection import (
     apply_selection,
     box_dimension_mask,
@@ -14,6 +15,10 @@ from .state import (
     AppState,
     SelectionState,
     ValueState,
+)
+from .summary import (
+    selection_metadata,
+    selection_summary,
 )
 
 
@@ -29,4 +34,7 @@ __all__ = [
     "get_box_stream",
     "get_lasso_stream",
     "get_point_selection_stream",
+    "selection_metadata",
+    "selection_summary",
+    "launch",
 ]
