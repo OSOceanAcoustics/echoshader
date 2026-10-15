@@ -7,22 +7,15 @@ def _normalize_coordinate_values(
 ):
     """Convert dataset coordinates to numeric values."""
 
-    values = numpy.asarray(
-        values
-    )
+    values = numpy.asarray(values)
 
     if numpy.issubdtype(
         values.dtype,
         numpy.datetime64,
     ):
-        return (
-            values.astype("datetime64[ns]")
-            .astype("int64")
-        )
+        return values.astype("datetime64[ns]").astype("int64")
 
-    return values.astype(
-        float
-    )
+    return values.astype(float)
 
 
 def _normalize_selection_values(
@@ -37,13 +30,9 @@ def _normalize_selection_values(
     precision.
     """
 
-    values = numpy.asarray(
-        values
-    )
+    values = numpy.asarray(values)
 
-    reference = numpy.asarray(
-        reference
-    )
+    reference = numpy.asarray(reference)
 
     if numpy.issubdtype(
         reference.dtype,
@@ -60,14 +49,9 @@ def _normalize_selection_values(
                 .astype("int64")
             )
 
-        return (
-            values.astype("datetime64[ns]")
-            .astype("int64")
-        )
+        return values.astype("datetime64[ns]").astype("int64")
 
-    return values.astype(
-        float
-    )
+    return values.astype(float)
 
 
 def _broadcast_coordinates(
@@ -78,14 +62,10 @@ def _broadcast_coordinates(
     """Broadcast two coordinates to a common shape."""
 
     if x not in ds:
-        raise ValueError(
-            f"Coordinate {x!r} is not present in the dataset."
-        )
+        raise ValueError(f"Coordinate {x!r} is not present in the dataset.")
 
     if y not in ds:
-        raise ValueError(
-            f"Coordinate {y!r} is not present in the dataset."
-        )
+        raise ValueError(f"Coordinate {y!r} is not present in the dataset.")
 
     return xarray.broadcast(
         ds[x],
@@ -119,52 +99,32 @@ def point_index_mask(
         return None
 
     if dim not in ds.dims:
-        raise ValueError(
-            f"Dimension {dim!r} is not present in the dataset."
-        )
+        raise ValueError(f"Dimension {dim!r} is not present in the dataset.")
 
     if x not in ds or y not in ds:
-        raise ValueError(
-            f"Coordinates {x!r} and {y!r} must be present."
-        )
+        raise ValueError(f"Coordinates {x!r} and {y!r} must be present.")
 
-    x_values = numpy.asarray(
-        ds[x].values
-    )
+    x_values = numpy.asarray(ds[x].values)
 
-    y_values = numpy.asarray(
-        ds[y].values
-    )
+    y_values = numpy.asarray(ds[y].values)
 
-    valid = (
-        numpy.isfinite(x_values)
-        & numpy.isfinite(y_values)
-    )
+    valid = numpy.isfinite(x_values) & numpy.isfinite(y_values)
 
-    valid_positions = numpy.flatnonzero(
-        valid
-    )
+    valid_positions = numpy.flatnonzero(valid)
 
-    index = index[
-        (index >= 0)
-        & (index < len(valid_positions))
-    ]
+    index = index[(index >= 0) & (index < len(valid_positions))]
 
     if index.size == 0:
         return None
 
-    selected_positions = valid_positions[
-        index
-    ]
+    selected_positions = valid_positions[index]
 
     mask = numpy.zeros(
         ds.sizes[dim],
         dtype=bool,
     )
 
-    mask[
-        selected_positions
-    ] = True
+    mask[selected_positions] = True
 
     return xarray.DataArray(
         mask,
@@ -187,9 +147,7 @@ def box_dimension_mask(
         return None
 
     if dim not in ds:
-        raise ValueError(
-            f"Coordinate {dim!r} is not present."
-        )
+        raise ValueError(f"Coordinate {dim!r} is not present.")
 
     left, bottom, right, top = bounds
 
@@ -202,17 +160,11 @@ def box_dimension_mask(
         upper = top
 
     else:
-        raise ValueError(
-            "'axis' must be 'x' or 'y'."
-        )
+        raise ValueError("'axis' must be 'x' or 'y'.")
 
-    coordinate = ds[
-        dim
-    ]
+    coordinate = ds[dim]
 
-    values = _normalize_coordinate_values(
-        coordinate.values
-    )
+    values = _normalize_coordinate_values(coordinate.values)
 
     lower, upper = _normalize_selection_values(
         [
@@ -222,14 +174,9 @@ def box_dimension_mask(
         coordinate.values,
     )
 
-    mask = (
-        (values >= min(lower, upper))
-        & (values <= max(lower, upper))
-    )
+    mask = (values >= min(lower, upper)) & (values <= max(lower, upper))
 
-    if not numpy.any(
-        mask
-    ):
+    if not numpy.any(mask):
         return None
 
     return xarray.DataArray(
@@ -250,14 +197,9 @@ def polygon_mask(
     if geometry is None:
         return None
 
-    geometry = numpy.asarray(
-        geometry
-    )
+    geometry = numpy.asarray(geometry)
 
-    if (
-        geometry.size == 0
-        or len(geometry) < 3
-    ):
+    if geometry.size == 0 or len(geometry) < 3:
         return None
 
     x_coord, y_coord = _broadcast_coordinates(
@@ -266,13 +208,9 @@ def polygon_mask(
         y=y,
     )
 
-    x_values = _normalize_coordinate_values(
-        x_coord.values
-    )
+    x_values = _normalize_coordinate_values(x_coord.values)
 
-    y_values = _normalize_coordinate_values(
-        y_coord.values
-    )
+    y_values = _normalize_coordinate_values(y_coord.values)
 
     polygon_x = _normalize_selection_values(
         geometry[:, 0],
@@ -291,9 +229,7 @@ def polygon_mask(
         polygon_y,
     )
 
-    if not numpy.any(
-        mask
-    ):
+    if not numpy.any(mask):
         return None
 
     return xarray.DataArray(
@@ -317,20 +253,12 @@ def project_mask(
             keep_dims,
         ]
 
-    keep_dims = set(
-        keep_dims
-    )
+    keep_dims = set(keep_dims)
 
-    reduce_dims = [
-        dim
-        for dim in mask.dims
-        if dim not in keep_dims
-    ]
+    reduce_dims = [dim for dim in mask.dims if dim not in keep_dims]
 
     if reduce_dims:
-        mask = mask.any(
-            dim=reduce_dims
-        )
+        mask = mask.any(dim=reduce_dims)
 
     return mask
 
@@ -386,48 +314,28 @@ def _points_in_polygon(
         inside.shape,
     )
 
-    j = len(
-        polygon_x
-    ) - 1
+    j = len(polygon_x) - 1
 
-    for i in range(
-        len(
-            polygon_x
-        )
-    ):
+    for i in range(len(polygon_x)):
         xi = polygon_x[i]
         yi = polygon_y[i]
 
         xj = polygon_x[j]
         yj = polygon_y[j]
 
-        denominator = (
-            yj - yi
-        )
+        denominator = yj - yi
 
         if denominator == 0:
-            denominator = numpy.finfo(
-                float
-            ).eps
+            denominator = numpy.finfo(float).eps
 
-        intersects = (
-            ((yi > y) != (yj > y))
-            & (
-                x
-                < (
-                    (xj - xi)
-                    * (y - yi)
-                    / denominator
-                    + xi
-                )
-            )
-        )
+        intersects = ((yi > y) != (yj > y)) & (x < ((xj - xi) * (y - yi) / denominator + xi))
 
         inside ^= intersects
 
         j = i
 
     return inside
+
 
 def point_indices_from_mask(
     ds: xarray.Dataset,
@@ -464,37 +372,22 @@ def point_indices_from_mask(
         )
     )
 
-    x_values = numpy.asarray(
-        ds[x].values
-    )
+    x_values = numpy.asarray(ds[x].values)
 
-    y_values = numpy.asarray(
-        ds[y].values
-    )
+    y_values = numpy.asarray(ds[y].values)
 
-    valid = (
-        numpy.isfinite(x_values)
-        & numpy.isfinite(y_values)
-    )
+    valid = numpy.isfinite(x_values) & numpy.isfinite(y_values)
 
-    valid_positions = numpy.flatnonzero(
-        valid
-    )
+    valid_positions = numpy.flatnonzero(valid)
 
-    position_to_display_index = {
-        position: index
-        for index, position in enumerate(
-            valid_positions
-        )
-    }
+    position_to_display_index = {position: index for index, position in enumerate(valid_positions)}
 
     return [
-        position_to_display_index[
-            position
-        ]
+        position_to_display_index[position]
         for position in selected_positions
         if position in position_to_display_index
     ]
+
 
 SELECTIONS = {
     "point_select": point_index_mask,

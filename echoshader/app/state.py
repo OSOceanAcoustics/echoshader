@@ -40,13 +40,9 @@ class SelectionState(param.Parameterized):
     ):
         """Keep a HoloViews stream alive."""
 
-        streams = list(
-            self.streams
-        )
+        streams = list(self.streams)
 
-        streams.append(
-            stream
-        )
+        streams.append(stream)
 
         self.streams = streams
 
@@ -72,9 +68,7 @@ class AppState(param.Parameterized):
         name,
         dataset,
     ):
-        datasets = dict(
-            self.datasets
-        )
+        datasets = dict(self.datasets)
 
         datasets[name] = dataset
 
@@ -87,9 +81,7 @@ class AppState(param.Parameterized):
         """Return a named selection, creating it when necessary."""
 
         if name not in self.selections:
-            selections = dict(
-                self.selections
-            )
+            selections = dict(self.selections)
 
             selections[name] = SelectionState(
                 name=name,
@@ -97,9 +89,7 @@ class AppState(param.Parameterized):
 
             self.selections = selections
 
-        return self.selections[
-            name
-        ]
+        return self.selections[name]
 
     def get_value(
         self,
@@ -109,9 +99,7 @@ class AppState(param.Parameterized):
         """Return a named reactive value."""
 
         if name not in self.values:
-            values = dict(
-                self.values
-            )
+            values = dict(self.values)
 
             values[name] = ValueState(
                 name=name,
@@ -120,9 +108,7 @@ class AppState(param.Parameterized):
 
             self.values = values
 
-        return self.values[
-            name
-        ]
+        return self.values[name]
 
     def set_value(
         self,
@@ -131,6 +117,4 @@ class AppState(param.Parameterized):
     ):
         """Set a named reactive value."""
 
-        self.get_value(
-            name
-        ).value = value
+        self.get_value(name).value = value

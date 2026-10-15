@@ -21,58 +21,39 @@ def track(
     invisible Points layer containing every valid ping position. The Points
     layer is the interaction surface used by box selection.
     """
-    data = _to_dataframe(
-        MVBS_ds
-    )
+    data = _to_dataframe(MVBS_ds)
 
     if data.empty:
-        raise ValueError(
-            "No valid longitude/latitude positions are available."
-        )
+        raise ValueError("No valid longitude/latitude positions are available.")
 
-    if (
-        data["Longitude"].nunique() == 1
-        and data["Latitude"].nunique() == 1
-    ):
-        plot = _point(
-            data
-        )
+    if data["Longitude"].nunique() == 1 and data["Latitude"].nunique() == 1:
+        plot = _point(data)
 
     else:
-        plot = _path(
-            data
-        )
+        plot = _path(data)
 
     if tile is None:
         return plot
 
-    return (
-        _tile(tile)
-        * plot
-    )
+    return _tile(tile) * plot
 
 
 def _to_dataframe(
     MVBS_ds: xarray.Dataset,
 ):
     """Convert track coordinates to a DataFrame."""
-    return (
-        pandas.DataFrame(
-            {
-                "Longitude": MVBS_ds.longitude.values,
-                "Latitude": MVBS_ds.latitude.values,
-                "Ping Time": MVBS_ds.ping_time.values,
-                "Ping Index": numpy.arange(
-                    MVBS_ds.sizes["ping_time"]
-                ),
-            }
-        )
-        .dropna(
-            subset=[
-                "Longitude",
-                "Latitude",
-            ]
-        )
+    return pandas.DataFrame(
+        {
+            "Longitude": MVBS_ds.longitude.values,
+            "Latitude": MVBS_ds.latitude.values,
+            "Ping Time": MVBS_ds.ping_time.values,
+            "Ping Index": numpy.arange(MVBS_ds.sizes["ping_time"]),
+        }
+    ).dropna(
+        subset=[
+            "Longitude",
+            "Latitude",
+        ]
     )
 
 
@@ -82,9 +63,7 @@ def _path(
     """Create a black ship path and selectable ping positions."""
 
     ship_path = geoviews.Path(
-        [
-            data
-        ],
+        [data],
         kdims=[
             "Longitude",
             "Latitude",
@@ -116,10 +95,7 @@ def _path(
         selection_alpha=0.0,
     )
 
-    return (
-        ship_path
-        * selectable_points
-    )
+    return ship_path * selectable_points
 
 
 def _point(
@@ -151,9 +127,7 @@ def track_points(
     This helper is intentionally tile-free and is used by the application
     layer to draw the current shared selection over the full track.
     """
-    data = _to_dataframe(
-        MVBS_ds
-    )
+    data = _to_dataframe(MVBS_ds)
 
     return geoviews.Points(
         data,
@@ -179,9 +153,7 @@ def _tile(
         )
 
     except AttributeError as exc:
-        raise ValueError(
-            f"Unknown map tile source: {map_tiles!r}."
-        ) from exc
+        raise ValueError(f"Unknown map tile source: {map_tiles!r}.") from exc
 
 
 def get_track_corners(
@@ -189,18 +161,10 @@ def get_track_corners(
 ):
     """Return left, bottom, right, and top geographic bounds."""
     return (
-        numpy.nanmin(
-            MVBS_ds.longitude.values
-        ),
-        numpy.nanmin(
-            MVBS_ds.latitude.values
-        ),
-        numpy.nanmax(
-            MVBS_ds.longitude.values
-        ),
-        numpy.nanmax(
-            MVBS_ds.latitude.values
-        ),
+        numpy.nanmin(MVBS_ds.longitude.values),
+        numpy.nanmin(MVBS_ds.latitude.values),
+        numpy.nanmax(MVBS_ds.longitude.values),
+        numpy.nanmax(MVBS_ds.latitude.values),
     )
 
 

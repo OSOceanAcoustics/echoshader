@@ -35,9 +35,7 @@ def _format_datetime(
         "s",
     )
 
-    return str(
-        value
-    ).replace(
+    return str(value).replace(
         "T",
         " ",
     )
@@ -83,17 +81,10 @@ def _format_duration(
     )
 
     if hours:
-        return (
-            f"{hours} h "
-            f"{minutes} min "
-            f"{seconds} s"
-        )
+        return f"{hours} h {minutes} min {seconds} s"
 
     if minutes:
-        return (
-            f"{minutes} min "
-            f"{seconds} s"
-        )
+        return f"{minutes} min {seconds} s"
 
     return f"{seconds} s"
 
@@ -121,21 +112,12 @@ def selection_summary(
         0,
     )
 
-    if (
-        ping_dim in selected
-        and selected_pings
-    ):
-        times = selected[
-            ping_dim
-        ].values
+    if ping_dim in selected and selected_pings:
+        times = selected[ping_dim].values
 
-        start = times[
-            0
-        ]
+        start = times[0]
 
-        end = times[
-            -1
-        ]
+        end = times[-1]
 
     else:
         start = None
@@ -186,44 +168,23 @@ def selection_metadata(
     )
 
     if "channel" in selected:
-        channels = [
-            str(
-                value
-            )
-            for value in selected[
-                "channel"
-            ].values.tolist()
-        ]
+        channels = [str(value) for value in selected["channel"].values.tolist()]
 
     else:
         channels = []
 
     if var_name in selected:
-        variable = selected[
-            var_name
-        ]
+        variable = selected[var_name]
 
-        dimensions = " × ".join(
-            variable.dims
-        )
+        dimensions = " × ".join(variable.dims)
 
-        shape = " × ".join(
-            str(
-                variable.sizes[
-                    dim
-                ]
-            )
-            for dim in variable.dims
-        )
+        shape = " × ".join(str(variable.sizes[dim]) for dim in variable.dims)
 
     else:
         dimensions = "—"
         shape = "—"
 
-    channel_text = "\n".join(
-        f"- {channel}"
-        for channel in channels
-    )
+    channel_text = "\n".join(f"- {channel}" for channel in channels)
 
     if not channel_text:
         channel_text = "—"

@@ -39,10 +39,7 @@ def _build_sources(config: dict, context: AppContext):
             progress = True
 
         if not progress:
-            raise ValueError(
-                "Could not resolve data-source dependencies: "
-                f"{list(pending)}"
-            )
+            raise ValueError(f"Could not resolve data-source dependencies: {list(pending)}")
 
     for name, source_config in source_configs.items():
         dependency = source_config.get("depends_on")
@@ -90,22 +87,15 @@ def _resolve_control_options(control_config: dict, data_sources: dict):
     coord_name = options_from["coord"]
 
     if data_name not in data_sources:
-        raise ValueError(
-            f"Unknown control options data source: {data_name!r}."
-        )
+        raise ValueError(f"Unknown control options data source: {data_name!r}.")
 
     data = _get_current_data(data_sources[data_name])
 
     if not isinstance(data, xarray.Dataset):
-        raise TypeError(
-            "Control options_from currently requires an xarray.Dataset."
-        )
+        raise TypeError("Control options_from currently requires an xarray.Dataset.")
 
     if coord_name not in data.coords:
-        raise ValueError(
-            f"Coordinate {coord_name!r} is not present in "
-            f"data source {data_name!r}."
-        )
+        raise ValueError(f"Coordinate {coord_name!r} is not present in data source {data_name!r}.")
 
     values = [
         value.item() if hasattr(value, "item") else value
@@ -139,10 +129,7 @@ def _build_controls(
         if write_name is not None:
             shared_value = state.get_value(write_name)
 
-            if (
-                shared_value.value is not None
-                and "value" not in args
-            ):
+            if shared_value.value is not None and "value" not in args:
                 args["value"] = shared_value.value
 
         config_copy["args"] = args
@@ -201,10 +188,7 @@ def _apply_element_options(element, options: dict):
     for child in element.traverse(lambda child: child):
         child_type = type(child).__name__
 
-        if (
-            child_type in container_types
-            or child_type in handled_types
-        ):
+        if child_type in container_types or child_type in handled_types:
             continue
 
         try:
@@ -215,9 +199,7 @@ def _apply_element_options(element, options: dict):
         except AttributeError:
             continue
 
-        option_specs.append(
-            option_type(**options)
-        )
+        option_specs.append(option_type(**options))
         handled_types.add(child_type)
 
     if not option_specs:
@@ -267,9 +249,7 @@ def _build_element(
     element_type = element_config["type"]
 
     if element_type not in ELEMENTS:
-        raise ValueError(
-            f"Unknown element type: {element_type!r}."
-        )
+        raise ValueError(f"Unknown element type: {element_type!r}.")
 
     data = _apply_view(
         data,
@@ -313,9 +293,7 @@ def _parse_observe(element_config: dict):
         }
 
     if not isinstance(observe, dict):
-        raise TypeError(
-            "'observe' must be a mapping."
-        )
+        raise TypeError("'observe' must be a mapping.")
 
     mode = observe.get(
         "mode",
@@ -326,9 +304,7 @@ def _parse_observe(element_config: dict):
         "filter",
         "highlight",
     }:
-        raise ValueError(
-            f"Unknown selection observation mode: {mode!r}."
-        )
+        raise ValueError(f"Unknown selection observation mode: {mode!r}.")
 
     return {
         "selection": observe.get("selection"),
@@ -353,25 +329,16 @@ def _resolve_value_dependencies(
             value_names = [value_names]
 
         if not isinstance(value_names, list):
-            raise TypeError(
-                "Observed values must be a value name "
-                "or list of value names."
-            )
+            raise TypeError("Observed values must be a value name or list of value names.")
 
         dependency_names = []
 
         for index, value_name in enumerate(value_names):
-            dependency_name = (
-                f"value__{argument_name}__{index}"
-            )
+            dependency_name = f"value__{argument_name}__{index}"
 
-            dependencies[dependency_name] = (
-                state.get_value(value_name).param.value
-            )
+            dependencies[dependency_name] = state.get_value(value_name).param.value
 
-            dependency_names.append(
-                dependency_name
-            )
+            dependency_names.append(dependency_name)
 
         specifications[argument_name] = dependency_names
 
@@ -386,16 +353,9 @@ def _build_runtime_values(
     runtime_values = {}
 
     for argument_name, dependency_names in specifications.items():
-        values = [
-            bindings[dependency_name]
-            for dependency_name in dependency_names
-        ]
+        values = [bindings[dependency_name] for dependency_name in dependency_names]
 
-        runtime_values[argument_name] = (
-            values[0]
-            if len(values) == 1
-            else values
-        )
+        runtime_values[argument_name] = values[0] if len(values) == 1 else values
 
     return runtime_values
 
@@ -422,9 +382,7 @@ def _selection_intervals(
 
     mask = mask.reindex(
         {
-            projection: source_data[
-                projection
-            ],
+            projection: source_data[projection],
         },
         fill_value=False,
     )
@@ -437,23 +395,17 @@ def _selection_intervals(
     if not selected.any():
         return []
 
-    indices = numpy.flatnonzero(
-        selected
-    )
+    indices = numpy.flatnonzero(selected)
 
     # Split whenever selected indices are not consecutive.
-    breaks = numpy.where(
-        numpy.diff(indices) > 1
-    )[0] + 1
+    breaks = numpy.where(numpy.diff(indices) > 1)[0] + 1
 
     runs = numpy.split(
         indices,
         breaks,
     )
 
-    values = source_data[
-        projection
-    ].values
+    values = source_data[projection].values
 
     return [
         (
@@ -477,10 +429,7 @@ def _selection_overlay(
     to return the same object type on every update; returning Overlay when
     empty and VSpan when selected causes the rendering failure seen before.
     """
-    projection = (
-        observe.get("projection")
-        or "ping_time"
-    )
+    projection = observe.get("projection") or "ping_time"
 
     intervals = _selection_intervals(
         source_data,
@@ -530,9 +479,8 @@ def _selection_overlay(
         for start, end in intervals
     ]
 
-    return holoviews.Overlay(
-        spans
-    )
+    return holoviews.Overlay(spans)
+
 
 def _build_reactive_element(
     state: AppState,
@@ -546,9 +494,7 @@ def _build_reactive_element(
     the acoustic raster intact and adds only a lightweight vector overlay.
     """
     data = _get_data(data_source)
-    observe = _parse_observe(
-        element_config
-    )
+    observe = _parse_observe(element_config)
 
     dependencies = {
         "data": data,
@@ -556,19 +502,10 @@ def _build_reactive_element(
 
     selection_name = observe["selection"]
 
-    if (
-        selection_name is not None
-        and (
-            observe["mode"] == "filter"
-            or element_config["type"]
-            == "tricolor_echogram"
-        )
+    if selection_name is not None and (
+        observe["mode"] == "filter" or element_config["type"] == "tricolor_echogram"
     ):
-        dependencies["selection_value"] = (
-            state.get_selection(
-                selection_name
-            ).param.value
-        )
+        dependencies["selection_value"] = state.get_selection(selection_name).param.value
 
     (
         value_dependencies,
@@ -578,9 +515,7 @@ def _build_reactive_element(
         observe["values"],
     )
 
-    dependencies.update(
-        value_dependencies
-    )
+    dependencies.update(value_dependencies)
 
     def build(
         data,
@@ -589,10 +524,7 @@ def _build_reactive_element(
     ):
         source_data = data
 
-        if (
-            selection_name is not None
-            and observe["mode"] == "filter"
-        ):
+        if selection_name is not None and observe["mode"] == "filter":
             data = apply_selection(
                 data,
                 selection_value,
@@ -614,18 +546,14 @@ def _build_reactive_element(
         # RGB is reactive to its channel widgets. Rebuild only this
         # single raster when focus changes, then add a cheap VSpan.
         if (
-            element_config["type"]
-            == "tricolor_echogram"
+            element_config["type"] == "tricolor_echogram"
             and selection_name is not None
             and observe["mode"] == "highlight"
         ):
-            return (
-                plot
-                * _selection_overlay(
-                    source_data,
-                    selection_value,
-                    observe,
-                )
+            return plot * _selection_overlay(
+                source_data,
+                selection_value,
+                observe,
             )
 
         return plot
@@ -646,26 +574,16 @@ def _build_component(
     data_name = component_config["data"]
 
     if data_name not in data_sources:
-        raise ValueError(
-            f"Unknown data source: {data_name!r}."
-        )
+        raise ValueError(f"Unknown data source: {data_name!r}.")
 
-    data = _get_data(
-        data_sources[data_name]
-    )
+    data = _get_data(data_sources[data_name])
 
-    selection_name = component_config.get(
-        "selection"
-    )
+    selection_name = component_config.get("selection")
 
     selection_value = None
 
     if selection_name is not None:
-        selection_value = (
-            state.get_selection(
-                selection_name
-            ).param.value
-        )
+        selection_value = state.get_selection(selection_name).param.value
 
     args = dict(
         component_config.get(
@@ -690,9 +608,7 @@ def _build_component(
             **args,
         )
 
-    raise ValueError(
-        f"Unknown component type: {component_type!r}."
-    )
+    raise ValueError(f"Unknown component type: {component_type!r}.")
 
 
 def _layout_children(plot):
@@ -714,25 +630,13 @@ def _get_interaction_sources(
     element_name: str | None = None,
 ):
     """Return visualization elements that can own streams."""
-    elements = plot.traverse(
-        lambda element: element
-    )
+    elements = plot.traverse(lambda element: element)
 
     if element_name is not None:
-        matches = [
-            element
-            for element in elements
-            if type(element).__name__
-            == element_name
-        ]
+        matches = [element for element in elements if type(element).__name__ == element_name]
 
         if not matches:
-            available = sorted(
-                {
-                    type(element).__name__
-                    for element in elements
-                }
-            )
+            available = sorted({type(element).__name__ for element in elements})
 
             raise ValueError(
                 f"Could not find interaction element "
@@ -758,12 +662,7 @@ def _get_interaction_sources(
         "NdOverlay",
     }
 
-    return [
-        element
-        for element in elements
-        if type(element).__name__
-        not in container_types
-    ]
+    return [element for element in elements if type(element).__name__ not in container_types]
 
 
 def _interaction_points(element):
@@ -799,18 +698,12 @@ def _interaction_points(element):
 def _add_box_interaction_layers(plot):
     """Overlay an invisible Points interaction layer on each echogram."""
     children = _layout_children(plot)
-    wrapped = [
-        child
-        * _interaction_points(child)
-        for child in children
-    ]
+    wrapped = [child * _interaction_points(child) for child in children]
 
     if len(wrapped) == 1:
         return wrapped[0]
 
-    return holoviews.Layout(
-        wrapped
-    ).cols(1)
+    return holoviews.Layout(wrapped).cols(1)
 
 
 def _style_box_select_tool(plot, element):
@@ -824,17 +717,13 @@ def _style_box_select_tool(plot, element):
         ):
             continue
 
-        glyph_name = type(
-            renderer.glyph
-        ).__name__
+        glyph_name = type(renderer.glyph).__name__
 
         if glyph_name in {
             "Scatter",
             "Circle",
         }:
-            point_renderers.append(
-                renderer
-            )
+            point_renderers.append(renderer)
 
     for tool in plot.state.tools:
         if not isinstance(
@@ -867,11 +756,7 @@ def _add_interaction_tools(
     if not tools:
         return plot
 
-    hooks = (
-        [_style_box_select_tool]
-        if "box_select" in tools
-        else []
-    )
+    hooks = [_style_box_select_tool] if "box_select" in tools else []
 
     if element_name is not None:
         option_type = getattr(
@@ -903,12 +788,8 @@ def _add_interaction_tools(
     option_specs = []
     handled_types = set()
 
-    for element in _get_interaction_sources(
-        plot
-    ):
-        element_type = type(
-            element
-        ).__name__
+    for element in _get_interaction_sources(plot):
+        element_type = type(element).__name__
 
         if element_type in handled_types:
             continue
@@ -929,9 +810,7 @@ def _add_interaction_tools(
             )
         )
 
-        handled_types.add(
-            element_type
-        )
+        handled_types.add(element_type)
 
     if not option_specs:
         return plot
@@ -948,9 +827,7 @@ def _selection_is_empty(value):
         value,
         xarray.DataArray,
     ):
-        return not bool(
-            value.any().item()
-        )
+        return not bool(value.any().item())
 
     return False
 
@@ -976,51 +853,25 @@ def _build_interactions(
         selection_name = interaction["write"]
 
         if interaction_type not in INTERACTIONS:
-            raise ValueError(
-                f"Unknown interaction type: "
-                f"{interaction_type!r}."
-            )
+            raise ValueError(f"Unknown interaction type: {interaction_type!r}.")
 
         if interaction_type not in SELECTIONS:
-            raise ValueError(
-                f"No selector registered for "
-                f"{interaction_type!r}."
-            )
+            raise ValueError(f"No selector registered for {interaction_type!r}.")
 
         source_object = objects[source_name]
-        source_plot = (
-            source_object()
-            if callable(source_object)
-            else source_object
-        )
+        source_plot = source_object() if callable(source_object) else source_object
 
-        element_config = element_configs[
-            source_name
-        ]
+        element_config = element_configs[source_name]
 
-        source_element = interaction.get(
-            "source_element"
-        )
+        source_element = interaction.get("source_element")
 
         # For echogram box selection, never attach the interaction to the
         # acoustic raster itself. An invisible Points layer owns the tool.
-        if (
-            interaction_type == "box_select"
-            and element_config["type"]
-            == "echogram"
-        ):
-            source_plot = (
-                _add_box_interaction_layers(
-                    source_plot
-                )
-            )
+        if interaction_type == "box_select" and element_config["type"] == "echogram":
+            source_plot = _add_box_interaction_layers(source_plot)
             source_element = "Points"
 
-        interaction_definition = (
-            INTERACTIONS[
-                interaction_type
-            ]
-        )
+        interaction_definition = INTERACTIONS[interaction_type]
 
         source_plot = _add_interaction_tools(
             source_plot,
@@ -1039,48 +890,28 @@ def _build_interactions(
         # attached to the exact objects rendered by Panel.
         objects[source_name] = source_plot
 
-        stream_sources = (
-            _get_interaction_sources(
-                source_plot,
-                element_name=source_element,
-            )
+        stream_sources = _get_interaction_sources(
+            source_plot,
+            element_name=source_element,
         )
 
-        source_data_name = (
-            element_config["data"]
-        )
+        source_data_name = element_config["data"]
 
-        source_data = data_sources[
-            source_data_name
-        ]
+        source_data = data_sources[source_data_name]
 
-        selector = SELECTIONS[
-            interaction_type
-        ]
+        selector = SELECTIONS[interaction_type]
 
-        parameter_name = (
-            interaction_definition[
-                "parameter"
-            ]
-        )
+        parameter_name = interaction_definition["parameter"]
 
         selection_args = interaction.get(
             "args",
             {},
         )
 
-        selection = state.get_selection(
-            selection_name
-        )
+        selection = state.get_selection(selection_name)
 
         for stream_source in stream_sources:
-            stream = (
-                interaction_definition[
-                    "stream"
-                ](
-                    stream_source
-                )
-            )
+            stream = interaction_definition["stream"](stream_source)
 
             def update_selection(
                 event,
@@ -1093,22 +924,17 @@ def _build_interactions(
                 source_name=source_name,
                 interaction_type=interaction_type,
             ):
-                data = _get_current_data(
-                    source_data
-                )
+                data = _get_current_data(source_data)
 
                 value = selector(
                     data,
                     **{
-                        parameter_name:
-                            event.new,
+                        parameter_name: event.new,
                     },
                     **selection_args,
                 )
 
-                if _selection_is_empty(
-                    value
-                ):
+                if _selection_is_empty(value):
                     selection.clear()
                     return
 
@@ -1123,16 +949,12 @@ def _build_interactions(
                 parameter_name,
             )
 
-            selection.add_stream(
-                stream
-            )
+            selection.add_stream(stream)
 
 
 def _selection_pipe(selection):
     """Create a Pipe kept in sync with one shared selection."""
-    pipe = holoviews.streams.Pipe(
-        data=selection.value
-    )
+    pipe = holoviews.streams.Pipe(data=selection.value)
 
     def update_pipe(event):
         pipe.send(event.new)
@@ -1157,10 +979,7 @@ def _build_track_highlight(
     pipe = _selection_pipe(selection)
 
     highlight = observe["highlight"]
-    projection = (
-        observe["projection"]
-        or "ping_time"
-    )
+    projection = observe["projection"] or "ping_time"
 
     color = highlight.get(
         "color",
@@ -1174,12 +993,7 @@ def _build_track_highlight(
 
     def selected_points(data):
         if data is None:
-            selected = source_data.isel(
-                {
-                    projection:
-                        slice(0, 0)
-                }
-            )
+            selected = source_data.isel({projection: slice(0, 0)})
         else:
             selected = apply_selection(
                 source_data,
@@ -1188,9 +1002,7 @@ def _build_track_highlight(
                 drop=True,
             )
 
-        return track_points(
-            selected
-        ).opts(
+        return track_points(selected).opts(
             color=color,
             size=size,
             alpha=1.0,
@@ -1226,17 +1038,12 @@ def _build_time_highlight(
     )
 
     children = _layout_children(plot)
-    highlighted = [
-        child * overlay
-        for child in children
-    ]
+    highlighted = [child * overlay for child in children]
 
     if len(highlighted) == 1:
         return highlighted[0]
 
-    return holoviews.Layout(
-        highlighted
-    ).cols(1)
+    return holoviews.Layout(highlighted).cols(1)
 
 
 def _build_selection_views(
@@ -1247,48 +1054,31 @@ def _build_selection_views(
 ):
     """Add lightweight visual observers of shared selections."""
     for name, element_config in element_configs.items():
-        observe = _parse_observe(
-            element_config
-        )
+        observe = _parse_observe(element_config)
 
-        if (
-            observe["selection"] is None
-            or observe["mode"] != "highlight"
-        ):
+        if observe["selection"] is None or observe["mode"] != "highlight":
             continue
 
-        selection = state.get_selection(
-            observe["selection"]
-        )
+        selection = state.get_selection(observe["selection"])
 
-        data = _get_current_data(
-            data_sources[
-                element_config["data"]
-            ]
-        )
+        data = _get_current_data(data_sources[element_config["data"]])
 
-        element_type = (
-            element_config["type"]
-        )
+        element_type = element_config["type"]
 
         if element_type == "track":
-            objects[name] = (
-                _build_track_highlight(
-                    objects[name],
-                    data,
-                    selection,
-                    observe,
-                )
+            objects[name] = _build_track_highlight(
+                objects[name],
+                data,
+                selection,
+                observe,
             )
 
         elif element_type == "echogram":
-            objects[name] = (
-                _build_time_highlight(
-                    objects[name],
-                    data,
-                    selection,
-                    observe,
-                )
+            objects[name] = _build_time_highlight(
+                objects[name],
+                data,
+                selection,
+                observe,
             )
 
         elif element_type == "tricolor_echogram":
@@ -1311,10 +1101,7 @@ def _resolve_layout_child(
     """Resolve one layout child."""
     if isinstance(child, str):
         if child not in objects:
-            raise ValueError(
-                f"Unknown layout object: "
-                f"{child!r}."
-            )
+            raise ValueError(f"Unknown layout object: {child!r}.")
 
         return objects[child]
 
@@ -1324,10 +1111,7 @@ def _resolve_layout_child(
             objects,
         )
 
-    raise TypeError(
-        "Layout children must be names "
-        "or nested layout dictionaries."
-    )
+    raise TypeError("Layout children must be names or nested layout dictionaries.")
 
 
 def _build_layout(
@@ -1347,14 +1131,10 @@ def _build_layout(
 
     kwargs = {}
 
-    sizing_mode = layout_config.get(
-        "sizing_mode"
-    )
+    sizing_mode = layout_config.get("sizing_mode")
 
     if sizing_mode is not None:
-        kwargs["sizing_mode"] = (
-            sizing_mode
-        )
+        kwargs["sizing_mode"] = sizing_mode
 
     if layout_type == "column":
         return pn.Column(
@@ -1419,10 +1199,7 @@ def _build_layout(
             **kwargs,
         )
 
-    raise ValueError(
-        f"Unknown layout type: "
-        f"{layout_type!r}."
-    )
+    raise ValueError(f"Unknown layout type: {layout_type!r}.")
 
 
 def _build_template(
@@ -1442,27 +1219,20 @@ def _build_template(
     )
 
     if template_name != "fast_list":
-        raise ValueError(
-            f"Unknown app template: "
-            f"{template_name!r}."
-        )
+        raise ValueError(f"Unknown app template: {template_name!r}.")
 
-    template = (
-        pn.template.FastListTemplate(
-            title=app_config.get(
-                "title",
-                "Echoshader",
-            ),
-            sidebar_width=app_config.get(
-                "sidebar_width",
-                420,
-            ),
-        )
+    template = pn.template.FastListTemplate(
+        title=app_config.get(
+            "title",
+            "Echoshader",
+        ),
+        sidebar_width=app_config.get(
+            "sidebar_width",
+            420,
+        ),
     )
 
-    subtitle = app_config.get(
-        "subtitle"
-    )
+    subtitle = app_config.get("subtitle")
 
     if subtitle:
         template.header.append(
@@ -1509,9 +1279,7 @@ def build_app(
     if context is not None:
         context_values.update(context)
 
-    app_context = AppContext(
-        values=context_values
-    )
+    app_context = AppContext(values=context_values)
 
     for name, value in config.get(
         "values",
@@ -1556,32 +1324,22 @@ def build_app(
     objects = {}
 
     for name, element_config in element_configs.items():
-        data_name = (
-            element_config["data"]
-        )
+        data_name = element_config["data"]
 
-        objects[name] = (
-            _build_reactive_element(
-                state=state,
-                element_config=element_config,
-                data_source=data_sources[
-                    data_name
-                ],
-            )
+        objects[name] = _build_reactive_element(
+            state=state,
+            element_config=element_config,
+            data_source=data_sources[data_name],
         )
 
     for name, component_config in config.get(
         "components",
         {},
     ).items():
-        objects[name] = (
-            _build_component(
-                component_config=(
-                    component_config
-                ),
-                state=state,
-                data_sources=data_sources,
-            )
+        objects[name] = _build_component(
+            component_config=(component_config),
+            state=state,
+            data_sources=data_sources,
         )
 
     _build_interactions(
@@ -1606,9 +1364,7 @@ def build_app(
             "layout",
             {
                 "type": "column",
-                "children": list(
-                    objects
-                ),
+                "children": list(objects),
             },
         ),
         objects,

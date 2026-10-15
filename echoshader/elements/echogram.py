@@ -51,10 +51,7 @@ def echogram(
         A single echogram or a vertical layout of echograms.
     """
     if channel is None:
-        channels = [
-            str(value)
-            for value in ds["channel"].values.tolist()
-        ]
+        channels = [str(value) for value in ds["channel"].values.tolist()]
     elif isinstance(channel, str):
         return single_echogram(
             ds=ds,
