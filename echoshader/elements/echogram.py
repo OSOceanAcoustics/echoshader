@@ -24,7 +24,7 @@ def _is_regular(values):
 
 def echogram(
     ds: xarray.Dataset,
-    channel: str | list[str],
+    channel: str | list[str] | None = None,
     var_name: str = "Sv",
     x_dim: str = "ping_time",
     vert_dim: str = "echo_range",
@@ -50,7 +50,12 @@ def echogram(
     holoviews.Image, holoviews.QuadMesh or holoviews.Layout
         A single echogram or a vertical layout of echograms.
     """
-    if isinstance(channel, str):
+    if channel is None:
+        channels = [
+            str(value)
+            for value in ds["channel"].values.tolist()
+        ]
+    elif isinstance(channel, str):
         return single_echogram(
             ds=ds,
             channel=channel,
@@ -58,6 +63,8 @@ def echogram(
             x_dim=x_dim,
             vert_dim=vert_dim,
         )
+    else:
+        channels = channel
 
     echograms = [
         single_echogram(
@@ -67,7 +74,7 @@ def echogram(
             x_dim=x_dim,
             vert_dim=vert_dim,
         )
-        for ch in channel
+        for ch in channels
     ]
 
     return holoviews.Layout(echograms).cols(1)

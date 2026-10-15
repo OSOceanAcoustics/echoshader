@@ -429,6 +429,72 @@ def _points_in_polygon(
 
     return inside
 
+def point_indices_from_mask(
+    ds: xarray.Dataset,
+    mask,
+    dim: str = "ping_time",
+    x: str = "longitude",
+    y: str = "latitude",
+):
+    """
+    Convert a shared selection mask back into displayed map-point indices.
+
+    This is the inverse operation of point_index_mask().
+    """
+
+    if mask is None:
+        return []
+
+    mask = project_mask(
+        mask,
+        keep_dims=dim,
+    )
+
+    mask = mask.reindex(
+        {
+            dim: ds[dim],
+        },
+        fill_value=False,
+    )
+
+    selected_positions = numpy.flatnonzero(
+        numpy.asarray(
+            mask.values,
+            dtype=bool,
+        )
+    )
+
+    x_values = numpy.asarray(
+        ds[x].values
+    )
+
+    y_values = numpy.asarray(
+        ds[y].values
+    )
+
+    valid = (
+        numpy.isfinite(x_values)
+        & numpy.isfinite(y_values)
+    )
+
+    valid_positions = numpy.flatnonzero(
+        valid
+    )
+
+    position_to_display_index = {
+        position: index
+        for index, position in enumerate(
+            valid_positions
+        )
+    }
+
+    return [
+        position_to_display_index[
+            position
+        ]
+        for position in selected_positions
+        if position in position_to_display_index
+    ]
 
 SELECTIONS = {
     "point_select": point_index_mask,

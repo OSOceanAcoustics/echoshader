@@ -1,16 +1,18 @@
+app:
+  title: Echoshader
+  subtitle: Interactive acoustic data exploration
+  template: fast_list
+  sidebar_width: 420
+
+
 data:
   survey:
     type: netcdf
     path: examples/data/concatenated_MVBS.nc
 
 
-# ============================================================
-# SHARED REACTIVE STATE
-# ============================================================
-
 selections:
   focus: {}
-  region: {}
 
 
 values:
@@ -19,79 +21,55 @@ values:
   rgb_blue: "GPT  18 kHz 009072058c8d 1-1 ES18-11"
 
 
-# ============================================================
-# CONTROLS
-#
-# Controls write shared state values.
-# They do NOT bind directly to element args.
-# ============================================================
-
 controls:
-
   rgb_red:
     type: select
     write: rgb_red
-
+    options_from:
+      data: survey
+      coord: channel
     args:
       name: Red channel
-
-      options:
-        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
-        - "GPT  38 kHz 009072058146 2-1 ES38B"
-        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
-
 
   rgb_green:
     type: select
     write: rgb_green
-
+    options_from:
+      data: survey
+      coord: channel
     args:
       name: Green channel
-
-      options:
-        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
-        - "GPT  38 kHz 009072058146 2-1 ES38B"
-        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
-
 
   rgb_blue:
     type: select
     write: rgb_blue
-
+    options_from:
+      data: survey
+      coord: channel
     args:
       name: Blue channel
 
-      options:
-        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
-        - "GPT  38 kHz 009072058146 2-1 ES38B"
-        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
-
-
-# ============================================================
-# ELEMENTS
-# ============================================================
 
 elements:
-
-  # ----------------------------------------------------------
-  # MAP
-  # ----------------------------------------------------------
-
   track:
     type: track
     data: survey
+
+    observe:
+      selection: focus
+      mode: highlight
+      projection: ping_time
+      highlight:
+        color: dodgerblue
+        size: 7
 
     args:
       tile: OpenTopoMap
 
     opts:
-      width: 450
-      height: 450
+      width: 370
+      height: 350
 
-
-  # ----------------------------------------------------------
-  # MULTI-CHANNEL ECHOGRAM
-  # ----------------------------------------------------------
 
   echogram:
     type: echogram
@@ -99,69 +77,64 @@ elements:
 
     observe:
       selection: focus
+      mode: highlight
+      projection: ping_time
+      highlight:
+        color: dodgerblue
+        fill_alpha: 0.08
+        line_alpha: 0.9
+        line_width: 2
 
     view:
       max_pings: 5000
       ping_dim: ping_time
 
     args:
-      channel:
-        - "GPT 120 kHz 00907205a6d0 4-1 ES120-7C"
-        - "GPT  38 kHz 009072058146 2-1 ES38B"
-        - "GPT  18 kHz 009072058c8d 1-1 ES18-11"
-
+      channel: null
       vert_dim: echo_range
 
     opts:
       cmap: jet
       width: 1000
-      height: 750
+      height: 190
 
-
-  # ----------------------------------------------------------
-  # HISTOGRAM
-  #
-  # Observes exact acoustic cells selected on echogram.
-  # ----------------------------------------------------------
 
   histogram:
     type: hist
     data: survey
 
     observe:
-      selection: region
-      drop: false
+      selection: focus
+      mode: filter
 
     args:
       bins: 24
       overlay: true
 
     opts:
-      width: 450
-      height: 300
+      width: 1000
+      height: 280
+      tools:
+        - pan
+        - wheel_zoom
+        - reset
 
-
-  # ----------------------------------------------------------
-  # RGB
-  #
-  # channel is NOT hard-wired to controls.
-  #
-  # It observes three shared values. The builder converts:
-  #
-  # rgb_red + rgb_green + rgb_blue
-  #
-  # into:
-  #
-  # channel: [red, green, blue]
-  # ----------------------------------------------------------
 
   rgb_echogram:
     type: tricolor_echogram
     data: survey
 
     observe:
-      values:
+      selection: focus
+      mode: highlight
+      projection: ping_time
+      highlight:
+        color: dodgerblue
+        fill_alpha: 0.08
+        line_alpha: 0.9
+        line_width: 2
 
+      values:
         channel:
           - rgb_red
           - rgb_green
@@ -177,23 +150,34 @@ elements:
       vert_dim: echo_range
 
     opts:
-      width: 1200
-      height: 700
+      width: 1100
+      height: 650
+      tools:
+        - pan
+        - wheel_zoom
+        - reset
 
 
-# ============================================================
-# INTERACTIONS
-# ============================================================
+components:
+  selection_summary:
+    type: selection_summary
+    data: survey
+    selection: focus
+
+    args:
+      ping_dim: ping_time
+
+  selection_metadata:
+    type: selection_metadata
+    data: survey
+    selection: focus
+
+    args:
+      var_name: Sv
+      ping_dim: ping_time
+
 
 interactions:
-
-  # ----------------------------------------------------------
-  # MAP
-  #
-  # Bokeh selects displayed geographic points.
-  # Their point indices are converted into ping_time selection.
-  # ----------------------------------------------------------
-
   - type: point_select
     source: track
     source_element: Points
@@ -204,26 +188,21 @@ interactions:
       x: longitude
       y: latitude
 
-
-  # ----------------------------------------------------------
-  # ECHOGRAM
-  #
-  # Lasso selects acoustic cells.
-  # Histogram observes this shared region.
-  # ----------------------------------------------------------
-
-  - type: lasso_select
+  - type: box_select
     source: echogram
-    write: region
+    write: focus
 
     args:
-      x: ping_time
-      y: echo_range
+      dim: ping_time
+      axis: x
 
 
-# ============================================================
-# LAYOUT
-# ============================================================
+sidebar:
+  children:
+    - track
+    - selection_summary
+    - selection_metadata
+
 
 layout:
   type: tabs
@@ -231,43 +210,19 @@ layout:
   sizing_mode: stretch_width
 
   children:
-
-    # --------------------------------------------------------
-    # TAB 1
-    #
-    # LEFT              RIGHT
-    #
-    # Map               Multi-channel echograms
-    # Histogram
-    # --------------------------------------------------------
-
     - title: Echograms
-      type: row
+      type: column
       sizing_mode: stretch_width
-
       children:
-
-        - type: column
-          children:
-            - track
-            - histogram
-
-        - type: column
-          children:
-            - echogram
-
-
-    # --------------------------------------------------------
-    # TAB 2
-    # --------------------------------------------------------
+        - echogram
+        - histogram
 
     - title: RGB
       type: column
       sizing_mode: stretch_width
-
       children:
-
         - type: row
+          sizing_mode: stretch_width
           children:
             - rgb_red
             - rgb_green
