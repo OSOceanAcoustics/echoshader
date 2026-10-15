@@ -146,7 +146,7 @@ def _build_controls(
         elif shared_value.value in list(control.options):
             control.value = shared_value.value
         elif len(control.options):
-            control.value = list(control.options)[0]
+            control.value = next(iter(control.options))
             shared_value.value = control.value
 
         def update_value(event, value_state=shared_value):
