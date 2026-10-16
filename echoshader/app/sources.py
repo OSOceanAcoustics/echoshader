@@ -96,10 +96,7 @@ class DataSource(param.Parameterized):
         values = {}
 
         for name, export_config in self.exports.items():
-            # ------------------------------------------------------
-            # Dataset attribute
-            # ------------------------------------------------------
-
+            # export dataset attribute
             if "attr" in export_config:
                 attr_name = export_config["attr"]
 
@@ -116,10 +113,7 @@ class DataSource(param.Parameterized):
                 if value is not None:
                     values[name] = value
 
-            # ------------------------------------------------------
-            # Dataset coordinate
-            # ------------------------------------------------------
-
+            # export dataset coordinate
             elif "coord" in export_config:
                 coord_name = export_config["coord"]
 

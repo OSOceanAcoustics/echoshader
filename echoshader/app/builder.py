@@ -397,7 +397,7 @@ def _selection_intervals(
 
     indices = numpy.flatnonzero(selected)
 
-    # Split whenever selected indices are not consecutive.
+    # split non-consecutive selections
     breaks = numpy.where(numpy.diff(indices) > 1)[0] + 1
 
     runs = numpy.split(
@@ -543,8 +543,7 @@ def _build_reactive_element(
             runtime_values=runtime_values,
         )
 
-        # RGB is reactive to its channel widgets. Rebuild only this
-        # single raster when focus changes, then add a cheap VSpan.
+        # rebuild RGB when its channels or selection change
         if (
             element_config["type"] == "tricolor_echogram"
             and selection_name is not None
@@ -865,8 +864,7 @@ def _build_interactions(
 
         source_element = interaction.get("source_element")
 
-        # For echogram box selection, never attach the interaction to the
-        # acoustic raster itself. An invisible Points layer owns the tool.
+        # use an invisible points layer for echogram box selection
         if interaction_type == "box_select" and element_config["type"] == "echogram":
             source_plot = _add_box_interaction_layers(source_plot)
             source_element = "Points"
@@ -886,8 +884,7 @@ def _build_interactions(
             element_name=source_element,
         )
 
-        # Keep interaction sources concrete so HoloViews streams stay
-        # attached to the exact objects rendered by Panel.
+        # keep streams attached to the rendered objects
         objects[source_name] = source_plot
 
         stream_sources = _get_interaction_sources(
@@ -1337,7 +1334,7 @@ def build_app(
         {},
     ).items():
         objects[name] = _build_component(
-            component_config=(component_config),
+            component_config=component_config,
             state=state,
             data_sources=data_sources,
         )
