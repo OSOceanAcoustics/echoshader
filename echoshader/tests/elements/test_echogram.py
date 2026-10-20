@@ -21,7 +21,12 @@ def ds():
         coords={
             "channel": ["18", "38", "120"],
             "ping_time": numpy.array(
-                [0, 1, 2],
+                [
+                    "2023-08-11T00:00:00",
+                    "2023-08-11T00:00:01",
+                    "2023-08-11T00:00:02",
+                ],
+                dtype="datetime64[ns]",
             ),
             "depth": [10, 20, 30, 40],
         },
@@ -62,7 +67,14 @@ def test_tricolor(ds):
 
 def test_irregular_ping_time(ds):
     ds = ds.assign_coords(
-        ping_time=[0, 1, 3],
+        ping_time=numpy.array(
+            [
+                "2023-08-11T00:00:00",
+                "2023-08-11T00:00:01",
+                "2023-08-11T00:00:03",
+            ],
+            dtype="datetime64[ns]",
+        ),
     )
 
     plot = echogram(

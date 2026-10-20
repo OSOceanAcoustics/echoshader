@@ -220,8 +220,24 @@ def tricolor_echogram(
     ``vmin`` and ``vmax`` are data-normalization limits rather than
     ordinary display limits.
     """
-    if len(channel) != 3:
-        raise ValueError("Exactly 3 channels are required for a tricolor echogram.")
+    from echoshader.validation import validate_dataset
+
+    validation = validate_dataset(ds, tricolor_channels=channel, vert_dim=vert_dim)
+    if not validation.tricolor_ready:
+        raise ValueError(f"Tricolor is not available: {validation.tricolor_reason}")
+
+    # A native Sv array is indexed by range_sample, even when the requested
+    # vertical coordinate is physical echo_range/depth.
+    sample_dim = validation.vertical_dim
+    vertical = ds[vert_dim]
+    if "channel" in vertical.dims:
+        vertical = vertical.sel(channel=channel[0], drop=True)
+    if x_dim in vertical.dims:
+        vertical = vertical.isel({x_dim: 0}, drop=True)
+    axis = numpy.asarray(vertical.values)
+    valid = numpy.isfinite(axis)
+    if valid.sum() < 2:
+        raise ValueError(f"No usable vertical coordinates for {vert_dim!r}.")
 
     rgb = [
         _convert_to_color(
@@ -231,19 +247,20 @@ def tricolor_echogram(
             vmax=vmax,
             var_name=var_name,
             x_dim=x_dim,
-            vert_dim=vert_dim,
-        )
+            vert_dim=sample_dim,
+        )[valid, :]
         for ch in channel
     ]
 
     return holoviews.RGB(
         (
             ds[x_dim].data,
-            ds[vert_dim].data,
+            axis[valid],
             rgb[0],
             rgb[1],
             rgb[2],
-        )
+        ),
+        kdims=[x_dim, vert_dim],
     ).opts(
         invert_yaxis=True,
     )

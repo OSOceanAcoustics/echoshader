@@ -11,6 +11,7 @@ from .elements.hist import hist as hist_element
 from .elements.table import table as table_element
 from .elements.track import track as track_element
 
+from .validation import validate_dataset
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader:
@@ -18,35 +19,7 @@ class Echoshader:
 
     def __init__(self, xarray_obj: xarray.Dataset):
         self._obj = xarray_obj
-        self._check_input()
-
-    def _check_input(self):
-        """Validate the minimum dataset structure required by Echoshader."""
-        if "Sv" not in self._obj.variables:
-            raise ValueError("Dataset must contain a variable named 'Sv'.")
-
-        expected_dims = (
-            "channel",
-            "ping_time",
-            ("range_sample", "depth", "echo_range"),
-        )
-        actual_dims = self._obj["Sv"].dims
-
-        if len(actual_dims) != 3:
-            raise ValueError("'Sv' must have exactly 3 dimensions.")
-
-        for i, (actual, expected) in enumerate(zip(actual_dims, expected_dims)):
-            if isinstance(expected, tuple):
-                if actual not in expected:
-                    raise ValueError(
-                        f"'Sv' dimension at index {i} "
-                        f"must be one of {expected}, "
-                        f"but got '{actual}'."
-                    )
-            elif actual != expected:
-                raise ValueError(
-                    f"'Sv' dimension at index {i} must be '{expected}', but got '{actual}'."
-                )
+        self.validation = validate_dataset(xarray_obj)
 
     def echogram(
         self,
@@ -68,6 +41,7 @@ class Echoshader:
         vert_dim: str = "echo_range",
     ):
         """Create a tricolor RGB echogram."""
+
         return tricolor_echogram_element(
             self._obj,
             channel=channel,
