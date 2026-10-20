@@ -391,9 +391,9 @@ def build_acoustic_app(
         alert_type="info",
     )
     if track_data is not None and len(track_data):
-        # Reuse the standalone Echoshader track element for ping positions.
-        # Render its positions with HoloViews in Web Mercator coordinates:
-        # this avoids the GeoViews/Cartopy projection error in tile overlays.
+        # reuse the standalone Echoshader track element for ping positions
+        # render its positions with HoloViews in Web Mercator coordinates:
+        # this avoids the GeoViews/Cartopy projection error in tile overlays
         track_ds = ds
         if source.track is not None:
             indexed = track_data.set_index("ping_time").reindex(pd.to_datetime(times))
@@ -500,7 +500,7 @@ def build_acoustic_app(
         ]
     )
 
-    # Expose all source metadata without filling the sidebar with long histories.
+    # expose all source metadata without filling the sidebar with long histories
     attributes = {k: v for k, v in ds.attrs.items() if k.lower() != "history"}
     details = []
     if attributes:
@@ -575,7 +575,7 @@ def build_acoustic_app(
         sizing_mode="stretch_both",
         margin=0,
     )
-    # Equal-width columns and equal-height cards for spatial/temporal selection.
+    # equal-width columns and equal-height cards for spatial/temporal selection
     navigation_row = pn.GridBox(
         pn.Card(navigator, hide_header=True, min_height=650, sizing_mode="stretch_both"),
         pn.Card(map_panel, hide_header=True, min_height=650, sizing_mode="stretch_both"),

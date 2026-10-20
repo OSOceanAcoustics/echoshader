@@ -103,20 +103,3 @@ Runnable examples for the visualization elements are available in:
 [`examples/notebooks/element_examples.ipynb`](https://github.com/echostack-org/echoshader/blob/main/examples/notebooks/element_examples.ipynb)
 
 The notebook demonstrates the individual elements directly. Higher-level interactions such as linked selections and shared controls are documented separately as part of the Echoshader application layer.
-
-## Acoustic dataset validation and geometry
-
-The `ds.eshader` accessor validates the basic acoustic structure. The `Sv` variable must use `(channel, ping_time, vertical)` dimensions with one of `range_sample`, `depth`, or `echo_range` as the vertical dimension. Ping times must be valid, strictly increasing timestamps.
-
-For a direct validation report:
-
-```python
-from echoshader.validation import validate_dataset
-
-result = validate_dataset(ds, tricolor_channels=ds.channel.values[:3].tolist())
-print(result.vertical_dim, result.tricolor_ready, result.tricolor_reason)
-```
-
-**Valid acoustic data do not necessarily permit tricolor rendering.** Three transducers can share `range_sample` indices while having different physical `echo_range` or `depth` geometries. A tricolor image requires a common physical vertical grid. A geometry-matched Sv product or physically gridded MVBS product may meet that requirement, subject to validation; Echoshader does not automatically resample the input.
-
-The elements are built on HoloViews, GeoViews, Plotly, and PyVista. Current echogram plots convert their selected data into plotting arrays; Datashader-based rasterization is not yet implemented.

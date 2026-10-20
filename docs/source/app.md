@@ -2,7 +2,7 @@
 
 Echoshader provides a generic, read-only [Panel](https://panel.holoviz.org/) application for exploring calibrated acoustic datasets. It combines reusable visualization elements with a shared ping-time selection, channel and color controls, and vessel-track views where geographic positions are available.
 
-The current application has a **fixed HoloViz layout configured with a small YAML file**. YAML selects the dataset and sets a few navigation/display options; it does not define an arbitrary graph of visualization elements, controls, or interactions.
+The current application has a fixed HoloViz layout configured with a small YAML file. YAML selects the dataset and sets a few navigation/display options; it does not define an arbitrary graph of visualization elements, controls, or interactions. Future developments will allow application-specific features to be added through optional extensions, enabled and configured through YAML.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Save a file named `app_config.yaml`:
 
 ```yaml
 app:
-  title: Echoshader — Acoustic exploration
+  title: Echoshader - Application template
   source: survey
   route: basic
 
@@ -64,8 +64,6 @@ The returned object is a `panel.template.FastListTemplate`. The launcher starts 
 The application offers a selected ping-time interval, linked date controls and vessel-track navigation when positions exist, single-channel and multi-frequency echograms, and a three-channel RGB view. Changing a selection requests the corresponding subset of the dataset.
 
 A tricolor echogram requires three channels on a compatible physical vertical grid. The native Sv data from different transducers may have different physical sample geometries even if they share `range_sample` indices. Use a physically aligned dataset for tricolor visualization; do not treat sample numbers as meters.
-
-The app opens Zarr data through xarray, allowing Dask-backed lazy access and time-window subsetting. The current echogram renderer materializes the **selected window** for HoloViews/Bokeh. **Datashader rendering, automatic multiresolution loading, and cloud object-store configuration are not yet part of this application.** Zarr chunks intersecting a selection may still be read as whole chunks.
 
 ## Validation and troubleshooting
 

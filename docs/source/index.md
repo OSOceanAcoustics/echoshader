@@ -10,9 +10,7 @@ Echoshader is an open-source Python library for interactive ocean sonar visualiz
 
 ## Acoustic data and processing
 
-Echoshader visualizes xarray acoustic datasets, including local Zarr and NetCDF products. Calibration, geometry matching, and MVBS calculations should be performed upstream, such as with Echopype. Echoshader validates required coordinates and reports whether a dataset supports three-channel tricolor rendering; it does not silently regrid or modify acoustic measurements.
-
-The application uses xarray/Dask-backed lazy opening and selected-time-window loading. Server-side Datashader rasterization, cloud-optimized source opening, and multiresolution data access are areas for future development, not current features.
+Echoshader visualizes xarray acoustic datasets, including Zarr and NetCDF products. Calibration, geometry matching, and MVBS calculations should be performed upstream, such as with Echopype. Echoshader validates required coordinates and reports whether a dataset supports three-channel tricolor rendering; it does not silently regrid or modify acoustic measurements.
 
 ## Examples
 

@@ -53,7 +53,7 @@ def build_app(
         else:
             raise ValueError(f"Unsupported acoustic source: {kind!r}")
 
-    # Validate the input dataset before building the application
+    # validate the input dataset before building the application
     validate_dataset(ds)
 
     navigation = config.get("navigation", {})
