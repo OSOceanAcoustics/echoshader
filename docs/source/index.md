@@ -1,24 +1,19 @@
 # Echoshader
 
-Echoshader is an open-source Python package for building interactive ocean sonar
-data visualizations using the HoloViz ecosystem.
+Echoshader is an open-source Python library for interactive ocean sonar visualization, built around the [HoloViz](https://holoviz.org/) ecosystem. It works alongside [Echopype](https://echopype.readthedocs.io/), which handles acoustic data conversion, calibration, and processing.
 
-It works alongside [echopype](https://echopype.readthedocs.io/en/stable/),
-which handles the standardization and processing of ocean sonar data.
+## Two ways to use Echoshader
 
-## Visualization elements
+**Standalone visualization elements** expose echograms, three-channel RGB echograms, vessel tracks, 3-D curtains, histograms, tables, curves, and NASC plots. They can be used in notebooks and scripts. See [Visualization elements](elements.md).
 
-Echoshader provides reusable visualization elements for working with acoustic
-datasets, including echograms, tricolor echograms, vessel tracks, 3-D curtains,
-histograms, tables, curves, and NASC plots.
+**A YAML-configured Panel application** combines selected acoustic visualizations with interactive navigation and shared controls. The current app uses a generic, predefined HoloViz layout rather than YAML-defined arbitrary controls or processing pipelines. See [Building an Echoshader application](app.md).
 
-See [Visualization elements](elements.md) for the available elements and usage
-examples.
+## Acoustic data and processing
 
-## Applications
+Echoshader visualizes xarray acoustic datasets, including local Zarr and NetCDF products. Calibration, geometry matching, and MVBS calculations should be performed upstream, such as with Echopype. Echoshader validates required coordinates and reports whether a dataset supports three-channel tricolor rendering; it does not silently regrid or modify acoustic measurements.
 
-Visualization elements can also be combined into interactive Panel applications
-with shared controls, layouts, selections, and linked views.
+The application uses xarray/Dask-backed lazy opening and selected-time-window loading. Server-side Datashader rasterization, cloud-optimized source opening, and multiresolution data access are areas for future development, not current features.
 
-See [Building an Echoshader application](app.md) for an overview of the
-application layer.
+## Examples
+
+The [element example notebook](https://github.com/echostack-org/echoshader/blob/main/examples/notebooks/element_examples.ipynb) demonstrates visualization elements. The [application example configuration](https://github.com/echostack-org/echoshader/blob/main/examples/app/app_config.yaml) shows the YAML keys used by the generic Panel app. Update its dataset path for your environment.

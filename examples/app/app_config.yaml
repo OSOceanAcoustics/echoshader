@@ -1,16 +1,13 @@
 app:
-  title: Echoshader — Basic acoustic exploration
+  title: Echoshader - Application template
   source: survey
   route: basic
-  port: 1807
 
 data:
   survey:
     type: zarr
-    path: D:/example_app_data/matched_geometry_Sv.zarr
-    # path: D:/example_app_data/combined_MVBS.zarr
-    # path: D:/example_app_data/matched_geometry_Sv.zarr
-    label: Example
+    path: /path/to/your/calibrated_Sv.zarr
+    label: Acoustic survey
 
 navigation:
   max_pings: 500

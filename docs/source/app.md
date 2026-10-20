@@ -1,60 +1,79 @@
 # Building an Echoshader application
 
-Echoshader visualization elements can be composed into interactive Panel applications. The application layer is responsible for configuration, layout, controls, shared state, and interactions between elements.
+Echoshader provides a generic, read-only [Panel](https://panel.holoviz.org/) application for exploring calibrated acoustic datasets. It combines reusable visualization elements with a shared ping-time selection, channel and color controls, and vessel-track views where geographic positions are available.
 
-> This page is an initial overview. The application API and examples will be expanded as the refactored app architecture is finalized.
+The current application has a **fixed HoloViz layout configured with a small YAML file**. YAML selects the dataset and sets a few navigation/display options; it does not define an arbitrary graph of visualization elements, controls, or interactions.
 
-## Application structure
+## Requirements
 
-An Echoshader application is built from:
+The default app expects an xarray Dataset containing `Sv`, a `channel` coordinate, and an increasing `datetime64` `ping_time` coordinate. The `Sv` variable has dimensions `(channel, ping_time, vertical)`, where `vertical` is `range_sample`, `depth`, or `echo_range`. Physical vertical coordinates such as `depth` and `echo_range` should be provided where appropriate. `frequency_nominal`, `latitude`, and `longitude` enable additional labeling and navigation features when available.
 
-- visualization elements such as echograms, tracks, histograms, and tables;
-- a YAML configuration describing data sources, elements, controls, and layout;
-- shared application state used to coordinate interactive components;
-- a Panel application generated from the configuration.
+The app accepts existing **Zarr** or **NetCDF** datasets. Acoustic processing, calibration, navigation interpolation, and geometric resampling belong upstream, for example in Echopype. The app does not silently modify the acoustic data to make datasets plot-compatible.
 
-This keeps the visualization elements independent from deployment and application-specific behavior.
+## YAML configuration
 
-## Building an application
+Save a file named `app_config.yaml`:
 
-A YAML configuration can be loaded and converted into a Panel application:
+```yaml
+app:
+  title: Echoshader — Acoustic exploration
+  source: survey
+  route: basic
+
+data:
+  survey:
+    type: zarr
+    path: /path/to/your/calibrated_Sv.zarr
+    label: Acoustic survey
+
+navigation:
+  max_pings: 500
+
+display:
+  max_range_samples: 1200
+```
+
+Change `path` to an existing local Zarr store. To use NetCDF, set `type: netcdf` and provide the corresponding file path. Relative data paths are resolved relative to the YAML file when launched through the application launcher.
+
+`max_pings` limits the displayed ping-time window. `max_range_samples` limits vertical samples in supported dimensions; it is a display sampling control, not a transformation of the stored data.
+
+## Launching the application
+
+From Python:
+
+```python
+from echoshader.app import launch
+
+launch("app_config.yaml", port=5007, address="127.0.0.1", show=True)
+```
+
+Alternatively, build the Panel template without serving it:
 
 ```python
 from echoshader.app.builder import build_app
 from echoshader.app.config import load_config
 
 config = load_config("app_config.yaml")
-app = build_app(config)
+app = build_app(config, config_dir=".")
 ```
 
-The resulting object is a Panel application and can be displayed in a notebook or served as a web application.
+The returned object is a `panel.template.FastListTemplate`. The launcher starts a Panel server. Its `port` keyword controls the server port; the `app.port` YAML key is not used by the current launcher.
 
-## Launching an application
+## Interaction and display
 
-Echoshader also provides a launcher:
+The application offers a selected ping-time interval, linked date controls and vessel-track navigation when positions exist, single-channel and multi-frequency echograms, and a three-channel RGB view. Changing a selection requests the corresponding subset of the dataset.
 
-```python
-from echoshader.app import launch
+A tricolor echogram requires three channels on a compatible physical vertical grid. The native Sv data from different transducers may have different physical sample geometries even if they share `range_sample` indices. Use a physically aligned dataset for tricolor visualization; do not treat sample numbers as meters.
 
-launch("app_config.yaml")
-```
+The app opens Zarr data through xarray, allowing Dask-backed lazy access and time-window subsetting. The current echogram renderer materializes the **selected window** for HoloViews/Bokeh. **Datashader rendering, automatic multiresolution loading, and cloud object-store configuration are not yet part of this application.** Zarr chunks intersecting a selection may still be read as whole chunks.
 
-The launcher builds the application from the YAML configuration and serves it using Panel.
+## Validation and troubleshooting
 
-## Interactive behavior
+Echoshader validates acoustic dataset structure and checks tricolor compatibility separately. An ordinary echogram may be valid even when three channels cannot be combined into an RGB plot.
 
-The application layer is where interactions between visualization elements are coordinated. Examples include:
+- **No vessel track:** check for finite `latitude` and `longitude` values aligned with `ping_time`.
+- **Mostly empty MVBS:** check whether your dataset includes time bins without recordings; the app preserves missing periods.
+- **Tricolor geometry mismatch:** select a common physical geometry dataset, rather than forcing native channels onto one sample-index axis.
+- **Slow rendering:** reduce the displayed ping window or prepare an appropriate coarser upstream product. Chunk sizing and display windows affect performance.
 
-- shared controls;
-- linked echogram and track views;
-- selections and box-selection behavior;
-- coordinated updates between multiple elements;
-- application layouts and tabs.
-
-These interactions are intentionally kept separate from the standalone visualization elements.
-
-## Deployment
-
-Echoshader builds and launches the Panel application itself. Persistent execution, process supervision, and deployment infrastructure can be handled by the environment in which the application is deployed.
-
-More complete application examples and configuration documentation will be added as the refactored application interface is finalized.
+See [Visualization elements](elements.md) for standalone use.
