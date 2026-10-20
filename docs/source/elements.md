@@ -104,7 +104,6 @@ Runnable examples for the visualization elements are available in:
 
 The notebook demonstrates the individual elements directly. Higher-level interactions such as linked selections and shared controls are documented separately as part of the Echoshader application layer.
 
-
 ## Acoustic dataset validation and geometry
 
 The `ds.eshader` accessor validates the basic acoustic structure. The `Sv` variable must use `(channel, ping_time, vertical)` dimensions with one of `range_sample`, `depth`, or `echo_range` as the vertical dimension. Ping times must be valid, strictly increasing timestamps.

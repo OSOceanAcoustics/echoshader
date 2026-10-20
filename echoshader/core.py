@@ -10,8 +10,8 @@ from .elements.echogram import (
 from .elements.hist import hist as hist_element
 from .elements.table import table as table_element
 from .elements.track import track as track_element
-
 from .validation import validate_dataset
+
 
 @xarray.register_dataset_accessor("eshader")
 class Echoshader:

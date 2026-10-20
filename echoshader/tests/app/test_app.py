@@ -17,9 +17,14 @@ def make_dataset():
         coords={
             "channel": ["18", "38", "120"],
             "ping_time": np.array(
-                ["2026-01-01T00:00:00", "2026-01-01T00:00:01",
-                 "2026-01-01T00:00:02", "2026-01-01T00:00:03",
-                 "2026-01-01T00:00:04"], dtype="datetime64[ns]"
+                [
+                    "2026-01-01T00:00:00",
+                    "2026-01-01T00:00:01",
+                    "2026-01-01T00:00:02",
+                    "2026-01-01T00:00:03",
+                    "2026-01-01T00:00:04",
+                ],
+                dtype="datetime64[ns]",
             ),
             "echo_range": np.arange(10),
         },
@@ -40,9 +45,11 @@ def test_load_config_requires_mapping(tmp_path):
 
 
 def test_build_app():
-    config = {"app": {"title": "Test app", "source": "survey"},
-              "data": {"survey": {"label": "Test survey"}},
-              "navigation": {"max_pings": 3}}
+    config = {
+        "app": {"title": "Test app", "source": "survey"},
+        "data": {"survey": {"label": "Test survey"}},
+        "navigation": {"max_pings": 3},
+    }
     app = build_app(config, datasets={"survey": make_dataset()})
     assert isinstance(app, pn.template.FastListTemplate)
 
@@ -52,10 +59,13 @@ def test_launch(monkeypatch, tmp_path):
     make_dataset().to_netcdf(dataset_path)
     config_path = tmp_path / "app_config.yaml"
     config_path.write_text(
-        yaml.safe_dump({
-            "app": {"title": "Test app", "source": "survey", "route": "basic"},
-            "data": {"survey": {"type": "netcdf", "path": "survey.nc"}},
-        }), encoding="utf-8",
+        yaml.safe_dump(
+            {
+                "app": {"title": "Test app", "source": "survey", "route": "basic"},
+                "data": {"survey": {"type": "netcdf", "path": "survey.nc"}},
+            }
+        ),
+        encoding="utf-8",
     )
     called = {}
 
@@ -75,6 +85,7 @@ def test_launch(monkeypatch, tmp_path):
     assert called["kwargs"]["address"] == "127.0.0.1"
     assert called["kwargs"]["show"] is False
 
+
 def test_build_app_from_zarr(tmp_path):
     dataset_path = tmp_path / "survey.zarr"
     make_dataset().to_zarr(dataset_path, mode="w")
@@ -92,6 +103,7 @@ def test_build_app_from_zarr(tmp_path):
     app = build_app(config)
 
     assert isinstance(app, pn.template.FastListTemplate)
+
 
 def test_build_app_invalid_dataset():
     ds = make_dataset().drop_vars("Sv")

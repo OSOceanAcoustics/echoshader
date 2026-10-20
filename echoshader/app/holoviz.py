@@ -4,20 +4,22 @@ Uses Panel for layout/reactivity, HoloViews for selections and overlays,
 Echoshader for acoustic elements, and xarray for lazily sliced Zarr data.
 This module does NOT import Echodataflow, Prefect, or a YAML builder.
 """
+
 from __future__ import annotations
 
+import datetime as dt
 from dataclasses import dataclass
 from pathlib import Path
-import datetime as dt
 
-import holoviews as hv
 import geoviews as gv
-from bokeh.models import CustomJSTickFormatter
+import holoviews as hv
 import numpy as np
 import pandas as pd
 import panel as pn
 import param
 import xarray as xr
+from bokeh.models import CustomJSTickFormatter
+
 from echoshader.elements.echogram import echogram, tricolor_echogram
 from echoshader.elements.track import track as track_element
 from echoshader.validation import validate_dataset
@@ -54,15 +56,21 @@ def _parse_track(source: AcousticSource):
         table = source.track.copy()
     elif {"ping_time", "longitude", "latitude"}.issubset(source.data.variables):
         # Track coordinates only; no acoustic array computed.
-        table = pd.DataFrame({k: np.asarray(source.data[k].values).reshape(-1)
-                              for k in ("ping_time", "longitude", "latitude")})
+        table = pd.DataFrame(
+            {
+                k: np.asarray(source.data[k].values).reshape(-1)
+                for k in ("ping_time", "longitude", "latitude")
+            }
+        )
     else:
         return None
     required = {"ping_time", "longitude", "latitude"}
     if not required.issubset(table):
         return None
     table = table[list(required)].copy()
-    table["ping_time"] = pd.to_datetime(table["ping_time"], utc=True, errors="coerce").dt.tz_localize(None)
+    table["ping_time"] = pd.to_datetime(
+        table["ping_time"], utc=True, errors="coerce"
+    ).dt.tz_localize(None)
     for col in ("longitude", "latitude"):
         table[col] = pd.to_numeric(table[col], errors="coerce")
     return table.dropna().sort_values("ping_time").reset_index(drop=True)
@@ -74,7 +82,6 @@ def build_acoustic_app(
     extra_tabs: list[tuple[str, object]] | None = None,
     title: str = "Echoshader",
 ):
-    
     """Build generic interactive app; optional tabs are composed by caller."""
 
     longitude_formatter = CustomJSTickFormatter(
@@ -89,7 +96,7 @@ def build_acoustic_app(
             return (lat * 180 / Math.PI).toFixed(2) + "°";
         """
     )
-    
+
     ds = source.data
     dataset_validation = validate_dataset(ds)
     n = ds.sizes["ping_time"]
@@ -99,29 +106,52 @@ def build_acoustic_app(
     times = ds.ping_time.values
     initial = (max(0, n - max_pings), n)
     channels = [str(ch) for ch in ds.channel.values]
-    freqs = np.asarray(ds.frequency_nominal.values, dtype=float) if "frequency_nominal" in ds else None
-    ordered = ([_channel_for_frequency(ds, f) for f in (18000, 38000, 70000, 120000, 200000)]
-               if freqs is not None else channels)
+    freqs = (
+        np.asarray(ds.frequency_nominal.values, dtype=float) if "frequency_nominal" in ds else None
+    )
+    ordered = (
+        [_channel_for_frequency(ds, f) for f in (18000, 38000, 70000, 120000, 200000)]
+        if freqs is not None
+        else channels
+    )
     ordered = list(dict.fromkeys(ordered))
-    available = {ch: float(freq) / 1000 for ch, freq in zip(channels, freqs)} if freqs is not None else {}
+    available = (
+        {ch: float(freq) / 1000 for ch, freq in zip(channels, freqs)} if freqs is not None else {}
+    )
 
     # native Panel controls: throttled updates avoid re-rendering while dragging
     timeline = pn.widgets.IntRangeSlider(
-        label="Ping interval (entire survey)", start=0, end=n,
-        value=initial, step=1, sizing_mode="stretch_width",
+        label="Ping interval (entire survey)",
+        start=0,
+        end=n,
+        value=initial,
+        step=1,
+        sizing_mode="stretch_width",
     )
     color = pn.widgets.RangeSlider(
-        label="Sv color range (dB)", start=-120, end=-20,
-        value=(-100, -30), step=1, sizing_mode="stretch_width",
+        label="Sv color range (dB)",
+        start=-120,
+        end=-20,
+        value=(-100, -30),
+        step=1,
+        sizing_mode="stretch_width",
     )
     cmap = pn.widgets.Select(
         label="Colormap",
         options=["viridis", "jet", "plasma", "inferno", "magma", "cividis", "turbo", "Greys"],
-        value="viridis", width=165,
+        value="viridis",
+        width=165,
     )
-    rgb_widgets = [pn.widgets.Select(label=f"{label} channel", options=channels,
-                      value=_channel_for_frequency(ds, freq) if freqs is not None else channels[min(i, len(channels)-1)])
-                   for i, (label, freq) in enumerate(zip(("Red", "Green", "Blue"), (120000, 38000, 18000)))]
+    rgb_widgets = [
+        pn.widgets.Select(
+            label=f"{label} channel",
+            options=channels,
+            value=_channel_for_frequency(ds, freq)
+            if freqs is not None
+            else channels[min(i, len(channels) - 1)],
+        )
+        for i, (label, freq) in enumerate(zip(("Red", "Green", "Blue"), (120000, 38000, 18000)))
+    ]
 
     def bounded(window):
         a, b = map(int, window)
@@ -217,10 +247,8 @@ def build_acoustic_app(
 
         move_selection((a, b))
 
-
     start_input.param.watch(update_from_dates, "value")
     end_input.param.watch(update_from_dates, "value")
-
 
     def sync_date_inputs(event):
         nonlocal syncing_dates
@@ -232,7 +260,6 @@ def build_acoustic_app(
             end_input.value = time_index[b - 1].to_pydatetime()
         finally:
             syncing_dates = False
-
 
     selection.param.watch(sync_date_inputs, "window")
 
@@ -250,21 +277,44 @@ def build_acoustic_app(
 
     def xrange(bounds):
         a, b = bounded(bounds)
-        start, end = pd.Timestamp(times[a]).to_pydatetime(), pd.Timestamp(times[b - 1]).to_pydatetime()
+        start, end = (
+            pd.Timestamp(times[a]).to_pydatetime(),
+            pd.Timestamp(times[b - 1]).to_pydatetime(),
+        )
         return (start, end if end > start else start + dt.timedelta(seconds=1))
 
     def echogram_view(bounds, clim, palette, *, variable, channel, label):
         w = window_dataset(tuple(bounds))
         if variable not in w:
             return pn.pane.Alert(f"{variable} is not available", alert_type="info")
-        vert_dim = next((name for name in (("depth",) if dataset_validation.vertical_dim == "depth" else ("echo_range", "depth")) if name in w), dataset_validation.vertical_dim)
+        vert_dim = next(
+            (
+                name
+                for name in (
+                    ("depth",)
+                    if dataset_validation.vertical_dim == "depth"
+                    else ("echo_range", "depth")
+                )
+                if name in w
+            ),
+            dataset_validation.vertical_dim,
+        )
         # Reuse the standalone element, which handles regular and irregular grids.
         plot = echogram(
-            w, channel=channel, var_name=variable, vert_dim=vert_dim,
+            w,
+            channel=channel,
+            var_name=variable,
+            vert_dim=vert_dim,
         ).opts(
-            width=1000, height=270, cmap=palette, clim=tuple(clim),
-            xlim=xrange(bounds), invert_yaxis=True, colorbar=False,
-            tools=["hover", "pan", "wheel_zoom", "box_zoom", "reset"], title=label,
+            width=1000,
+            height=270,
+            cmap=palette,
+            clim=tuple(clim),
+            xlim=xrange(bounds),
+            invert_yaxis=True,
+            colorbar=False,
+            tools=["hover", "pan", "wheel_zoom", "box_zoom", "reset"],
+            title=label,
         )
         if source.bottom is not None and {"time", "depth"}.issubset(source.bottom):
             bottom = source.bottom
@@ -274,39 +324,71 @@ def build_acoustic_app(
             )
             subset = bottom.loc[mask]
             if not subset.empty:
-                line = hv.Curve((pd.to_datetime(subset["time"]), subset["depth"]),
-                                kdims="ping_time", vdims=vert_dim).opts(color="black", line_width=2)
+                line = hv.Curve(
+                    (pd.to_datetime(subset["time"]), subset["depth"]),
+                    kdims="ping_time",
+                    vdims=vert_dim,
+                ).opts(color="black", line_width=2)
                 plot = (plot * line).opts(xlim=xrange(bounds), framewise=True)
         return plot
 
     def multifrequency(bounds, clim, palette):
-        return pn.Column(*[
-            echogram_view(bounds, clim, palette, variable="Sv", channel=ch,
-                          label=f"Sv — {available.get(ch, ch)}{' kHz' if ch in available else ''}")
-            for ch in ordered
-        ], sizing_mode="stretch_width")
+        return pn.Column(
+            *[
+                echogram_view(
+                    bounds,
+                    clim,
+                    palette,
+                    variable="Sv",
+                    channel=ch,
+                    label=f"Sv — {available.get(ch, ch)}{' kHz' if ch in available else ''}",
+                )
+                for ch in ordered
+            ],
+            sizing_mode="stretch_width",
+        )
 
     def tricolor(bounds, clim, red, green, blue):
         w = window_dataset(tuple(bounds))
         # Keep geometry variables: w[["Sv"]] discards native echo_range/depth.
-        dim = next((name for name in (("depth",) if dataset_validation.vertical_dim == "depth" else ("echo_range", "depth")) if name in w), dataset_validation.vertical_dim)
+        dim = next(
+            (
+                name
+                for name in (
+                    ("depth",)
+                    if dataset_validation.vertical_dim == "depth"
+                    else ("echo_range", "depth")
+                )
+                if name in w
+            ),
+            dataset_validation.vertical_dim,
+        )
         status = validate_dataset(w, tricolor_channels=[red, green, blue], vert_dim=dim)
         if not status.tricolor_ready:
             return pn.pane.Alert(status.tricolor_reason, alert_type="warning")
-        return tricolor_echogram(w, channel=[red, green, blue],
-                                vmin=float(clim[0]), vmax=float(clim[1]),
-                                var_name="Sv", vert_dim=dim).opts(
-            width=1000, height=450, framewise=True, xlim=xrange(bounds),
-            tools=["hover", "pan", "wheel_zoom", "reset"])
+        return tricolor_echogram(
+            w,
+            channel=[red, green, blue],
+            vmin=float(clim[0]),
+            vmax=float(clim[1]),
+            var_name="Sv",
+            vert_dim=dim,
+        ).opts(
+            width=1000,
+            height=450,
+            framewise=True,
+            xlim=xrange(bounds),
+            tools=["hover", "pan", "wheel_zoom", "reset"],
+        )
 
     def selection_label(bounds):
         a, b = bounded(bounds)
-        return f"**Selected:** {a:,}–{b - 1:,} ({b-a:,} pings) · {str(times[a])[:19]} → {str(times[b-1])[:19]} UTC"
-
+        return f"**Selected:** {a:,}–{b - 1:,} ({b - a:,} pings) · {str(times[a])[:19]} → {str(times[b - 1])[:19]} UTC"
 
     track_data = _parse_track(source)
     map_widget = pn.pane.Alert(
-        "No latitude/longitude coordinates available.", alert_type="info",
+        "No latitude/longitude coordinates available.",
+        alert_type="info",
     )
     if track_data is not None and len(track_data):
         # Reuse the standalone Echoshader track element for ping positions.
@@ -324,28 +406,29 @@ def build_acoustic_app(
         if not candidates:
             raise ValueError("Track element has no selectable Points layer")
         track_points = candidates[0]
-        rows = pd.DataFrame({
-            "longitude": track_points.dimension_values("Longitude"),
-            "latitude": track_points.dimension_values("Latitude"),
-            "ping_index": track_points.dimension_values("Ping Index"),
-        })
+        rows = pd.DataFrame(
+            {
+                "longitude": track_points.dimension_values("Longitude"),
+                "latitude": track_points.dimension_values("Latitude"),
+                "ping_index": track_points.dimension_values("Ping Index"),
+            }
+        )
         latitude = np.clip(rows.latitude.to_numpy(dtype=float), -85.0, 85.0)
         rows["x"] = 6378137.0 * np.deg2rad(rows.longitude.to_numpy(dtype=float))
         rows["y"] = 6378137.0 * np.log(np.tan(np.pi / 4 + np.deg2rad(latitude) / 2))
 
-        points = hv.Points(
-            rows, kdims=["x", "y"], vdims=["ping_index", "longitude", "latitude"]
-        )
+        points = hv.Points(rows, kdims=["x", "y"], vdims=["ping_index", "longitude", "latitude"])
         selectable = points.opts(
-            size=6, color="gray", alpha=0.7,
+            size=6,
+            color="gray",
+            alpha=0.7,
             tools=["hover", "box_select", "tap", "pan", "wheel_zoom", "reset"],
         )
         path = hv.Path([rows[["x", "y"]].to_numpy()]).opts(
-            color="black", line_width=1,
+            color="black",
+            line_width=1,
         )
-        tiles = hv.Tiles(
-            "https://tile.openstreetmap.org/{Z}/{X}/{Y}.png"
-        )
+        tiles = hv.Tiles("https://tile.openstreetmap.org/{Z}/{X}/{Y}.png")
         x0, x1 = rows.x.min(), rows.x.max()
         y0, y1 = rows.y.min(), rows.y.max()
         xpad = max((x1 - x0) * 0.1, 200)
@@ -384,9 +467,7 @@ def build_acoustic_app(
             a, b = bounded(bounds)
             selected = rows.loc[rows.ping_index.between(a, b - 1)]
 
-            highlight = hv.Points(
-                selected, kdims=["x", "y"]
-            ).opts(color="dodgerblue", size=6)
+            highlight = hv.Points(selected, kdims=["x", "y"]).opts(color="dodgerblue", size=6)
 
             return (base * highlight).opts(
                 xlabel="Longitude (°)",
@@ -403,23 +484,36 @@ def build_acoustic_app(
             min_height=520,
         )
 
-    meta = [f"### {source.name}", f"**Pings:** {n:,}",
-            f"**Coverage:** {str(times[0])[:19]} → {str(times[-1])[:19]} UTC",
-            f"**Channels:** {len(channels)}"]
+    meta = [
+        f"### {source.name}",
+        f"**Pings:** {n:,}",
+        f"**Coverage:** {str(times[0])[:19]} → {str(times[-1])[:19]} UTC",
+        f"**Channels:** {len(channels)}",
+    ]
     if source.path is not None:
         meta.append(f"**File:** `{source.path.name}`")
-    meta.extend(["### Frequencies"] + [
-        f"- {available[ch]:g} kHz: `{ch}`" if ch in available else f"- `{ch}`"
-        for ch in channels
-    ])
+    meta.extend(
+        ["### Frequencies"]
+        + [
+            f"- {available[ch]:g} kHz: `{ch}`" if ch in available else f"- `{ch}`"
+            for ch in channels
+        ]
+    )
 
     # Expose all source metadata without filling the sidebar with long histories.
     attributes = {k: v for k, v in ds.attrs.items() if k.lower() != "history"}
     details = []
     if attributes:
-        details.append(("Dataset attributes", pn.pane.Markdown("\n\n".join(
-            f"**{key}**\n\n```text\n{value}\n```" for key, value in attributes.items()
-        ))))
+        details.append(
+            (
+                "Dataset attributes",
+                pn.pane.Markdown(
+                    "\n\n".join(
+                        f"**{key}**\n\n```text\n{value}\n```" for key, value in attributes.items()
+                    )
+                ),
+            )
+        )
     history = next((v for k, v in ds.attrs.items() if k.lower() == "history"), None)
     if history is not None:
         details.append(("History", pn.pane.Str(str(history))))
@@ -427,7 +521,7 @@ def build_acoustic_app(
     interval = selection.param.window
     clim = color.param.value_throttled
     optional_tabs = []
-    for tab_name, content in (extra_tabs or []):
+    for tab_name, content in extra_tabs or []:
         # Optional recipes may provide a native Panel object or a factory
         # that receives the two shared reactive Parameter references.
         optional_tabs.append((tab_name, content(interval, clim) if callable(content) else content))
@@ -439,18 +533,29 @@ def build_acoustic_app(
     )
 
     tabs = pn.Tabs(
-        ("Multi-frequency", pn.Column(
-            visualization_controls,
-            pn.bind(multifrequency, interval, clim, cmap.param.value),
-        )),
-        ("Tricolor", pn.Column(pn.Row(*rgb_widgets), pn.bind(
-            tricolor, interval, clim, *(widget.param.value for widget in rgb_widgets)))),
+        (
+            "Multi-frequency",
+            pn.Column(
+                visualization_controls,
+                pn.bind(multifrequency, interval, clim, cmap.param.value),
+            ),
+        ),
+        (
+            "Tricolor",
+            pn.Column(
+                pn.Row(*rgb_widgets),
+                pn.bind(tricolor, interval, clim, *(widget.param.value for widget in rgb_widgets)),
+            ),
+        ),
         *optional_tabs,
-        dynamic=True, sizing_mode="stretch_width",
+        dynamic=True,
+        sizing_mode="stretch_width",
     )
     sidebar = pn.Column(
         pn.pane.Markdown("\n\n".join(meta)),
-        pn.Accordion(*details, active=[], sizing_mode="stretch_width") if details else pn.Spacer(height=0),
+        pn.Accordion(*details, active=[], sizing_mode="stretch_width")
+        if details
+        else pn.Spacer(height=0),
         sizing_mode="stretch_width",
     )
     navigator = pn.Column(
@@ -478,7 +583,9 @@ def build_acoustic_app(
         sizing_mode="stretch_width",
     )
     template = pn.template.FastListTemplate(
-        title=title, sidebar_width=400, sidebar=[sidebar],
+        title=title,
+        sidebar_width=400,
+        sidebar=[sidebar],
         main=[navigation_row, tabs],
     )
     return template

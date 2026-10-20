@@ -4,10 +4,11 @@ Structural validation is global. Tricolor readiness is an optional capability
 check, not a requirement for normal single-channel visualizations.
 No data are edited, sorted, filtered, or resampled.
 """
+
 from __future__ import annotations
 
-from dataclasses import dataclass
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import numpy as np
 import xarray as xr
@@ -28,7 +29,8 @@ def _equal_geometry(a: xr.DataArray, b: xr.DataArray, atol: float) -> bool:
     a, b = xr.align(a, b, join="exact")
     close = xr.apply_ufunc(
         np.isclose,
-        a, b,
+        a,
+        b,
         kwargs={"rtol": 0.0, "atol": atol, "equal_nan": True},
         dask="allowed",
     )
@@ -65,11 +67,13 @@ def _tricolor_status(
         return False, f"Unsupported tricolor vertical axis {vert_dim!r}."
     candidates = (vert_dim,) if vert_dim in ("depth", "echo_range") else ("depth", "echo_range")
     physical = next(
-        (name for name in candidates
-         if name in ds and vertical_dim in ds[name].dims), None
+        (name for name in candidates if name in ds and vertical_dim in ds[name].dims), None
     )
     if physical is None:
-        return False, "No physical depth/echo_range geometry; range_sample indices are insufficient."
+        return (
+            False,
+            "No physical depth/echo_range geometry; range_sample indices are insufficient.",
+        )
 
     geometry = ds[physical]
     if "channel" in geometry.dims:
@@ -80,13 +84,19 @@ def _tricolor_status(
             except (ValueError, KeyError) as exc:
                 return False, f"Could not compare physical geometry: {exc}"
             if not matched:
-                return False, f"Physical {physical} geometry differs between {channels[0]!r} and {ch!r}."
+                return (
+                    False,
+                    f"Physical {physical} geometry differs between {channels[0]!r} and {ch!r}.",
+                )
         geometry = first
 
     if "ping_time" in geometry.dims:
         ref = geometry.isel(ping_time=0, drop=True)
         if not _equal_geometry(geometry, ref, atol):
-            return False, "Channels align, but physical geometry changes between pings; current hv.RGB needs a constant vertical axis."
+            return (
+                False,
+                "Channels align, but physical geometry changes between pings; current hv.RGB needs a constant vertical axis.",
+            )
         geometry = ref
 
     if geometry.ndim != 1 or geometry.dims != (vertical_dim,):
@@ -117,9 +127,7 @@ def validate_dataset(
     if not isinstance(ds, xr.Dataset):
         raise TypeError("Echoshader expects an xarray.Dataset.")
     if var_name not in ds:
-        raise ValueError(
-            f"Dataset must contain a variable named {var_name!r}."
-        )
+        raise ValueError(f"Dataset must contain a variable named {var_name!r}.")
 
     sv = ds[var_name]
     required = {"channel", "ping_time"}
@@ -149,7 +157,9 @@ def validate_dataset(
     if tricolor_channels is None:
         ready, reason = False, "Not checked (pass tricolor_channels to validate physical geometry)."
     else:
-        ready, reason = _tricolor_status(ds, tuple(map(str, tricolor_channels)), vertical_dim, atol, vert_dim)
+        ready, reason = _tricolor_status(
+            ds, tuple(map(str, tricolor_channels)), vertical_dim, atol, vert_dim
+        )
     return DatasetValidation(
         vertical_dim=vertical_dim,
         channels=channels,

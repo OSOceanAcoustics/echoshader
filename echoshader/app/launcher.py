@@ -36,7 +36,8 @@ def launch(
         {route: app_factory},
         port=port,
         address=address,
-        websocket_origin=websocket_origin or [
+        websocket_origin=websocket_origin
+        or [
             f"localhost:{port}",
             f"127.0.0.1:{port}",
         ],
@@ -48,9 +49,7 @@ def launch(
 
 def main():
     """Command-line entry point."""
-    parser = argparse.ArgumentParser(
-        description="Launch an Echoshader application"
-    )
+    parser = argparse.ArgumentParser(description="Launch an Echoshader application")
     parser.add_argument("config", type=Path)
     parser.add_argument("--port", type=int, default=None)
 

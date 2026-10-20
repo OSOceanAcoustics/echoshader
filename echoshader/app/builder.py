@@ -2,12 +2,14 @@
 
 Elements remain standalone in :mod:`echoshader.elements`.
 """
+
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
 import xarray as xr
+
 from echoshader.validation import validate_dataset
 
 from .holoviz import AcousticSource, build_acoustic_app
@@ -21,8 +23,13 @@ def _data_path(value: str, config_dir: str | Path | None) -> Path:
     return path.resolve()
 
 
-def build_app(config: dict, datasets: dict | None = None,
-              context: dict | None = None, *, config_dir: str | Path | None = None):
+def build_app(
+    config: dict,
+    datasets: dict | None = None,
+    context: dict | None = None,
+    *,
+    config_dir: str | Path | None = None,
+):
     """Build the default Echoshader app with optional extensions."""
 
     app = config.get("app", {})
@@ -63,8 +70,11 @@ def build_app(config: dict, datasets: dict | None = None,
         options = extension_config or {}
         root = _data_path(options.get("root", str(path.parent.parent) if path else "."), config_dir)
         extension_bottom, tabs = factory(
-            ds=ds, root=root, config=options,
-            max_pings=max_pings, max_range_samples=max_range_samples,
+            ds=ds,
+            root=root,
+            config=options,
+            max_pings=max_pings,
+            max_range_samples=max_range_samples,
         )
         if extension_bottom is not None:
             bottom = extension_bottom
@@ -80,6 +90,4 @@ def build_app(config: dict, datasets: dict | None = None,
         map_width=int(display.get("map_width", 650)),
         map_height=int(display.get("map_height", 400)),
     )
-    return build_acoustic_app(
-        source, extra_tabs=extra_tabs, title=app.get("title", "Echoshader")
-    )
+    return build_acoustic_app(source, extra_tabs=extra_tabs, title=app.get("title", "Echoshader"))
