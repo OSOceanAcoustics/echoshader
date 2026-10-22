@@ -1,69 +1,17 @@
-# Welcome to echoshader
+# Echoshader
 
-Open source Python package for building interactive ocean sonar data visualizations on the HoloViz suite of libraries.
+Echoshader is an open-source Python library for interactive ocean sonar visualization, built around the [HoloViz](https://holoviz.org/) ecosystem. It works alongside [Echopype](https://echopype.readthedocs.io/), which handles acoustic data conversion, calibration, and processing.
 
-## What are ocean sonar systems?
+## Two ways to use Echoshader
 
-Ocean sonar systems, such as echosounders, are the [workhorse to study life in the ocean](https://storymaps.arcgis.com/stories/e245977def474bdba60952f30576908f). They provide continuous observations of fish and zooplankton by transmitting sounds and analyzing the echoes bounced off these animals, just like how medical ultrasound images the interior of the human body. In recent years these systems have been widely deployed on ships, autonomous vehicles, and moorings, bringing in large volumes of data that allow scientists to study changes in marine ecosystems.
+**Standalone visualization elements** expose echograms, three-channel RGB echograms, vessel tracks, 3-D curtains, histograms, tables, curves, and NASC plots. They can be used in notebooks and scripts. See [Visualization elements](elements.md).
 
-## What is echoshader?
+**A YAML-configured Panel application** combines selected acoustic visualizations with interactive navigation and shared controls. The current app uses a generic, predefined HoloViz layout rather than YAML-defined arbitrary controls or processing pipelines. See [Building an Echoshader application](app.md).
 
-Echoshader aims to enhance the capability to interactively visualize large volumes of ocean sonar data to accelerate data exploration and discovery. The project goes hand-in-hand with the ongoing development of the [echopype](https://echopype.readthedocs.io/en/stable/) package, which handles the standardization, pre-processing, and organization of these data.
+## Acoustic data and processing
 
-By providing an accessible and customizable platform for echo data visualization, the project can accelerate advancements in oceanographic research for the benefit of conservation and sustainable resource management.
+Echoshader visualizes xarray acoustic datasets, including Zarr and NetCDF products. Calibration, geometry matching, and MVBS calculations should be performed upstream, such as with Echopype. Echoshader validates required coordinates and reports whether a dataset supports three-channel tricolor rendering; it does not silently regrid or modify acoustic measurements.
 
-## Installation
+## Examples
 
-Echoshader supports Python 3.13 and 3.14.
-
-We recommend creating a new environment before installing echoshader:
-
-```bash
-mamba create -c conda-forge -n echoshader --yes python=3.13
-mamba activate echoshader
-```
-
-To install the latest release from PyPI:
-
-```bash
-python -m pip install echoshader
-```
-
-To install the latest development version from GitHub:
-
-```bash
-python -m pip install git+https://github.com/echostack-org/echoshader.git
-```
-
-We recommend using [mamba](https://mamba.readthedocs.io/en/latest/user_guide/mamba.html) to manage conda environments.
-
-## Development setup
-
-This section is intended for those who are actively developing echoshader.
-
-First, fork and clone the [echoshader repository](https://github.com/echostack-org/echoshader), then create and activate a development environment:
-
-```bash
-mamba create -c conda-forge -n echoshader-dev --yes python=3.13
-mamba activate echoshader-dev
-```
-
-From the repository directory, install echoshader in editable mode together with the development and testing dependencies defined in `pyproject.toml`:
-
-```bash
-python -m pip install -e ".[dev,test]"
-```
-
-To link the environment with a Jupyter kernel:
-
-```bash
-python -m ipykernel install --user \
-    --name echoshader-dev \
-    --display-name "echoshader-dev"
-```
-
-To run the test suite:
-
-```bash
-pytest
-```
+The [element example notebook](https://github.com/echostack-org/echoshader/blob/main/examples/notebooks/element_examples.ipynb) demonstrates visualization elements. The [application example configuration](https://github.com/echostack-org/echoshader/blob/main/examples/app/app_config.yaml) shows the YAML keys used by the generic Panel app. Update its dataset path for your environment.

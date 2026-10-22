@@ -1,0 +1,16 @@
+app:
+  title: Echoshader - Application template
+  source: survey
+  route: basic
+
+data:
+  survey:
+    type: zarr
+    path: /path/to/your/calibrated_Sv.zarr
+    label: Acoustic survey
+
+navigation:
+  max_pings: 500
+
+display:
+  max_range_samples: 1200
